@@ -423,6 +423,91 @@ app.get('/api/agent/link', requireAuth('agent'), async (req, res) => {
     }
 });
 
+// GET /api/agent/form-config — agent fetches their custom questions
+app.get('/api/agent/form-config', requireAuth('agent'), async (req, res) => {
+    if (!supabase) return res.status(500).json({ success: false, message: "Database not configured." });
+    try {
+        const email = req.agentEmail || req.query.email;
+        if (!email) return res.status(400).json({ success: false, message: "Agent email is required." });
+
+        const { data: agentRows, error: agentErr } = await supabase
+            .from('agents')
+            .select('id')
+            .eq('email', email.trim().toLowerCase())
+            .limit(1);
+        if (agentErr) throw agentErr;
+        if (!agentRows || agentRows.length === 0) {
+            return res.status(404).json({ success: false, message: "Agent not found." });
+        }
+
+        const { data, error } = await supabase
+            .from('agent_form_config')
+            .select('custom_questions')
+            .eq('agent_id', agentRows[0].id)
+            .limit(1);
+        if (error) throw error;
+
+        res.status(200).json({ success: true, questions: (data && data[0] && data[0].custom_questions) || [] });
+    } catch (err) {
+        console.error("❌ Error fetching form config:", err.message);
+        res.status(500).json({ success: false, message: "Failed to fetch form config.", error: err.message });
+    }
+});
+
+// PUT /api/agent/form-config — agent saves their custom questions
+app.put('/api/agent/form-config', requireAuth('agent'), async (req, res) => {
+    if (!supabase) return res.status(500).json({ success: false, message: "Database not configured." });
+    try {
+        const email = req.agentEmail || req.query.email;
+        const { questions } = req.body;
+        if (!email) return res.status(400).json({ success: false, message: "Agent email is required." });
+        if (!Array.isArray(questions)) return res.status(400).json({ success: false, message: "questions must be an array." });
+
+        const { data: agentRows, error: agentErr } = await supabase
+            .from('agents')
+            .select('id')
+            .eq('email', email.trim().toLowerCase())
+            .limit(1);
+        if (agentErr) throw agentErr;
+        if (!agentRows || agentRows.length === 0) {
+            return res.status(404).json({ success: false, message: "Agent not found." });
+        }
+
+        const { error } = await supabase
+            .from('agent_form_config')
+            .upsert({
+                agent_id: agentRows[0].id,
+                custom_questions: questions,
+                updated_at: new Date()
+            });
+        if (error) throw error;
+
+        res.status(200).json({ success: true, message: "Form config saved." });
+    } catch (err) {
+        console.error("❌ Error saving form config:", err.message);
+        res.status(500).json({ success: false, message: "Failed to save form config.", error: err.message });
+    }
+});
+
+// GET /api/public/form-config/:agentId — public, used by client_UI.html to render an agent's custom questions
+app.get('/api/public/form-config/:agentId', async (req, res) => {
+    if (!supabase) return res.status(500).json({ success: false, message: "Database not configured." });
+    try {
+        const { agentId } = req.params;
+        const { data, error } = await supabase
+            .from('agent_form_config')
+            .select('custom_questions')
+            .eq('agent_id', agentId)
+            .limit(1);
+        if (error) throw error;
+
+        res.status(200).json({ success: true, questions: (data && data[0] && data[0].custom_questions) || [] });
+    } catch (err) {
+        console.error("❌ Error fetching public form config:", err.message);
+        res.status(500).json({ success: false, message: "Failed to fetch form config.", error: err.message });
+    }
+});
+
 // PATCH /api/agent/leads/:id/status
 app.patch('/api/agent/leads/:id/status', requireAuth('agent'), async (req, res) => {
     if (!supabase) return res.status(500).json({ success: false, message: "Database not configured." });
@@ -799,6 +884,7 @@ Keep the tone polished, exclusive, and tailored exactly to their profile. Do not
                     notes:       Array.isArray(userData.specialDetails) && userData.specialDetails.length > 0
                                     ? userData.specialDetails.join(', ')
                                     : (userData.notes || null),
+                    custom_answers: userData.customAnswers || {},
                     status: 'new'
                 };
 
@@ -1042,8 +1128,8 @@ const PORT = process.env.PORT || 5005;
 
 resolveAdminId().then(() => {
     app.listen(PORT, () => {
-        console.log(`\n🚀 Server running on https://travelpa-crm.onrender.com/`);
-        console.log(`   Client Portal: https://travelpa-crm.onrender.com/client/client_UI.html`);
-        console.log(`   Admin Portal:  https://travelpa-crm.onrender.com/admin/login.html\n`);
+        console.log(`\n🚀 Server running on http://localhost:${PORT}/`);
+        console.log(`   Client Portal: http://localhost:${PORT}/client/client_UI.html`);
+        console.log(`   Admin Portal:  http://localhost:${PORT}/admin/login.html\n`);
     });
 });

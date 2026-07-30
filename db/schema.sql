@@ -1,6 +1,7 @@
 -- Drop and recreate cleanly
 DROP TABLE IF EXISTS feedback;
 DROP TABLE IF EXISTS clients;
+DROP TABLE IF EXISTS agent_form_config;
 DROP TABLE IF EXISTS agents;
 DROP TABLE IF EXISTS admins;
 
@@ -37,9 +38,10 @@ CREATE TABLE clients (
     destination TEXT,
     budget TEXT,
     travel_date TEXT,          -- Start date
-    travel_date_end TEXT,      -- ✅ NEW: End date for date range
+    travel_date_end TEXT,      -- ✅ End date for date range
     notes TEXT,
     status TEXT DEFAULT 'new',
+    custom_answers JSONB DEFAULT '{}',   -- ✅ NEW: answers to agent's custom questions
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
@@ -60,7 +62,14 @@ CREATE TABLE feedback (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
--- 6. Indexes
+-- 6. Agent Form Config table — ✅ NEW: per-agent custom intake questions
+CREATE TABLE agent_form_config (
+    agent_id UUID PRIMARY KEY REFERENCES agents(id) ON DELETE CASCADE,
+    custom_questions JSONB DEFAULT '[]',
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+);
+
+-- 7. Indexes
 CREATE INDEX idx_agents_admin_id ON agents(admin_id);
 CREATE INDEX idx_clients_agent_id ON clients(agent_id);
 CREATE INDEX idx_feedback_client_id ON feedback(client_id);
