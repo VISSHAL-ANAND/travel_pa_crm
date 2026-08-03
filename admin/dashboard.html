@@ -118,6 +118,117 @@
         .btn-copy:hover { background: #0050d8; }
         .btn-copy.copied { background: #16a34a; }
 
+        .intake-editor-card {
+            background: linear-gradient(180deg, #f8fbff 0%, #f5f9ff 100%);
+            border: 1px solid #dbe9ff;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 28px;
+        }
+        .intake-editor-tabs {
+            display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;
+        }
+        .intake-tab {
+            border: 1px solid var(--border); background: white; color: var(--muted);
+            padding: 8px 14px; border-radius: 999px; font-size: 13px; font-weight: 600; cursor: pointer;
+        }
+        .intake-tab.active {
+            background: var(--primary); color: white; border-color: var(--primary);
+        }
+        .intake-editor-section {
+            background: white; border: 1px solid #e7edf5; border-radius: 14px; padding: 18px;
+        }
+        .intake-editor-grid {
+            display: grid; gap: 12px; margin-top: 12px;
+        }
+        .intake-editor-field label {
+            display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 6px;
+        }
+        .intake-editor-field input {
+            width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; outline: none; font-size: 14px;
+        }
+        .intake-editor-field input:focus {
+            border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,98,255,0.08);
+        }
+        .intake-option-list {
+            display: flex; flex-direction: column; gap: 10px; margin-top: 14px;
+        }
+        .intake-option-item {
+            display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; background: #fcfdff;
+        }
+        .intake-option-item input {
+            flex: 1; border: 1px solid var(--border); border-radius: 8px; padding: 9px 11px; font-size: 14px; outline: none;
+        }
+        .intake-option-item input:focus { border-color: var(--primary); }
+        .intake-option-actions { display: flex; gap: 6px; }
+        .intake-option-btn {
+            border: 1px solid var(--border); background: white; color: var(--muted); border-radius: 8px; padding: 8px 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        }
+        .intake-option-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .intake-option-btn.danger:hover { border-color: #ef4444; color: #ef4444; }
+        .intake-editor-actions {
+            display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px;
+        }
+        .intake-editor-actions button {
+            padding: 10px 14px; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer;
+        }
+        .intake-editor-actions .btn-secondary {
+            background: white; border: 1px solid var(--border); color: var(--text);
+        }
+        .intake-editor-actions .btn-secondary:hover { background: #f9fafb; }
+        .intake-empty-state { padding: 12px 0; color: var(--muted); font-size: 14px; }
+        .custom-questions-card {
+            background: white;
+            border: 1px solid #e7edf5;
+            border-radius: 14px;
+            padding: 18px;
+            margin-top: 16px;
+        }
+        .custom-questions-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .custom-questions-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .custom-questions-sub {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 3px;
+        }
+        .custom-q-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: #fcfdff;
+            margin-bottom: 10px;
+        }
+        .custom-q-item input[type="text"] {
+            flex: 1;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 9px 11px;
+            font-size: 14px;
+            outline: none;
+        }
+        .custom-q-item input[type="text"]:focus { border-color: var(--primary); }
+        .custom-q-required {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
         /* Feedback Link Banner for Agents */
         .feedback-link-banner {
             background: #F0F6FF; border: 1px solid #C7DCFF; border-radius: 12px;
@@ -228,9 +339,9 @@
         #toast.ok  { background: #16a34a; }
         #toast.err { background: #dc2626; }
 
-        /* ════════════════════════════
+        /* ══════════════════════════════════════
            FEEDBACK STYLES
-           ════════════════════════════ */
+           ══════════════════════════════════════ */
         .fb-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
         .fb-title-block { display: flex; align-items: center; gap: 10px; }
         .fb-title-block h2 { font-size: 28px; font-weight: 700; color: var(--text); }
@@ -301,7 +412,7 @@
 </head>
 <body>
 
-<!-- ════════════ SIDEBAR ════════════ -->
+<!-- ══════════════════════════════════════ SIDEBAR ══════════════════════════════════════ -->
 <aside>
     <div class="logo-wrapper">
         <img src="../assets/logo.png" alt="Travel-PA" onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\'logo-text\'>TRAVEL-PA</span>'">
@@ -318,6 +429,14 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
             </svg>
             Reports
+        </button>
+
+        <!-- ── CUSTOM (INTAKE FORM) NAV ── -->
+        <button class="nav-item" id="navCustom" onclick="showView('custom')" style="display:none">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+            </svg>
+            Custom
         </button>
 
         <!-- ── FEEDBACK NAV ── -->
@@ -338,7 +457,7 @@
     </div>
 </aside>
 
-<!-- ════════════ MAIN ════════════ -->
+<!-- ══════════════════════════════════════ MAIN ══════════════════════════════════════ -->
 <main>
     <header>
         <div class="h-left">
@@ -466,9 +585,36 @@
             </table>
         </div>
 
-        <!-- ════════════════════════════════
+        <!-- ── CUSTOM (INTAKE FORM) VIEW ── -->
+        <div id="viewCustom" class="view-card">
+            <div class="view-head">
+                <div>
+                    <h2>Customize Intake Form</h2>
+                    <p>Edit the questions and options your clients see on your intake form.</p>
+                </div>
+            </div>
+            <div class="intake-editor-card" id="intakeEditorCard" style="display:none">
+                <div class="intake-editor-tabs" id="intakeEditorTabs"></div>
+                <div class="intake-editor-section" id="intakeEditorSection"></div>
+                <div class="custom-questions-card" id="customQuestionsCard" style="display:none">
+                    <div class="custom-questions-head">
+                        <div>
+                            <div class="custom-questions-title">Custom Contact Questions</div>
+                            <div class="custom-questions-sub">These appear on the contact step below the locked fields.</div>
+                        </div>
+                    </div>
+                    <div id="customQuestionsList"></div>
+                    <div class="intake-editor-actions">
+                        <button class="btn-secondary" onclick="addCustomizeQuestion()">+ Add Question</button>
+                        <button class="btn-primary" onclick="saveCustomizeQuestions()">Save Custom Questions</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════
              FEEDBACK VIEW
-             ════════════════════════════════ -->
+             ══════════════════════════════════════ -->
         <div id="viewFeedback" class="view-card">
 
             <!-- Header -->
@@ -506,7 +652,7 @@
                         <div class="fb-stat-lbl">Total Feedback</div>
                     </div>
                 </div>
-                <div class="fb-stat">
+                <div class="fb-stat" id="fbAgentsStat">
                     <div class="fb-stat-icon icon-blue">
                         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                     </div>
@@ -545,7 +691,7 @@
     </div>
 </main>
 
-<!-- ════════════ ADD AGENT MODAL ════════════ -->
+<!-- ══════════════════════════════════════ ADD AGENT MODAL ══════════════════════════════════════ -->
 <div class="overlay" id="overlay" onclick="overlayClick(event)">
     <div class="modal" id="modal">
         <h2>Add New Agent</h2>
@@ -586,6 +732,443 @@ let allFeedback = [];
 let sortAsc     = true;
 let fbLoaded    = false;
 
+const INTAKE_EDITOR_SECTIONS = [
+    { key: 'trip', label: 'Trip Type' },
+    { key: 'who', label: 'Travellers' },
+    { key: 'plan', label: 'Services' },
+    { key: 'details', label: 'Details' }
+];
+const DEFAULT_INTAKE_CONFIG = {
+    trip: {
+        title: 'What kind of trip are you dreaming about?',
+        subtitle: 'Select all that resonate with your vision.',
+        options: [
+            { v: 'beach', l: 'Beach Type', ik: 'beach' },
+            { v: 'celebrate', l: 'Celebration', ik: 'celebrdet' },
+            { v: 'water', l: 'Near Water', ik: 'water' },
+            { v: 'food', l: 'Great Food & Wine', ik: 'food' },
+            { v: 'adventure', l: 'Adventure', ik: 'adventure' },
+            { v: 'family', l: 'Family Time', ik: 'family' },
+            { v: 'culture', l: 'Arts & Culture', ik: 'culture' },
+            { v: 'wellness', l: 'Wellness', ik: 'wellness' },
+            { v: 'festivals', l: 'Festivals', ik: 'festivals' },
+            { v: 'sport', l: 'Sporting Events', ik: 'sport' },
+            { v: 'wildlife', l: 'Wildlife', ik: 'wildlife' },
+            { v: 'urban', l: 'Urban Exploring', ik: 'urban' },
+            { v: 'outdoors', l: 'Outdoors', ik: 'outdoors' },
+            { v: 'business', l: 'Business', ik: 'business' },
+            { v: 'figuring', l: 'Still Figuring Out', ik: 'notsure' }
+        ]
+    },
+    who: {
+        title: "Who's coming with?",
+        subtitle: 'Tell us who will be joining your journey.',
+        options: [
+            { v: 'solo', l: 'Solo', ik: 'solo' },
+            { v: 'partner', l: 'Partner', ik: 'partner' },
+            { v: 'kids', l: 'Kids', ik: 'kidsT' },
+            { v: 'family', l: 'Family', ik: 'familyT' },
+            { v: 'friends', l: 'Friends', ik: 'friends' },
+            { v: 'elderly', l: 'Elderly', ik: 'elderly' },
+            { v: 'pets', l: 'Pets', ik: 'pets' }
+        ]
+    },
+    plan: {
+        title: 'How may we serve you?',
+        subtitle: 'Select every service you wish us to arrange.',
+        options: [
+            { v: 'hotel', l: 'Book a Hotel or Villa', ik: 'hotel' },
+            { v: 'cruise', l: 'Book a Cruise', ik: 'cruise' },
+            { v: 'itinerary', l: 'Plan a Full Itinerary', ik: 'itinerary' },
+            { v: 'group', l: 'Plan a Group or Special Event', ik: 'group' },
+            { v: 'notsure', l: 'Not Sure Yet', ik: 'notsure' }
+        ]
+    },
+    details: {
+        title: 'Any special occasions or wishes?',
+        subtitle: 'Mention anything that makes this journey truly yours.',
+        options: [
+            { v: 'safari', l: 'Safari', ik: 'safari' },
+            { v: 'access', l: 'Accessibility Matters', ik: 'access' },
+            { v: 'groups', l: 'Groups', ik: 'groups2' },
+            { v: 'solotv', l: 'Solo Travel', ik: 'solo' },
+            { v: 'honey', l: 'Honeymoon', ik: 'honey' },
+            { v: 'baby', l: 'Babymoon', ik: 'baby' },
+            { v: 'wedding', l: 'Wedding', ik: 'wedding' },
+            { v: 'celeb', l: 'Celebration', ik: 'celebrdet' },
+            { v: 'slow', l: 'Slow Travel', ik: 'slow' },
+            { v: 'other', l: 'Other', ik: 'other' }
+        ]
+    }
+};
+let intakeEditorActiveKey = 'trip';
+let intakeEditorDraft = {};
+let intakeEditorOriginalMainConfig = {};
+let intakeEditorQuestions = [];
+let intakeEditorModifiedSections = new Set();
+let intakeEditorResetSections = new Set();
+let intakeEditorLoaded = false;
+
+function cloneIntakeSection(section) {
+    return JSON.parse(JSON.stringify(section || { title: '', subtitle: '', options: [] }));
+}
+
+function normalizeIntakeSection(section, fallback) {
+    const base = cloneIntakeSection(fallback || { title: '', subtitle: '', options: [] });
+    const source = section && typeof section === 'object' ? section : {};
+    return {
+        title: typeof source.title === 'string' && source.title.trim() ? source.title : base.title,
+        subtitle: typeof source.subtitle === 'string' && source.subtitle.trim() ? source.subtitle : base.subtitle,
+        options: Array.isArray(source.options)
+            ? source.options.filter(option => option && typeof option === 'object').map(option => ({
+                v: typeof option.v === 'string' && option.v.trim() ? option.v : '',
+                l: typeof option.l === 'string' ? option.l : '',
+                ik: typeof option.ik === 'string' && option.ik.trim() ? option.ik : 'notsure'
+            }))
+            : cloneIntakeSection(base).options
+    };
+}
+
+function slugifyOptionLabel(label) {
+    return String(label || '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'option';
+}
+
+function makeOptionValue(label, existingValues) {
+    const base = slugifyOptionLabel(label);
+    let value = base;
+    let suffix = 1;
+    while (existingValues.includes(value)) {
+        value = `${base}-${suffix}`;
+        suffix += 1;
+    }
+    return value;
+}
+
+function normalizeCustomQuestions(questions) {
+    if (!Array.isArray(questions)) return [];
+    return questions
+        .filter(question => question && typeof question === 'object')
+        .map((question, index) => {
+            const label = typeof question.label === 'string' ? question.label : '';
+            const baseId = typeof question.id === 'string' && question.id.trim()
+                ? question.id.trim()
+                : `question-${index + 1}`;
+            return {
+                id: baseId,
+                label,
+                required: !!question.required
+            };
+        });
+}
+
+function makeCustomizeQuestionId(label) {
+    const base = slugifyOptionLabel(label || 'question');
+    let value = base;
+    let suffix = 1;
+    const existingValues = intakeEditorQuestions.map(question => question.id);
+    while (existingValues.includes(value)) {
+        value = `${base}-${suffix}`;
+        suffix += 1;
+    }
+    return value;
+}
+
+function renderCustomizeQuestions() {
+    const list = document.getElementById('customQuestionsList');
+    const card = document.getElementById('customQuestionsCard');
+    if (!list || !card) return;
+    card.style.display = 'block';
+    if (!intakeEditorQuestions.length) {
+        list.innerHTML = '<div class="intake-empty-state">No custom questions yet. Add one to get started.</div>';
+        return;
+    }
+    list.innerHTML = intakeEditorQuestions.map((question, index) => `
+        <div class="custom-q-item">
+            <input type="text" value="${esc(question.label || '')}" oninput="updateCustomizeQuestion(${index}, this.value)" placeholder="Question label">
+            <label class="custom-q-required"><input type="checkbox" ${question.required ? 'checked' : ''} onchange="toggleCustomizeQuestionRequired(${index}, this.checked)"> Required</label>
+            <div class="intake-option-actions">
+                <button class="intake-option-btn" onclick="moveCustomizeQuestion(${index}, -1)" aria-label="Move up">↑</button>
+                <button class="intake-option-btn" onclick="moveCustomizeQuestion(${index}, 1)" aria-label="Move down">↓</button>
+                <button class="intake-option-btn danger" onclick="removeCustomizeQuestion(${index})" aria-label="Delete">✕</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function addCustomizeQuestion() {
+    intakeEditorQuestions.push({
+        id: makeCustomizeQuestionId('question'),
+        label: '',
+        required: false
+    });
+    renderCustomizeQuestions();
+}
+
+function updateCustomizeQuestion(index, label) {
+    if (!intakeEditorQuestions[index]) return;
+    intakeEditorQuestions[index].label = label;
+}
+
+function toggleCustomizeQuestionRequired(index, required) {
+    if (!intakeEditorQuestions[index]) return;
+    intakeEditorQuestions[index].required = !!required;
+}
+
+function moveCustomizeQuestion(index, direction) {
+    if (!intakeEditorQuestions[index]) return;
+    const targetIndex = index + direction;
+    if (targetIndex < 0 || targetIndex >= intakeEditorQuestions.length) return;
+    const [item] = intakeEditorQuestions.splice(index, 1);
+    intakeEditorQuestions.splice(targetIndex, 0, item);
+    renderCustomizeQuestions();
+}
+
+function removeCustomizeQuestion(index) {
+    if (!intakeEditorQuestions[index]) return;
+    intakeEditorQuestions.splice(index, 1);
+    renderCustomizeQuestions();
+}
+
+async function loadCustomizeQuestions() {
+    renderCustomizeQuestions();
+}
+
+function markIntakeSectionModified(key) {
+    intakeEditorModifiedSections.add(key);
+    intakeEditorResetSections.delete(key);
+}
+
+function buildIntakeEditorPayload() {
+    const payload = JSON.parse(JSON.stringify(intakeEditorOriginalMainConfig || {}));
+    INTAKE_EDITOR_SECTIONS.forEach(({ key }) => {
+        if (intakeEditorResetSections.has(key)) {
+            delete payload[key];
+        } else if (intakeEditorModifiedSections.has(key)) {
+            payload[key] = normalizeIntakeSection(intakeEditorDraft[key], DEFAULT_INTAKE_CONFIG[key]);
+        }
+    });
+    return payload;
+}
+
+function setIntakeEditorSection(key) {
+    intakeEditorActiveKey = key;
+    renderIntakeEditorSection();
+}
+
+function updateIntakeSectionField(key, field, value) {
+    if (!intakeEditorDraft[key]) return;
+    intakeEditorDraft[key][field] = value;
+    markIntakeSectionModified(key);
+}
+
+function updateIntakeOption(key, index, label) {
+    if (!intakeEditorDraft[key] || !intakeEditorDraft[key].options[index]) return;
+    intakeEditorDraft[key].options[index].l = label;
+    markIntakeSectionModified(key);
+}
+
+function addIntakeOption(key) {
+    if (!intakeEditorDraft[key]) return;
+    const existingValues = intakeEditorDraft[key].options.map(option => option.v).filter(Boolean);
+    intakeEditorDraft[key].options.push({
+        v: makeOptionValue('', existingValues),
+        l: '',
+        ik: 'notsure'
+    });
+    markIntakeSectionModified(key);
+    renderIntakeEditorSection();
+}
+
+function deleteIntakeOption(key, index) {
+    if (!intakeEditorDraft[key] || !intakeEditorDraft[key].options[index]) return;
+    intakeEditorDraft[key].options.splice(index, 1);
+    markIntakeSectionModified(key);
+    renderIntakeEditorSection();
+}
+
+function moveIntakeOption(key, index, direction) {
+    if (!intakeEditorDraft[key] || !intakeEditorDraft[key].options[index]) return;
+    const options = intakeEditorDraft[key].options;
+    const targetIndex = index + direction;
+    if (targetIndex < 0 || targetIndex >= options.length) return;
+    const [item] = options.splice(index, 1);
+    options.splice(targetIndex, 0, item);
+    markIntakeSectionModified(key);
+    renderIntakeEditorSection();
+}
+
+function resetIntakeSection(key) {
+    const meta = INTAKE_EDITOR_SECTIONS.find(s => s.key === key);
+    if (!meta) return;
+    const confirmed = confirm(`Reset ${meta.label} questions to Travel-PA's defaults?`);
+    if (!confirmed) return;
+    intakeEditorDraft[key] = cloneIntakeSection(DEFAULT_INTAKE_CONFIG[key]);
+    intakeEditorResetSections.add(key);
+    intakeEditorModifiedSections.add(key);
+    renderIntakeEditorSection();
+}
+
+function renderIntakeEditorTabs() {
+    const container = document.getElementById('intakeEditorTabs');
+    if (!container) return;
+    container.innerHTML = INTAKE_EDITOR_SECTIONS.map(section => `
+        <button class="intake-tab ${section.key === intakeEditorActiveKey ? 'active' : ''}" onclick="setIntakeEditorSection('${section.key}')">${section.label}</button>
+    `).join('');
+}
+
+function renderIntakeEditorSection() {
+    const container = document.getElementById('intakeEditorSection');
+    const card = document.getElementById('intakeEditorCard');
+    if (!container || !card) return;
+    const section = intakeEditorDraft[intakeEditorActiveKey] || normalizeIntakeSection(null, DEFAULT_INTAKE_CONFIG[intakeEditorActiveKey]);
+    const meta = INTAKE_EDITOR_SECTIONS.find(item => item.key === intakeEditorActiveKey) || INTAKE_EDITOR_SECTIONS[0];
+    const optionsHtml = section.options.length
+        ? section.options.map((option, index) => `
+            <div class="intake-option-item">
+                <input type="text" value="${esc(option.l || '')}" oninput="updateIntakeOption('${meta.key}', ${index}, this.value)" placeholder="Option label">
+                <div class="intake-option-actions">
+                    <button class="intake-option-btn" onclick="moveIntakeOption('${meta.key}', ${index}, -1)" aria-label="Move up">↑</button>
+                    <button class="intake-option-btn" onclick="moveIntakeOption('${meta.key}', ${index}, 1)" aria-label="Move down">↓</button>
+                    <button class="intake-option-btn danger" onclick="deleteIntakeOption('${meta.key}', ${index})" aria-label="Delete">✕</button>
+                </div>
+            </div>
+        `).join('')
+        : '<div class="intake-empty-state">No options yet. Add one to get started.</div>';
+
+    container.innerHTML = `
+        <div class="intake-editor-grid">
+            <div class="intake-editor-field">
+                <label for="intakeTitleInput">Section title</label>
+                <input id="intakeTitleInput" type="text" value="${esc(section.title || '')}" oninput="updateIntakeSectionField('${meta.key}', 'title', this.value)">
+            </div>
+            <div class="intake-editor-field">
+                <label for="intakeSubtitleInput">Section subtitle</label>
+                <input id="intakeSubtitleInput" type="text" value="${esc(section.subtitle || '')}" oninput="updateIntakeSectionField('${meta.key}', 'subtitle', this.value)">
+            </div>
+        </div>
+        <div class="intake-option-list">${optionsHtml}</div>
+        <div class="intake-editor-actions">
+            <button class="btn-secondary" onclick="addIntakeOption('${meta.key}')">+ Add Option</button>
+            <button class="btn-secondary" onclick="resetIntakeSection('${meta.key}')">Reset to Default</button>
+            <button class="btn-primary" onclick="saveIntakeFormConfig()">Save Changes</button>
+        </div>
+    `;
+    renderIntakeEditorTabs();
+    card.style.display = 'block';
+}
+
+async function loadIntakeFormConfig() {
+    if (intakeEditorLoaded) return;
+    const card = document.getElementById('intakeEditorCard');
+    const customCard = document.getElementById('customQuestionsCard');
+    if (!card) return;
+    card.style.display = 'block';
+    if (customCard) customCard.style.display = 'block';
+
+    const url = `/api/agent/form-config?email=${encodeURIComponent(AGENT_EMAIL)}`;
+
+    try {
+        const response = await fetch(url, { headers: { Authorization: 'Bearer ' + TOKEN } });
+        const payload = await response.json();
+        if (!payload.success) throw new Error(payload.message || 'Failed to load form config.');
+        const loadedMainConfig = payload.mainConfig && typeof payload.mainConfig === 'object' ? payload.mainConfig : {};
+        intakeEditorQuestions = normalizeCustomQuestions(payload.questions);
+        intakeEditorOriginalMainConfig = JSON.parse(JSON.stringify(loadedMainConfig));
+        intakeEditorDraft = {};
+        INTAKE_EDITOR_SECTIONS.forEach(({ key }) => {
+            intakeEditorDraft[key] = normalizeIntakeSection(loadedMainConfig[key], DEFAULT_INTAKE_CONFIG[key]);
+        });
+        intakeEditorModifiedSections = new Set();
+        intakeEditorResetSections = new Set();
+        intakeEditorLoaded = true;
+        renderIntakeEditorSection();
+        loadCustomizeQuestions();
+    } catch (err) {
+        console.error('Intake form config load failed:', err);
+        intakeEditorQuestions = [];
+        intakeEditorDraft = {};
+        INTAKE_EDITOR_SECTIONS.forEach(({ key }) => {
+            intakeEditorDraft[key] = normalizeIntakeSection(null, DEFAULT_INTAKE_CONFIG[key]);
+        });
+        intakeEditorLoaded = true;
+        renderIntakeEditorSection();
+        loadCustomizeQuestions();
+    }
+}
+
+async function saveIntakeFormConfig() {
+    const payload = {
+        questions: intakeEditorQuestions,
+        mainConfig: buildIntakeEditorPayload(),
+        deletedKeys: Array.from(intakeEditorResetSections)
+    };
+
+    try {
+        const response = await fetch(`/api/agent/form-config?email=${encodeURIComponent(AGENT_EMAIL)}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: 'Bearer ' + TOKEN
+            },
+            body: JSON.stringify(payload)
+        });
+        const json = await response.json();
+        if (!json.success) throw new Error(json.message || 'Failed to save form config.');
+        intakeEditorQuestions = normalizeCustomQuestions(json.questions);
+        intakeEditorOriginalMainConfig = JSON.parse(JSON.stringify(payload.mainConfig));
+        intakeEditorModifiedSections = new Set();
+        intakeEditorResetSections = new Set();
+        toast('Intake form updates saved.', 'ok');
+        renderIntakeEditorSection();
+        renderCustomizeQuestions();
+    } catch (err) {
+        console.error('Intake form config save failed:', err);
+        toast(err.message || 'Failed to save intake form changes.', 'err');
+    }
+}
+
+async function saveCustomizeQuestions() {
+    const payload = {
+        questions: intakeEditorQuestions,
+        mainConfig: intakeEditorOriginalMainConfig,
+        deletedKeys: []
+    };
+    try {
+        const response = await fetch(`/api/agent/form-config?email=${encodeURIComponent(AGENT_EMAIL)}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: 'Bearer ' + TOKEN
+            },
+            body: JSON.stringify(payload)
+        });
+        const json = await response.json();
+        if (!json.success) throw new Error(json.message || 'Failed to save custom questions.');
+        intakeEditorQuestions = normalizeCustomQuestions(json.questions);
+        toast('Custom questions saved.', 'ok');
+        renderCustomizeQuestions();
+    } catch (err) {
+        console.error('Custom questions save failed:', err);
+        toast(err.message || 'Failed to save custom questions.', 'err');
+    }
+}
+
+window.setIntakeEditorSection = setIntakeEditorSection;
+window.updateIntakeSectionField = updateIntakeSectionField;
+window.updateIntakeOption = updateIntakeOption;
+window.addIntakeOption = addIntakeOption;
+window.deleteIntakeOption = deleteIntakeOption;
+window.moveIntakeOption = moveIntakeOption;
+window.resetIntakeSection = resetIntakeSection;
+window.saveIntakeFormConfig = saveIntakeFormConfig;
+window.loadCustomizeQuestions = loadCustomizeQuestions;
+window.addCustomizeQuestion = addCustomizeQuestion;
+window.updateCustomizeQuestion = updateCustomizeQuestion;
+window.toggleCustomizeQuestionRequired = toggleCustomizeQuestionRequired;
+window.moveCustomizeQuestion = moveCustomizeQuestion;
+window.removeCustomizeQuestion = removeCustomizeQuestion;
+window.saveCustomizeQuestions = saveCustomizeQuestions;
+
 // ── Init ──
 window.addEventListener('DOMContentLoaded', () => {
     if (IS_AGENT) {
@@ -597,6 +1180,8 @@ window.addEventListener('DOMContentLoaded', () => {
         document.getElementById('profileName').textContent  = label;
         document.getElementById('agentLinkBanner').style.display = 'flex';
         document.getElementById('agentFeedbackBanner').style.display = 'flex';
+        document.getElementById('fbAgentsStat').style.display = 'none';
+        document.getElementById('navCustom').style.display = 'flex';
         loadAgentLink();
         loadAgentFeedbackLink();
         showView('reports');
@@ -612,12 +1197,15 @@ window.addEventListener('DOMContentLoaded', () => {
 
 // ── Navigation ──
 function showView(v) {
-    ['agents','reports','feedback'].forEach(id => {
+    ['agents','reports','custom','feedback'].forEach(id => {
         const card = document.getElementById('view' + id.charAt(0).toUpperCase() + id.slice(1));
         if (card) card.classList.toggle('active', id === v);
         const nav = document.getElementById('nav' + id.charAt(0).toUpperCase() + id.slice(1));
         if (nav && nav.style.display !== 'none') nav.classList.toggle('active', id === v);
     });
+    if (v === 'custom') {
+        loadIntakeFormConfig();
+    }
     if (v === 'feedback' && !fbLoaded) {
         if (IS_AGENT) {
             loadAgentFeedback();
@@ -631,7 +1219,7 @@ function logout() { localStorage.clear(); location.href = '/admin/login.html'; }
 
 // ── Load all data ──
 async function loadAll() {
-    const H = { 'Authorization': `Bearer ${TOKEN}` };
+    const H = { 'Authorization': 'Bearer ' + TOKEN };
     if (!IS_AGENT) {
         skeleton('agentsBody', 5, 5);
         try {
@@ -672,12 +1260,12 @@ function copyAgentFeedbackLink() {
     });
 }
 
-// ════════════════════════════════════════
+// ══════════════════════════════════════
 // FEEDBACK - ADMIN
-// ════════════════════════════════════════
+// ══════════════════════════════════════
 async function loadFeedback() {
     fbLoaded = true;
-    const H = { 'Authorization': `Bearer ${TOKEN}` };
+    const H = { 'Authorization': 'Bearer ' + TOKEN };
     const container = document.getElementById('fbGroups');
 
     container.innerHTML = `
@@ -800,12 +1388,12 @@ function toggleFbGroup(gi) {
     document.getElementById('fbg-' + gi).classList.toggle('collapsed');
 }
 
-// ════════════════════════════════════════
+// ══════════════════════════════════════
 // FEEDBACK - AGENT
-// ════════════════════════════════════════
+// ══════════════════════════════════════
 async function loadAgentFeedback() {
     fbLoaded = true;
-    const H = { 'Authorization': `Bearer ${TOKEN}` };
+    const H = { 'Authorization': 'Bearer ' + TOKEN };
     const container = document.getElementById('fbGroups');
     
     container.innerHTML = `
@@ -1049,7 +1637,7 @@ function renderReports(list) {
 // ── Agent link helpers ──
 async function loadAgentLink() {
     try {
-        const r = await fetch(`/api/agent/link?email=${encodeURIComponent(AGENT_EMAIL)}`, { headers: { 'Authorization': `Bearer ${TOKEN}` } });
+        const r = await fetch(`/api/agent/link?email=${encodeURIComponent(AGENT_EMAIL)}`, { headers: { 'Authorization': 'Bearer ' + TOKEN } });
         const j = await r.json();
         if (j.success) document.getElementById('agentLinkInput').value = j.link;
     } catch { document.getElementById('agentLinkInput').value = 'Could not load link.'; }
@@ -1079,7 +1667,7 @@ async function deleteAgent(id, name) {
     const btn = document.getElementById(`del-${id}`);
     if (btn) { btn.disabled = true; btn.textContent = 'Removing…'; }
     try {
-        const r = await fetch(`/api/admin/agents/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${TOKEN}` } });
+        const r = await fetch(`/api/admin/agents/${id}`, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + TOKEN } });
         const j = await r.json();
         if (j.success) { toast(`Agent "${name}" removed.`, 'ok'); loadAll(); }
         else { toast(j.message || 'Failed to delete.', 'err'); if (btn) { btn.disabled = false; btn.textContent = 'Delete'; } }
@@ -1120,7 +1708,7 @@ async function saveAgent() {
     try {
         const r = await fetch('/api/admin/agents', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN}` },
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
             body: JSON.stringify({ name, email, password: pass })
         });
         const j = await r.json();

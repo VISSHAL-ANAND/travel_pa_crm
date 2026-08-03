@@ -60,6 +60,42 @@ const supabase = SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY
     ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
     : null;
 
+function normalizeSectionObject(section) {
+    if (!section || typeof section !== 'object' || Array.isArray(section)) return null;
+    const title = typeof section.title === 'string' ? section.title : '';
+    const subtitle = typeof section.subtitle === 'string' ? section.subtitle : '';
+    const options = Array.isArray(section.options)
+        ? section.options
+            .filter(option => option && typeof option === 'object')
+            .map(option => ({
+                v: typeof option.v === 'string' ? option.v : '',
+                l: typeof option.l === 'string' ? option.l : '',
+                ik: typeof option.ik === 'string' ? option.ik : 'notsure'
+            }))
+        : [];
+    return { title, subtitle, options };
+}
+
+function normalizeMainConfig(mainConfig) {
+    const normalized = {};
+    if (!mainConfig || typeof mainConfig !== 'object' || Array.isArray(mainConfig)) return normalized;
+    Object.entries(mainConfig).forEach(([key, value]) => {
+        if (key === '__deletedKeys') return;
+        const section = normalizeSectionObject(value);
+        if (section) normalized[key] = section;
+        else if (value && typeof value === 'object') normalized[key] = value;
+    });
+    return normalized;
+}
+
+function buildMergedMainConfig(existingMainConfig, incomingMainConfig, deletedKeys = []) {
+    const base = normalizeMainConfig(existingMainConfig);
+    const incoming = normalizeMainConfig(incomingMainConfig);
+    const merged = { ...base, ...incoming };
+    deletedKeys.forEach((key) => delete merged[key]);
+    return merged;
+}
+
 if (supabase) {
     console.log('🔌 Supabase client configured.');
 } else {
@@ -423,7 +459,7 @@ app.get('/api/agent/link', requireAuth('agent'), async (req, res) => {
     }
 });
 
-// GET /api/agent/form-config — agent fetches their custom questions
+// GET /api/agent/form-config — agent fetches their custom questions + main config overrides
 app.get('/api/agent/form-config', requireAuth('agent'), async (req, res) => {
     if (!supabase) return res.status(500).json({ success: false, message: "Database not configured." });
     try {
@@ -431,77 +467,87 @@ app.get('/api/agent/form-config', requireAuth('agent'), async (req, res) => {
         if (!email) return res.status(400).json({ success: false, message: "Agent email is required." });
 
         const { data: agentRows, error: agentErr } = await supabase
-            .from('agents')
-            .select('id')
-            .eq('email', email.trim().toLowerCase())
-            .limit(1);
+            .from('agents').select('id').eq('email', email.trim().toLowerCase()).limit(1);
         if (agentErr) throw agentErr;
-        if (!agentRows || agentRows.length === 0) {
-            return res.status(404).json({ success: false, message: "Agent not found." });
-        }
+        if (!agentRows || agentRows.length === 0) return res.status(404).json({ success: false, message: "Agent not found." });
 
         const { data, error } = await supabase
             .from('agent_form_config')
-            .select('custom_questions')
+            .select('custom_questions, main_config')
             .eq('agent_id', agentRows[0].id)
             .limit(1);
         if (error) throw error;
 
-        res.status(200).json({ success: true, questions: (data && data[0] && data[0].custom_questions) || [] });
+        const row = data && data[0];
+        res.status(200).json({
+            success: true,
+            questions: (row && row.custom_questions) || [],
+            mainConfig: normalizeMainConfig(row ? row.main_config : {})
+        });
     } catch (err) {
         console.error("❌ Error fetching form config:", err.message);
         res.status(500).json({ success: false, message: "Failed to fetch form config.", error: err.message });
     }
 });
 
-// PUT /api/agent/form-config — agent saves their custom questions
+// PUT /api/agent/form-config — agent saves their custom questions + main config overrides
 app.put('/api/agent/form-config', requireAuth('agent'), async (req, res) => {
     if (!supabase) return res.status(500).json({ success: false, message: "Database not configured." });
     try {
         const email = req.agentEmail || req.query.email;
-        const { questions } = req.body;
         if (!email) return res.status(400).json({ success: false, message: "Agent email is required." });
-        if (!Array.isArray(questions)) return res.status(400).json({ success: false, message: "questions must be an array." });
 
         const { data: agentRows, error: agentErr } = await supabase
-            .from('agents')
-            .select('id')
-            .eq('email', email.trim().toLowerCase())
-            .limit(1);
+            .from('agents').select('id').eq('email', email.trim().toLowerCase()).limit(1);
         if (agentErr) throw agentErr;
-        if (!agentRows || agentRows.length === 0) {
-            return res.status(404).json({ success: false, message: "Agent not found." });
-        }
+        if (!agentRows || agentRows.length === 0) return res.status(404).json({ success: false, message: "Agent not found." });
+
+        const agentId = agentRows[0].id;
+        const incomingQuestions = Array.isArray(req.body?.questions) ? req.body.questions : [];
+        const incomingMainConfig = req.body?.mainConfig && typeof req.body.mainConfig === 'object' ? req.body.mainConfig : {};
+        const deletedKeys = Array.isArray(req.body?.deletedKeys) ? req.body.deletedKeys : [];
+
+        const { data: existingRows, error: existingErr } = await supabase
+            .from('agent_form_config').select('main_config').eq('agent_id', agentId).limit(1);
+        if (existingErr) throw existingErr;
+        const existingMainConfig = (existingRows && existingRows[0] && existingRows[0].main_config) || {};
+
+        const mergedMainConfig = buildMergedMainConfig(existingMainConfig, incomingMainConfig, deletedKeys);
 
         const { error } = await supabase
             .from('agent_form_config')
             .upsert({
-                agent_id: agentRows[0].id,
-                custom_questions: questions,
+                agent_id: agentId,
+                custom_questions: incomingQuestions,
+                main_config: mergedMainConfig,
                 updated_at: new Date()
             });
         if (error) throw error;
 
-        res.status(200).json({ success: true, message: "Form config saved." });
+        res.status(200).json({ success: true, mainConfig: mergedMainConfig, questions: incomingQuestions });
     } catch (err) {
         console.error("❌ Error saving form config:", err.message);
         res.status(500).json({ success: false, message: "Failed to save form config.", error: err.message });
     }
 });
 
-// GET /api/public/form-config/:agentId — public, used by client_UI.html to render an agent's custom questions
+// GET /api/public/form-config/:agentId — public (no auth), used by client_UI.html
 app.get('/api/public/form-config/:agentId', async (req, res) => {
     if (!supabase) return res.status(500).json({ success: false, message: "Database not configured." });
     try {
-        const { agentId } = req.params;
         const { data, error } = await supabase
             .from('agent_form_config')
-            .select('custom_questions')
-            .eq('agent_id', agentId)
+            .select('custom_questions, main_config')
+            .eq('agent_id', req.params.agentId)
             .limit(1);
         if (error) throw error;
 
-        res.status(200).json({ success: true, questions: (data && data[0] && data[0].custom_questions) || [] });
+        const row = data && data[0];
+        res.status(200).json({
+            success: true,
+            questions: (row && row.custom_questions) || [],
+            mainConfig: normalizeMainConfig(row ? row.main_config : {})
+        });
     } catch (err) {
         console.error("❌ Error fetching public form config:", err.message);
         res.status(500).json({ success: false, message: "Failed to fetch form config.", error: err.message });
@@ -884,7 +930,6 @@ Keep the tone polished, exclusive, and tailored exactly to their profile. Do not
                     notes:       Array.isArray(userData.specialDetails) && userData.specialDetails.length > 0
                                     ? userData.specialDetails.join(', ')
                                     : (userData.notes || null),
-                    custom_answers: userData.customAnswers || {},
                     status: 'new'
                 };
 
