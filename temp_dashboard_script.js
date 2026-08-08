@@ -1,733 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Travel-PA</title>
-    <style>
-        :root {
-            --primary: #0062FF;
-            --primary-light: #EBF2FF;
-            --sidebar-w: 260px;
-            --text: #111827;
-            --muted: #6B7280;
-            --border: #E5E7EB;
-            --bg: #F8FAFC;
-            --card-shadow: 0 1px 3px rgba(0,0,0,0.06);
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        body { background: var(--bg); display: flex; min-height: 100vh; color: var(--text); }
-
-        aside {
-            width: var(--sidebar-w); background: white; border-right: 1px solid var(--border);
-            display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh;
-        }
-        .logo-wrapper { 
-            width: 100%; display: flex; justify-content: center; align-items: center; padding: 28px 0 20px; 
-        }
-        .logo-wrapper img { 
-            width: 150px; height: auto; 
-        }
-        .logo-wrapper .logo-text {
-            font-family: 'Georgia', serif;
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--primary);
-            letter-spacing: 2px;
-        }
-        .menu-links { flex: 1; padding: 8px 16px; }
-        .nav-item {
-            display: flex; align-items: center; gap: 12px; padding: 11px 14px;
-            color: var(--muted); font-weight: 600; font-size: 14px; text-decoration: none;
-            border-radius: 8px; margin-bottom: 4px; cursor: pointer;
-            border: none; background: none; width: 100%;
-        }
-        .nav-item svg { width: 20px; height: 20px; flex-shrink: 0; }
-        .nav-item:hover { background: #F9FAFB; color: var(--text); }
-        .nav-item.active { background: #F0F6FF; color: var(--primary); }
-        .sidebar-footer { padding: 20px 16px; border-top: 1px solid var(--border); }
-        .logout-btn {
-            display: flex; align-items: center; gap: 12px; padding: 11px 14px;
-            color: var(--text); font-weight: 600; font-size: 14px;
-            background: none; border: none; cursor: pointer; width: 100%; border-radius: 8px;
-        }
-        .logout-btn svg { width: 20px; height: 20px; }
-        .logout-btn:hover { background: #F9FAFB; }
-
-        main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; }
-        header {
-            height: 72px; background: white; border-bottom: 1px solid var(--border);
-            display: flex; justify-content: space-between; align-items: center; padding: 0 40px;
-            position: sticky; top: 0; z-index: 10;
-        }
-        .h-left { display: flex; flex-direction: column; justify-content: center; }
-        .h-left .h-name { font-size: 20px; font-weight: 700; color: var(--text); line-height: 1.2; }
-        .h-left .h-role { font-size: 13px; color: var(--muted); margin-top: 2px; }
-        .h-right { display: flex; align-items: center; gap: 20px; }
-        .bell-wrap { position: relative; cursor: pointer; color: #4B5563; display: flex; align-items: center; }
-        .bell-dot { position: absolute; top: -2px; right: -2px; width: 7px; height: 7px; background: var(--primary); border-radius: 50%; border: 1.5px solid white; }
-        .user-profile { display: flex; align-items: center; gap: 8px; cursor: pointer; }
-        .avatar { width: 36px; height: 36px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
-        .profile-name { font-size: 14px; font-weight: 600; color: var(--text); }
-
-        .content-body { padding: 40px; flex: 1; }
-        .view-card { background: white; border: 1px solid var(--border); border-radius: 14px; padding: 32px; box-shadow: var(--card-shadow); display: none; }
-        .view-card.active { display: block; }
-        .view-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
-        .view-head h2 { font-size: 28px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
-        .view-head p { font-size: 14px; color: var(--muted); }
-        .reports-title-block { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
-        .reports-title-block h2 { font-size: 28px; font-weight: 700; }
-
-        .btn-primary {
-            background: var(--primary); color: white; border: none; padding: 11px 20px;
-            border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer;
-            display: flex; align-items: center; gap: 8px; transition: background 0.15s; white-space: nowrap;
-        }
-        .btn-primary:hover { background: #0050d8; }
-        .btn-primary svg { width: 16px; height: 16px; }
-
-        /* CSV Download Button */
-        .btn-csv {
-            background: #0f5caf; color: white; border: none; padding: 11px 20px;
-            border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer;
-            display: flex; align-items: center; gap: 8px; transition: background 0.15s; white-space: nowrap;
-        }
-        .btn-csv:hover { background: #15803d; }
-        .btn-csv svg { width: 16px; height: 16px; }
-
-        .link-banner {
-            background: #F0F6FF; border: 1px solid #C7DCFF; border-radius: 12px;
-            padding: 18px 22px; margin-bottom: 28px; display: flex;
-            align-items: center; gap: 16px; flex-wrap: wrap;
-        }
-        .link-banner-icon { color: var(--primary); flex-shrink: 0; }
-        .link-banner-icon svg { width: 22px; height: 22px; }
-        .link-banner-text { flex: 1; min-width: 0; }
-        .link-banner-label { font-size: 12px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
-        .link-banner-row { display: flex; align-items: center; gap: 8px; }
-        .link-banner-input {
-            flex: 1; padding: 9px 13px; border: 1px solid var(--border); border-radius: 7px;
-            font-size: 13px; color: var(--text); background: white; outline: none; min-width: 0; cursor: text;
-        }
-        .btn-copy {
-            background: var(--primary); color: white; border: none; padding: 9px 16px;
-            border-radius: 7px; font-size: 13px; font-weight: 600; cursor: pointer;
-            white-space: nowrap; transition: background 0.15s; flex-shrink: 0;
-        }
-        .btn-copy:hover { background: #0050d8; }
-        .btn-copy.copied { background: #16a34a; }
-
-        .intake-editor-card {
-            background: linear-gradient(180deg, #f8fbff 0%, #f5f9ff 100%);
-            border: 1px solid #dbe9ff;
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 28px;
-        }
-        .intake-editor-tabs {
-            display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;
-        }
-        .intake-tab {
-            border: 1px solid var(--border); background: white; color: var(--muted);
-            padding: 8px 14px; border-radius: 999px; font-size: 13px; font-weight: 600; cursor: pointer;
-        }
-        .intake-tab.active {
-            background: var(--primary); color: white; border-color: var(--primary);
-        }
-        .intake-editor-section {
-            background: white; border: 1px solid #e7edf5; border-radius: 14px; padding: 18px;
-        }
-        .intake-editor-grid {
-            display: grid; gap: 12px; margin-top: 12px;
-        }
-        .intake-editor-field label {
-            display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 6px;
-        }
-        .intake-editor-field input {
-            width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; outline: none; font-size: 14px;
-        }
-        .intake-editor-field input:focus {
-            border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,98,255,0.08);
-        }
-        .intake-option-list {
-            display: flex; flex-direction: column; gap: 10px; margin-top: 14px;
-        }
-        .intake-option-item {
-            display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; background: #fcfdff;
-        }
-        .intake-option-item input {
-            flex: 1; border: 1px solid var(--border); border-radius: 8px; padding: 9px 11px; font-size: 14px; outline: none;
-        }
-        .intake-option-item input:focus { border-color: var(--primary); }
-        .intake-icon-select { border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; font-size: 13px; outline: none; background: white; max-width: 140px; }
-        .intake-icon-select:focus { border-color: var(--primary); }
-        .intake-option-actions { display: flex; gap: 6px; }
-        .intake-option-btn {
-            border: 1px solid var(--border); background: white; color: var(--muted); border-radius: 8px; padding: 8px 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-        }
-        .intake-option-btn:hover { border-color: var(--primary); color: var(--primary); }
-        .intake-option-btn.danger:hover { border-color: #ef4444; color: #ef4444; }
-        .intake-editor-actions {
-            display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px;
-        }
-        .intake-editor-actions button {
-            padding: 10px 14px; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer;
-        }
-        .intake-editor-actions .btn-secondary {
-            background: white; border: 1px solid var(--border); color: var(--text);
-        }
-        .intake-editor-actions .btn-secondary:hover { background: #f9fafb; }
-        .intake-empty-state { padding: 12px 0; color: var(--muted); font-size: 14px; }
-        .custom-questions-card {
-            background: white;
-            border: 1px solid #e7edf5;
-            border-radius: 14px;
-            padding: 18px;
-            margin-top: 16px;
-        }
-        .custom-questions-head {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 12px;
-        }
-        .custom-questions-title {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--text);
-        }
-        .custom-questions-sub {
-            font-size: 12px;
-            color: var(--muted);
-            margin-top: 3px;
-        }
-        .custom-q-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 12px;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            background: #fcfdff;
-            margin-bottom: 10px;
-        }
-        .custom-q-item input[type="text"] {
-            flex: 1;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 9px 11px;
-            font-size: 14px;
-            outline: none;
-        }
-        .custom-q-item input[type="text"]:focus { border-color: var(--primary); }
-        .custom-q-required {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 12px;
-            color: var(--muted);
-            white-space: nowrap;
-        }
-
-        /* Feedback Link Banner for Agents */
-        .feedback-link-banner {
-            background: #F0F6FF; border: 1px solid #C7DCFF; border-radius: 12px;
-            padding: 18px 22px; margin-bottom: 28px; display: flex;
-            align-items: center; gap: 16px; flex-wrap: wrap;
-        }
-        .feedback-link-banner .link-banner-icon { color: #7C3AED; flex-shrink: 0; }
-        .feedback-link-banner .link-banner-label { color: #7C3AED; }
-
-        .filter-bar { display: flex; gap: 10px; margin-bottom: 24px; align-items: center; position: relative; }
-        .search-wrap { position: relative; flex: 1; max-width: 320px; }
-        .search-wrap input {
-            width: 100%; padding: 10px 14px 10px 40px;
-            border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none;
-        }
-        .search-wrap input:focus { border-color: var(--primary); }
-        .search-icon { position: absolute; left: 13px; top: 11px; color: #9CA3AF; width: 16px; height: 16px; }
-        .filter-btn {
-            background: white; border: 1px solid var(--border); border-radius: 8px;
-            padding: 10px 14px; font-size: 14px; font-weight: 500;
-            display: flex; align-items: center; gap: 7px; cursor: pointer; color: var(--text); white-space: nowrap;
-        }
-        .filter-btn:hover { border-color: #9CA3AF; }
-        .filter-btn svg { width: 14px; height: 14px; }
-        .ml-auto { margin-left: auto; }
-        .icon-picker-wrap { position: relative; flex-shrink: 0; }
-        .icon-picker-trigger { display: flex; align-items: center; gap: 6px; border: 1px solid var(--border); background: white; border-radius: 8px; padding: 7px 10px; cursor: pointer; font-size: 12px; color: var(--muted); }
-        .icon-picker-trigger:hover { border-color: var(--primary); }
-        .icon-picker-preview svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.6; }
-        .icon-picker-panel { position: absolute; top: 40px; right: 0; z-index: 50; width: 260px; max-height: 220px; overflow-y: auto; background: white; border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); padding: 8px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; }
-        .icon-swatch { border: 1px solid transparent; background: none; border-radius: 6px; padding: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--muted); }
-        .icon-swatch svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.6; }
-        .icon-swatch:hover { background: #F0F6FF; color: var(--primary); }
-        .icon-swatch.sel { background: var(--primary); color: white; }
-        .popover {
-            position: absolute; top: 48px; left: 335px; background: white;
-            border: 1px solid var(--border); border-radius: 12px; width: 240px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.08); padding: 16px; z-index: 200; display: none;
-        }
-        .popover.open { display: block; }
-        .popover-label { font-size: 11px; font-weight: 700; color: #4B5563; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px; }
-        .pop-opt { display: flex; align-items: center; gap: 9px; margin-bottom: 9px; font-size: 14px; cursor: pointer; }
-        .pop-opt input[type="radio"] { accent-color: var(--primary); width: 16px; height: 16px; }
-        .pop-actions { display: flex; gap: 8px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
-        .pop-actions button { flex: 1; padding: 8px; border-radius: 6px; border: none; font-size: 12px; font-weight: 600; cursor: pointer; }
-        .pop-cancel { background: #F3F4F6; color: #4B5563; }
-        .pop-apply  { background: var(--primary); color: white; }
-
-        table { width: 100%; border-collapse: collapse; }
-        th { background: #F4F7FC; color: #374151; font-weight: 600; font-size: 13px; padding: 14px 16px; border-bottom: 1px solid var(--border); text-align: left; }
-        td { padding: 15px 16px; border-bottom: 1px solid var(--border); font-size: 14px; vertical-align: middle; }
-        tr:last-child td { border-bottom: none; }
-        tr:hover td { background: #FAFBFC; }
-
-        .cell-person { display: flex; align-items: center; gap: 12px; }
-        .circle { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px; flex-shrink: 0; }
-        .c-blue   { background: #E0F2FE; color: #0369A1; }
-        .c-green  { background: #DCFCE7; color: #15803D; }
-        .c-orange { background: #FEF3C7; color: #B45309; }
-        .c-purple { background: #F3E8FF; color: #6B21A8; }
-        .sub-email { font-size: 12px; color: var(--muted); margin-top: 2px; }
-
-        .link-cell { display: flex; align-items: center; gap: 6px; max-width: 280px; }
-        .link-cell input { flex: 1; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 12px; color: var(--muted); background: #F9FAFB; outline: none; min-width: 0; cursor: text; }
-        .btn-copy-sm { background: var(--primary-light); color: var(--primary); border: none; padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: background 0.15s; flex-shrink: 0; }
-        .btn-copy-sm:hover { background: #D0E8FF; }
-        .btn-copy-sm.copied { background: #DCFCE7; color: #15803D; }
-
-        .badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
-        .badge-new       { background: #EFF6FF; color: #1D4ED8; }
-        .badge-contacted { background: #FEF9C3; color: #92400E; }
-        .badge-closed    { background: #DCFCE7; color: #166534; }
-
-        .count-pill { display: inline-flex; align-items: center; justify-content: center; min-width: 28px; height: 22px; padding: 0 8px; background: #EFF6FF; color: #1D4ED8; border-radius: 20px; font-size: 12px; font-weight: 700; }
-
-        .btn-del { border: 1px solid #FCA5A5; color: #EF4444; background: white; padding: 7px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
-        .btn-del:hover { background: #FEF2F2; }
-        .btn-del:disabled { opacity: 0.5; cursor: not-allowed; }
-        .btn-pdf { color: var(--primary); display: inline-flex; align-items: center; }
-        .btn-pdf:hover { color: #0050d8; }
-
-        .table-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
-        .foot-count { font-size: 14px; color: var(--muted); }
-        .pager { display: flex; gap: 6px; }
-        .pager-arrow { padding: 8px 12px; background: white; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; display: flex; align-items: center; color: var(--muted); }
-        .pager-num { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; background: white; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; color: var(--text); }
-        .pager-num.active { background: var(--primary); color: white; border-color: var(--primary); }
-
-        .empty-row td { text-align: center; color: #9CA3AF; padding: 40px 16px; font-size: 14px; }
-        .error-row td  { text-align: center; color: #EF4444; padding: 32px 16px; font-size: 14px; }
-
-        .sk td { height: 18px; }
-        .sk td span { display: block; height: 14px; border-radius: 6px; background: linear-gradient(90deg, #F0F2F5 25%, #E4E6EA 50%, #F0F2F5 75%); background-size: 400% 100%; animation: sk 1.4s ease infinite; }
-        @keyframes sk { 0% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-
-        .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 9000; align-items: center; justify-content: center; }
-        .overlay.open { display: flex; }
-        .modal { background: white; border-radius: 16px; width: 440px; padding: 36px; box-shadow: 0 20px 60px rgba(0,0,0,0.18); }
-        .modal h2 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
-        .modal .subtitle { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
-        .field { margin-bottom: 16px; }
-        .field label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px; }
-        .field input { width: 100%; padding: 11px 13px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; transition: border-color 0.15s; }
-        .field input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,98,255,0.08); }
-        .field-hint { font-size: 12px; color: var(--muted); margin-top: 5px; }
-        .modal-err { font-size: 13px; color: #dc2626; margin-bottom: 12px; display: none; padding: 10px 12px; background: #FEF2F2; border-radius: 6px; }
-        .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
-        .btn-cancel { padding: 10px 18px; border: 1px solid var(--border); border-radius: 8px; background: white; font-size: 14px; font-weight: 600; cursor: pointer; color: var(--text); }
-        .btn-cancel:hover { background: #F9FAFB; }
-        .btn-save { padding: 10px 22px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 7px; }
-        .btn-save:hover { background: #0050d8; }
-        .btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
-
-        #toast { position: fixed; bottom: 28px; right: 28px; padding: 13px 20px; border-radius: 10px; font-size: 14px; font-weight: 600; color: white; z-index: 99999; opacity: 0; pointer-events: none; transition: opacity 0.25s; max-width: 340px; }
-        #toast.show { opacity: 1; }
-        #toast.ok  { background: #16a34a; }
-        #toast.err { background: #dc2626; }
-
-        /* ══════════════════════════════════════
-           FEEDBACK STYLES
-           ══════════════════════════════════════ */
-        .fb-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-        .fb-title-block { display: flex; align-items: center; gap: 10px; }
-        .fb-title-block h2 { font-size: 28px; font-weight: 700; color: var(--text); }
-        .fb-title-block svg { color: #7C3AED; }
-
-        .fb-header-actions { display: flex; gap: 10px; align-items: center; }
-
-        /* Stats */
-        .fb-stats { display: flex; gap: 16px; margin-bottom: 28px; }
-        .fb-stat { flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; display: flex; align-items: center; gap: 14px; }
-        .fb-stat-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .fb-stat-icon svg { width: 18px; height: 18px; }
-        .icon-purple { background: #F3E8FF; color: #7C3AED; }
-        .icon-blue   { background: #EFF6FF; color: #1D4ED8; }
-        .icon-green  { background: #DCFCE7; color: #15803D; }
-        .fb-stat-num { font-size: 26px; font-weight: 700; color: var(--text); line-height: 1; }
-        .fb-stat-lbl { font-size: 12px; color: var(--muted); margin-top: 3px; }
-
-        /* Search */
-        .fb-search-bar { margin-bottom: 20px; }
-        .fb-search-bar .search-wrap { max-width: 380px; }
-
-        /* Agent group */
-        .fb-group { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 16px; }
-        .fb-group-hd {
-            background: #F8FAFC; padding: 14px 20px; display: flex; align-items: center;
-            gap: 12px; cursor: pointer; user-select: none; border-bottom: 1px solid var(--border);
-            transition: background 0.15s;
-        }
-        .fb-group-hd:hover { background: #F1F5F9; }
-        .fb-group-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0; }
-        .fb-group-info { flex: 1; }
-        .fb-group-name { font-size: 14px; font-weight: 700; color: var(--text); }
-        .fb-group-email { font-size: 12px; color: var(--muted); margin-top: 1px; }
-        .fb-group-badge { background: #EFF6FF; color: #1D4ED8; font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 20px; white-space: nowrap; }
-        .fb-chevron { color: var(--muted); transition: transform 0.2s; flex-shrink: 0; }
-        .fb-group.collapsed .fb-chevron { transform: rotate(-90deg); }
-        .fb-group-body { display: block; }
-        .fb-group.collapsed .fb-group-body { display: none; }
-
-        /* Feedback table */
-        .fb-table { width: 100%; border-collapse: collapse; }
-        .fb-table th { background: #FAFBFC; color: var(--muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 10px 20px; border-bottom: 1px solid var(--border); text-align: left; }
-        .fb-table td { padding: 14px 20px; border-bottom: 1px solid #F3F4F6; font-size: 14px; vertical-align: top; }
-        .fb-table tr:last-child td { border-bottom: none; }
-        .fb-table tr:hover td { background: #FAFBFC; }
-        .fb-msg { max-width: 460px; line-height: 1.6; color: var(--text); }
-        .fb-date { font-size: 12px; color: var(--muted); white-space: nowrap; }
-
-        /* Star ratings in feedback */
-        .fb-stars {
-            display: flex; gap: 2px; align-items: center;
-        }
-        .fb-stars svg {
-            width: 14px; height: 14px; fill: #F59E0B; stroke: #F59E0B; stroke-width: 1;
-        }
-        .fb-stars .star-empty svg {
-            fill: #D1D5DB; stroke: #D1D5DB;
-        }
-
-        /* Empty state */
-        .fb-empty { text-align: center; padding: 60px 20px; color: #9CA3AF; font-size: 14px; }
-        .fb-empty svg { display: block; margin: 0 auto 12px; color: #D1D5DB; }
-
-        /* Skeleton */
-        .fb-sk { height: 58px; border-radius: 12px; background: linear-gradient(90deg, #F0F2F5 25%, #E4E6EA 50%, #F0F2F5 75%); background-size: 400% 100%; animation: sk 1.4s ease infinite; margin-bottom: 12px; }
-    </style>
-</head>
-<body>
-
-<!-- ══════════════════════════════════════ SIDEBAR ══════════════════════════════════════ -->
-<aside>
-    <div class="logo-wrapper">
-        <img src="../assets/logo.png" alt="Travel-PA" onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\'logo-text\'>TRAVEL-PA</span>'">
-    </div>
-    <nav class="menu-links">
-        <button class="nav-item active" id="navAgents" onclick="showView('agents')">
-            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-            </svg>
-            Agents
-        </button>
-        <button class="nav-item" id="navReports" onclick="showView('reports')">
-            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-            </svg>
-            Reports
-        </button>
-
-        <!-- ── CUSTOM (INTAKE FORM) NAV ── -->
-        <button class="nav-item" id="navCustom" onclick="showView('custom')" style="display:none">
-            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-            </svg>
-            Custom
-        </button>
-
-        <!-- ── FEEDBACK NAV ── -->
-        <button class="nav-item" id="navFeedback" onclick="showView('feedback')">
-            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
-            </svg>
-            Feedback
-        </button>
-    </nav>
-    <div class="sidebar-footer">
-        <button class="logout-btn" onclick="logout()">
-            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-            </svg>
-            Log out
-        </button>
-    </div>
-</aside>
-
-<!-- ══════════════════════════════════════ MAIN ══════════════════════════════════════ -->
-<main>
-    <header>
-        <div class="h-left">
-            <span class="h-name" id="hName">Dashboard</span>
-            <span class="h-role" id="hRole">Loading…</span>
-        </div>
-        <div class="h-right">
-            <div class="bell-wrap">
-                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-                </svg>
-                <div class="bell-dot"></div>
-            </div>
-            <div class="user-profile">
-                <div class="avatar" id="avatar">A</div>
-                <div class="profile-name" id="profileName">Admin</div>
-                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
-                </svg>
-            </div>
-        </div>
-    </header>
-
-    <div class="content-body">
-
-        <!-- ── AGENTS VIEW ── -->
-        <div id="viewAgents" class="view-card active">
-            <div class="view-head">
-                <div>
-                    <h2>Agents</h2>
-                    <p>Manage agents and share their unique client intake links.</p>
-                </div>
-                <button class="btn-primary" onclick="openModal()">
-                    <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
-                    </svg>
-                    Add Agent
-                </button>
-            </div>
-            <div class="filter-bar">
-                <div class="search-wrap">
-                    <svg class="search-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                    </svg>
-                    <input id="agentSearch" type="text" placeholder="Search agents…" oninput="filterAgents()">
-                </div>
-                <button class="filter-btn" onclick="togglePopover()">
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                    No. of Customers
-                    <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-                </button>
-                <button class="filter-btn" onclick="toggleSort()" title="Sort A–Z / Z–A">
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/></svg>
-                </button>
-                <button class="filter-btn ml-auto" onclick="clearFilters()">
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
-                    Clear Filters
-                </button>
-                <div class="popover" id="popover">
-                    <div class="popover-label">Filter by No. of Customers</div>
-                    <label class="pop-opt"><input type="radio" name="cf" value="all" checked> All</label>
-                    <label class="pop-opt"><input type="radio" name="cf" value="0-10">  0 – 10</label>
-                    <label class="pop-opt"><input type="radio" name="cf" value="11-25"> 11 – 25</label>
-                    <label class="pop-opt"><input type="radio" name="cf" value="26-50"> 26 – 50</label>
-                    <label class="pop-opt"><input type="radio" name="cf" value="51+">   51+</label>
-                    <div class="pop-actions">
-                        <button class="pop-cancel" onclick="togglePopover()">Cancel</button>
-                        <button class="pop-apply"  onclick="applyFilter()">Apply</button>
-                    </div>
-                </div>
-            </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>No.</th><th>Agent</th><th>No. of Customers</th><th>Client Intake Link</th><th style="text-align:right">Action</th>
-                    </tr>
-                </thead>
-                <tbody id="agentsBody"></tbody>
-            </table>
-            <div class="table-foot">
-                <span class="foot-count" id="agentCount">Showing 0 to 0 of 0 agents</span>
-                <div class="pager">
-                    <button class="pager-arrow"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg></button>
-                    <button class="pager-num active">1</button>
-                    <button class="pager-arrow"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></button>
-                </div>
-            </div>
-        </div>
-
-        <!-- ── REPORTS VIEW ── -->
-        <div id="viewReports" class="view-card">
-            <div class="link-banner" id="agentLinkBanner" style="display:none">
-                <div class="link-banner-icon">
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
-                </div>
-                <div class="link-banner-text">
-                    <div class="link-banner-label">Your Client Intake Link — Share this with clients</div>
-                    <div class="link-banner-row">
-                        <input type="text" id="agentLinkInput" class="link-banner-input" readonly placeholder="Loading your link…">
-                        <button class="btn-copy" id="agentLinkCopyBtn" onclick="copyAgentLink()">Copy Link</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Agent Feedback Link Banner -->
-            <div class="feedback-link-banner" id="agentFeedbackBanner" style="display:none">
-                <div class="link-banner-icon">
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
-                </div>
-                <div class="link-banner-text">
-                    <div class="link-banner-label">Your Client Feedback Link — Share this with clients</div>
-                    <div class="link-banner-row">
-                        <input type="text" id="agentFeedbackLinkInput" class="link-banner-input" readonly placeholder="Loading your feedback link…">
-                        <button class="btn-copy" id="agentFeedbackCopyBtn" onclick="copyAgentFeedbackLink()">Copy Link</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Reports Table - Removed duplicate heading -->
-            <table>
-                <thead>
-                    <tr><th>No.</th><th>Client</th><th>Destination</th><th>Budget</th><th>Travel Date</th><th>Status</th><th>Submitted</th><th style="text-align:right">Report</th></tr>
-                </thead>
-                <tbody id="reportsBody"></tbody>
-            </table>
-        </div>
-
-        <!-- ── CUSTOM (INTAKE FORM) VIEW ── -->
-        <div id="viewCustom" class="view-card">
-            <div class="view-head">
-                <div>
-                    <h2>Customize Intake Form</h2>
-                    <p>Edit the questions and options your clients see on your intake form.</p>
-                </div>
-            </div>
-            <div class="intake-editor-card" id="intakeEditorCard" style="display:none">
-                <div class="intake-editor-tabs" id="intakeEditorTabs"></div>
-                <div class="intake-editor-section" id="intakeEditorSection"></div>
-                <div class="custom-questions-card" id="customQuestionsCard" style="display:none">
-                    <div class="custom-questions-head">
-                        <div>
-                            <div class="custom-questions-title">Custom Contact Questions</div>
-                            <div class="custom-questions-sub">These appear on the contact step below the locked fields.</div>
-                        </div>
-                    </div>
-                    <div id="customQuestionsList"></div>
-                    <div class="intake-editor-actions">
-                        <button class="btn-secondary" onclick="addCustomizeQuestion()">+ Add Question</button>
-                        <button class="btn-primary" onclick="saveCustomizeQuestions()">Save Custom Questions</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ══════════════════════════════════════
-             FEEDBACK VIEW
-             ══════════════════════════════════════ -->
-        <div id="viewFeedback" class="view-card">
-
-            <!-- Header -->
-            <div class="fb-header">
-                <div class="fb-title-block">
-                    <svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
-                    </svg>
-                    <h2>Client Feedback</h2>
-                </div>
-                <div class="fb-header-actions">
-                    <button class="btn-csv" onclick="downloadFeedbackCSV()">
-                        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                        </svg>
-                        Download CSV
-                    </button>
-                    <button class="btn-primary" onclick="refreshFeedback()">
-                        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                        </svg>
-                        Refresh
-                    </button>
-                </div>
-            </div>
-
-            <!-- Stats strip -->
-            <div class="fb-stats">
-                <div class="fb-stat">
-                    <div class="fb-stat-icon icon-purple">
-                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
-                    </div>
-                    <div>
-                        <div class="fb-stat-num" id="fbTotal">—</div>
-                        <div class="fb-stat-lbl">Total Feedback</div>
-                    </div>
-                </div>
-                <div class="fb-stat" id="fbAgentsStat">
-                    <div class="fb-stat-icon icon-blue">
-                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                    </div>
-                    <div>
-                        <div class="fb-stat-num" id="fbAgents">—</div>
-                        <div class="fb-stat-lbl">Agents with Feedback</div>
-                    </div>
-                </div>
-                <div class="fb-stat">
-                    <div class="fb-stat-icon icon-green">
-                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                    </div>
-                    <div>
-                        <div class="fb-stat-num" id="fbMonth">—</div>
-                        <div class="fb-stat-lbl">This Month</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Search -->
-            <div class="fb-search-bar filter-bar">
-                <div class="search-wrap">
-                    <svg class="search-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                    </svg>
-                    <input id="fbSearch" type="text" placeholder="Search by agent, client or message…" oninput="filterFeedback()">
-                </div>
-            </div>
-
-            <!-- Groups container -->
-            <div id="fbGroups"></div>
-
-        </div>
-        <!-- end viewFeedback -->
-
-    </div>
-</main>
-
-<!-- ══════════════════════════════════════ ADD AGENT MODAL ══════════════════════════════════════ -->
-<div class="overlay" id="overlay" onclick="overlayClick(event)">
-    <div class="modal" id="modal">
-        <h2>Add New Agent</h2>
-        <p class="subtitle">The agent will use these credentials to log in securely.</p>
-        <div class="field"><label for="fName">Full Name</label><input id="fName" type="text" placeholder="e.g. Sarah Johnson" autocomplete="off"></div>
-        <div class="field"><label for="fEmail">Login Email</label><input id="fEmail" type="email" placeholder="agent@yourcompany.com" autocomplete="off"></div>
-        <div class="field">
-            <label for="fPass">Password</label>
-            <input id="fPass" type="password" placeholder="Min. 8 characters">
-            <div class="field-hint">This is what the agent will type on the login page.</div>
-        </div>
-        <div class="field"><label for="fPass2">Confirm Password</label><input id="fPass2" type="password" placeholder="Repeat password"></div>
-        <div class="modal-err" id="modalErr"></div>
-        <div class="modal-actions">
-            <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-            <button class="btn-save" id="saveBtn" onclick="saveAgent()">
-                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                Save Agent
-            </button>
-        </div>
-    </div>
-</div>
-
-<div id="toast"></div>
-
-<script>
 // ── Session ──
 const TOKEN       = localStorage.getItem('crm_token');
 const ROLE        = localStorage.getItem('crm_role');
@@ -873,63 +143,62 @@ const DEFAULT_INTAKE_CONFIG = {
         ]
     }
 };
-
 const IC_SVG = {
-  beach:'<svg viewBox="0 0 24 24"><path d="M2 20h20"/><path d="M12 20V8"/><path d="M6 20c0-5.5 2.5-9 6-9s6 3.5 6 9"/><circle cx="12" cy="5" r="2"/><path d="M19 8c-1-3-4-4-7-4S7 5 6 8"/></svg>',
-  celebrate:'<svg viewBox="0 0 24 24"><path d="M5.8 11.3L2 22l10.7-3.79"/><path d="M22 2l-2.24.75a2.9 2.9 0 00-1.96 3.12c.1.86-.57 1.63-1.45 1.63h-.38c-.86 0-1.6.6-1.76 1.44L14 10"/></svg>',
-  water:'<svg viewBox="0 0 24 24"><path d="M2 12h20M2 17c1.4-1.7 3.5-2.7 5.5-2.7s4.1 1 5.5 2.7c1.4-1.7 3.5-2.7 5.5-2.7"/></svg>',
-  food:'<svg viewBox="0 0 24 24"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>',
-  adventure:'<svg viewBox="0 0 24 24"><polygon points="3 20 12 4 21 20"/><path d="M3 20h18"/></svg>',
-  family:'<svg viewBox="0 0 24 24"><circle cx="9" cy="6" r="2.5"/><circle cx="17" cy="6" r="2"/><path d="M6 22v-4a3 3 0 016 0v4M14 22v-3a2.5 2.5 0 015 0v3"/></svg>',
-  culture:'<svg viewBox="0 0 24 24"><rect x="3" y="9" width="18" height="13" rx="1"/><path d="M8 9V7a4 4 0 018 0v2"/></svg>',
-  wellness:'<svg viewBox="0 0 24 24"><path d="M12 22c1 0 9.5-5 9.5-12a9.5 9.5 0 00-19 0C2.5 17 11 22 12 22z"/></svg>',
-  festivals:'<svg viewBox="0 0 24 24"><path d="M9 20c0-2.8 1.3-5 3-5s3 2.2 3 5"/><path d="M4 14c0-4.4 3.6-8 8-8s8 3.6 8 8"/><path d="M2 20h20"/><circle cx="12" cy="4" r="1.5"/></svg>',
-  sport:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3c2.5 2 4 5 4 9s-1.5 7-4 9"/></svg>',
-  wildlife:'<svg viewBox="0 0 24 24"><path d="M14 14c0 3.3-2.7 6-6 6H6a6 6 0 010-12h1"/><path d="M10 10c0-3.3 2.7-6 6-6h1a6 6 0 010 12h-1"/></svg>',
-  urban:'<svg viewBox="0 0 24 24"><rect x="2" y="6" width="8" height="16"/><rect x="10" y="10" width="6" height="12"/><rect x="16" y="3" width="6" height="19"/></svg>',
-  outdoors:'<svg viewBox="0 0 24 24"><path d="M3 20l7-12 4 7 2-3 5 8"/><path d="M2 20h20"/></svg>',
-  business:'<svg viewBox="0 0 24 24"><rect x="2" y="8" width="20" height="14" rx="2"/><path d="M16 8V6a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>',
-  notsure:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9 9a3 3 0 015.8 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r=".5" fill="currentColor"/></svg>',
-  warm:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4"/></svg>',
-  romantic:'<svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 00-7.8 7.8l1.1 1.1L12 21.2l7.7-7.7 1.1-1.1a5.5 5.5 0 000-7.8z"/></svg>',
-  nature:'<svg viewBox="0 0 24 24"><path d="M12 22V12"/><path d="M8 16c0-4.4 1.8-8 4-8s4 3.6 4 8"/></svg>',
-  kids:'<svg viewBox="0 0 24 24"><circle cx="9" cy="5" r="2"/><path d="M9 7v6l3 3M6 10h6"/></svg>',
-  secret:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>',
-  historic:'<svg viewBox="0 0 24 24"><path d="M3 22h18M4 22V10l8-8 8 8v12"/></svg>',
-  pet:'<svg viewBox="0 0 24 24"><path d="M10 5.2C10 3.8 8.4 2.7 6.5 3 3.7 3.5 2.4 9 2.5 10"/></svg>',
-  hotel:'<svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="15" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>',
-  cruise:'<svg viewBox="0 0 24 24"><path d="M2 20h20M4 14l2-8h12l2 8"/><path d="M4 14c4 3 12 3 16 0"/></svg>',
-  jet:'<svg viewBox="0 0 24 24"><path d="M22 16.9l-3.5-1.7c-.4-.2-.7-.5-.8-1L16 9l-4-4-4 7H4l2 4h5l5 5 4-2v-3l-2-1"/></svg>',
-  itinerary:'<svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h9"/></svg>',
-  group:'<svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>',
-  safari:'<svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/></svg>',
-  access:'<svg viewBox="0 0 24 24"><circle cx="12" cy="4" r="1.5" fill="currentColor"/><path d="M9 9h6M12 7v5"/><path d="M7 20l2-4h6l2 4"/></svg>',
-  groups2:'<svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>',
-  solo:'<svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a6 6 0 0112 0v2"/></svg>',
-  honey:'<svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 00-7.8 7.8l1.1 1.1L12 21.2l7.7-7.7"/></svg>',
-  baby:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1 2 4 2 4-2 4-2"/></svg>',
-  wedding:'<svg viewBox="0 0 24 24"><path d="M12 2l2 4h4l-3 3 1 4-4-2.5L8 13l1-4L6 6h4l2-4z"/></svg>',
-  celebrdet:'<svg viewBox="0 0 24 24"><path d="M22 12c0 5.5-4.5 10-10 10S2 17.5 2 12 6.5 2 12 2s10 4.5 10 10z"/><path d="M8 12l2 2 4-4"/></svg>',
-  slow:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>',
-  other:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>',
-  partner:'<svg viewBox="0 0 24 24"><circle cx="8" cy="7" r="3"/><circle cx="16" cy="7" r="3"/><path d="M2 21v-2a5 5 0 0110 0v2"/></svg>',
-  kidsT:'<svg viewBox="0 0 24 24"><circle cx="12" cy="6" r="3"/><path d="M12 10v5"/><path d="M9 22v-5l-2-3h10l-2 3v5"/></svg>',
-  familyT:'<svg viewBox="0 0 24 24"><circle cx="9" cy="6" r="2.5"/><circle cx="17" cy="6" r="2"/><path d="M6 22v-4a3 3 0 016 0v4"/></svg>',
-  friends:'<svg viewBox="0 0 24 24"><circle cx="7" cy="6" r="3"/><circle cx="17" cy="6" r="3"/><path d="M1 21v-2a5 5 0 0112 0v2"/></svg>',
-  elderly:'<svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="3"/><path d="M9 9a3 3 0 00-3 3v3h12v-3a3 3 0 00-3-3"/></svg>',
-  pets:'<svg viewBox="0 0 24 24"><circle cx="5" cy="9" r="2"/><circle cx="9" cy="5" r="2"/><circle cx="15" cy="5" r="2"/><circle cx="19" cy="9" r="2"/></svg>',
-  luxe:'<svg viewBox="0 0 24 24"><polygon points="12 2 15 8.5 22 9.3 17 14.1 18.2 21 12 17.8 5.8 21 7 14.1 2 9.3 9 8.5"/></svg>',
-  boutique:'<svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>',
-  mix:'<svg viewBox="0 0 24 24"><rect x="2" y="14" width="7" height="6" rx="1"/><rect x="13" y="10" width="9" height="10" rx="1"/></svg>',
-  cause:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h4M18 12h4M12 2v4M12 18v4"/></svg>',
-  shield:'<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
-  weekend:'<svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="15" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>',
-  week:'<svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="17" rx="2"/><path d="M1 10h22"/></svg>',
-  extended:'<svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>'
+    beach:'<svg viewBox="0 0 24 24"><path d="M2 20h20"/><path d="M12 20V8"/><path d="M6 20c0-5.5 2.5-9 6-9s6 3.5 6 9"/><circle cx="12" cy="5" r="2"/><path d="M19 8c-1-3-4-4-7-4S7 5 6 8"/></svg>',
+    celebrate:'<svg viewBox="0 0 24 24"><path d="M5.8 11.3L2 22l10.7-3.79"/><path d="M22 2l-2.24.75a2.9 2.9 0 00-1.96 3.12c.1.86-.57 1.63-1.45 1.63h-.38c-.86 0-1.6.6-1.76 1.44L14 10"/></svg>',
+    water:'<svg viewBox="0 0 24 24"><path d="M2 12h20M2 17c1.4-1.7 3.5-2.7 5.5-2.7s4.1 1 5.5 2.7c1.4-1.7 3.5-2.7 5.5-2.7"/></svg>',
+    food:'<svg viewBox="0 0 24 24"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>',
+    adventure:'<svg viewBox="0 0 24 24"><polygon points="3 20 12 4 21 20"/><path d="M3 20h18"/></svg>',
+    family:'<svg viewBox="0 0 24 24"><circle cx="9" cy="6" r="2.5"/><circle cx="17" cy="6" r="2"/><path d="M6 22v-4a3 3 0 016 0v4M14 22v-3a2.5 2.5 0 015 0v3"/></svg>',
+    culture:'<svg viewBox="0 0 24 24"><rect x="3" y="9" width="18" height="13" rx="1"/><path d="M8 9V7a4 4 0 018 0v2"/></svg>',
+    wellness:'<svg viewBox="0 0 24 24"><path d="M12 22c1 0 9.5-5 9.5-12a9.5 9.5 0 00-19 0C2.5 17 11 22 12 22z"/></svg>',
+    festivals:'<svg viewBox="0 0 24 24"><path d="M9 20c0-2.8 1.3-5 3-5s3 2.2 3 5"/><path d="M4 14c0-4.4 3.6-8 8-8s8 3.6 8 8"/><path d="M2 20h20"/><circle cx="12" cy="4" r="1.5"/></svg>',
+    sport:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3c2.5 2 4 5 4 9s-1.5 7-4 9"/></svg>',
+    wildlife:'<svg viewBox="0 0 24 24"><path d="M14 14c0 3.3-2.7 6-6 6H6a6 6 0 010-12h1"/><path d="M10 10c0-3.3 2.7-6 6-6h1a6 6 0 010 12h-1"/></svg>',
+    urban:'<svg viewBox="0 0 24 24"><rect x="2" y="6" width="8" height="16"/><rect x="10" y="10" width="6" height="12"/><rect x="16" y="3" width="6" height="19"/></svg>',
+    outdoors:'<svg viewBox="0 0 24 24"><path d="M3 20l7-12 4 7 2-3 5 8"/><path d="M2 20h20"/></svg>',
+    business:'<svg viewBox="0 0 24 24"><rect x="2" y="8" width="20" height="14" rx="2"/><path d="M16 8V6a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>',
+    notsure:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9 9a3 3 0 015.8 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r=".5" fill="currentColor"/></svg>',
+    warm:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4"/></svg>',
+    romantic:'<svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 00-7.8 7.8l1.1 1.1L12 21.2l7.7-7.7 1.1-1.1a5.5 5.5 0 000-7.8z"/></svg>',
+    nature:'<svg viewBox="0 0 24 24"><path d="M12 22V12"/><path d="M8 16c0-4.4 1.8-8 4-8s4 3.6 4 8"/></svg>',
+    kids:'<svg viewBox="0 0 24 24"><circle cx="9" cy="5" r="2"/><path d="M9 7v6l3 3 6-1"/></svg>',
+    secret:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>',
+    historic:'<svg viewBox="0 0 24 24"><path d="M3 22h18M4 22V10l8-8 8 8v12"/></svg>',
+    pet:'<svg viewBox="0 0 24 24"><path d="M10 5.2C10 3.8 8.4 2.7 6.5 3 3.7 3.5 2.4 9 2.5 10"/></svg>',
+    hotel:'<svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="15" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>',
+    cruise:'<svg viewBox="0 0 24 24"><path d="M2 20h20M4 14l2-8h12l2 8"/><path d="M4 14c4 3 12 3 16 0"/></svg>',
+    jet:'<svg viewBox="0 0 24 24"><path d="M22 16.9l-3.5-1.7c-.4-.2-.7-.5-.8-1L16 9l-4-4-4 7H4l2 4h5l5 5 4-2v-3l-2-1"/></svg>',
+    itinerary:'<svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h9"/></svg>',
+    group:'<svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>',
+    safari:'<svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/></svg>',
+    access:'<svg viewBox="0 0 24 24"><circle cx="12" cy="4" r="1.5" fill="currentColor"/><path d="M9 9h6M12 7v5"/><path d="M7 20l2-4h6l2 4"/></svg>',
+    groups2:'<svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>',
+    solo:'<svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a6 6 0 0112 0v2"/></svg>',
+    honey:'<svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 00-7.8 7.8l1.1 1.1L12 21.2l7.7-7.7"/></svg>',
+    baby:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1 2 4 2 4-2 4-2"/></svg>',
+    wedding:'<svg viewBox="0 0 24 24"><path d="M12 2l2 4h4l-3 3 1 4-4-2.5L8 13l1-4L6 6h4l2-4z"/></svg>',
+    celebrdet:'<svg viewBox="0 0 24 24"><path d="M22 12c0 5.5-4.5 10-10 10S2 17.5 2 12 6.5 2 12 2s10 4.5 10 10z"/><path d="M8 12l2 2 4-4"/></svg>',
+    slow:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>',
+    other:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>',
+    partner:'<svg viewBox="0 0 24 24"><circle cx="8" cy="7" r="3"/><circle cx="16" cy="7" r="3"/><path d="M2 21v-2a5 5 0 0110 0v2"/></svg>',
+    kidsT:'<svg viewBox="0 0 24 24"><circle cx="12" cy="6" r="3"/><path d="M12 10v5"/><path d="M9 22v-5l-2-3h10l-2 3v5"/></svg>',
+    familyT:'<svg viewBox="0 0 24 24"><circle cx="9" cy="6" r="2.5"/><circle cx="17" cy="6" r="2"/><path d="M6 22v-4a3 3 0 016 0v4"/></svg>',
+    friends:'<svg viewBox="0 0 24 24"><circle cx="7" cy="6" r="3"/><circle cx="17" cy="6" r="3"/><path d="M1 21v-2a5 5 0 0112 0v2"/></svg>',
+    elderly:'<svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="3"/><path d="M9 9a3 3 0 00-3 3v3h12v-3a3 3 0 00-3-3"/></svg>',
+    pets:'<svg viewBox="0 0 24 24"><circle cx="5" cy="9" r="2"/><circle cx="9" cy="5" r="2"/><circle cx="15" cy="5" r="2"/><circle cx="19" cy="9" r="2"/></svg>',
+    luxe:'<svg viewBox="0 0 24 24"><polygon points="12 2 15 8.5 22 9.3 17 14.1 18.2 21 12 17.8 5.8 21 7 14.1 2 9.3 9 8.5"/></svg>',
+    boutique:'<svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>',
+    mix:'<svg viewBox="0 0 24 24"><rect x="2" y="14" width="7" height="6" rx="1"/><rect x="13" y="10" width="9" height="10" rx="1"/></svg>',
+    cause:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h4M18 12h4M12 2v4M12 18v4"/></svg>',
+    shield:'<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+    weekend:'<svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="15" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>',
+    week:'<svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="17" rx="2"/><path d="M1 10h22"/></svg>',
+    extended:'<svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>'
 };
 const ICON_KEYS = Object.keys(IC_SVG);
 
-let iconPickerOpenFor = null; // "key|arrayKey|index" of the item currently showing its picker panel
+let iconPickerOpenFor = null;
 
 function iconGlyph(key) {
     return IC_SVG[key] || IC_SVG.notsure;
@@ -940,24 +209,23 @@ function toggleIconPicker(pickerId) {
     renderIntakeEditorSection();
 }
 
-function selectIcon(key, arrayKey, index, iconKey) {
-    updateIntakeSectionItem(key, arrayKey, index, 'ik', iconKey);
+function pickIcon(pickerId, onSelectExpr, iconKey) {
     iconPickerOpenFor = null;
-    renderIntakeEditorSection();
+    // eslint-disable-next-line no-new-func
+    new Function('value', onSelectExpr)(iconKey);
 }
 
-function buildIconPicker(key, arrayKey, index, currentValue) {
-    const pickerId = `${key}|${arrayKey}|${index}`;
+function buildIconPicker(pickerId, currentValue, onChangeExpr) {
     const isOpen = iconPickerOpenFor === pickerId;
     const grid = ICON_KEYS.map(k => `
         <button type="button" class="icon-swatch ${k === currentValue ? 'sel' : ''}" title="${k}"
-            onclick="selectIcon('${key}', '${arrayKey}', ${index}, '${k}')">
+            onclick='pickIcon(${JSON.stringify(pickerId)}, ${JSON.stringify(onChangeExpr)}.replace("VALUE","${k}"), ${JSON.stringify(k)})'>
             ${iconGlyph(k)}
         </button>
     `).join('');
     return `
         <div class="icon-picker-wrap">
-            <button type="button" class="icon-picker-trigger" onclick="toggleIconPicker('${pickerId}')">
+            <button type="button" class="icon-picker-trigger" onclick='toggleIconPicker(${JSON.stringify(pickerId)})'>
                 <span class="icon-picker-preview">${iconGlyph(currentValue)}</span>
                 <span class="icon-picker-name">${currentValue}</span>
             </button>
@@ -1214,13 +482,18 @@ function buildIntakeEditorPayload() {
 
 function setIntakeEditorSection(key) {
     intakeEditorActiveKey = key;
-    iconPickerOpenFor = null;
     renderIntakeEditorSection();
 }
 
 function updateIntakeSectionField(key, field, value) {
     if (!intakeEditorDraft[key]) return;
     intakeEditorDraft[key][field] = value;
+    markIntakeSectionModified(key);
+}
+
+function updateIntakeOption(key, index, label) {
+    if (!intakeEditorDraft[key] || !intakeEditorDraft[key].options[index]) return;
+    intakeEditorDraft[key].options[index].l = label;
     markIntakeSectionModified(key);
 }
 
@@ -1276,6 +549,36 @@ function moveIntakeSectionItem(key, arrayKey, index, direction) {
     renderIntakeEditorSection();
 }
 
+function addIntakeOption(key) {
+    if (!intakeEditorDraft[key]) return;
+    const existingValues = intakeEditorDraft[key].options.map(option => option.v).filter(Boolean);
+    intakeEditorDraft[key].options.push({
+        v: makeOptionValue('', existingValues),
+        l: '',
+        ik: 'notsure'
+    });
+    markIntakeSectionModified(key);
+    renderIntakeEditorSection();
+}
+
+function deleteIntakeOption(key, index) {
+    if (!intakeEditorDraft[key] || !intakeEditorDraft[key].options[index]) return;
+    intakeEditorDraft[key].options.splice(index, 1);
+    markIntakeSectionModified(key);
+    renderIntakeEditorSection();
+}
+
+function moveIntakeOption(key, index, direction) {
+    if (!intakeEditorDraft[key] || !intakeEditorDraft[key].options[index]) return;
+    const options = intakeEditorDraft[key].options;
+    const targetIndex = index + direction;
+    if (targetIndex < 0 || targetIndex >= options.length) return;
+    const [item] = options.splice(index, 1);
+    options.splice(targetIndex, 0, item);
+    markIntakeSectionModified(key);
+    renderIntakeEditorSection();
+}
+
 function resetIntakeSection(key) {
     const meta = INTAKE_EDITOR_SECTIONS.find(s => s.key === key);
     if (!meta) return;
@@ -1308,8 +611,7 @@ function renderIntakeEditorSection() {
         const stylesHtml = (section.styles || []).map((option, index) => `
             <div class="intake-option-item">
                 <input type="text" value="${esc(option.l || '')}" oninput="updateIntakeSectionItem('${meta.key}', 'styles', ${index}, 'l', this.value)" placeholder="Style label">
-                <input type="text" value="${esc(option.v || '')}" oninput="updateIntakeSectionItem('${meta.key}', 'styles', ${index}, 'v', this.value)" placeholder="Value">
-                ${buildIconPicker(meta.key, 'styles', index, option.ik || 'notsure')}
+                ${buildIconPicker(`${meta.key}-opt-${index}`, option.ik || 'notsure', `updateIntakeSectionItem('${meta.key}', 'styles', ${index}, 'ik', 'VALUE')`)}
                 <div class="intake-option-actions">
                     <button class="intake-option-btn" onclick="moveIntakeSectionItem('${meta.key}', 'styles', ${index}, -1)" aria-label="Move up">↑</button>
                     <button class="intake-option-btn" onclick="moveIntakeSectionItem('${meta.key}', 'styles', ${index}, 1)" aria-label="Move down">↓</button>
@@ -1380,7 +682,7 @@ function renderIntakeEditorSection() {
             <div class="intake-option-item">
                 <input type="text" value="${esc(option.l || '')}" oninput="updateIntakeSectionItem('${meta.key}', 'durations', ${index}, 'l', this.value)" placeholder="Label">
                 <input type="text" value="${esc(option.v || '')}" oninput="updateIntakeSectionItem('${meta.key}', 'durations', ${index}, 'v', this.value)" placeholder="Value">
-                ${buildIconPicker(meta.key, 'durations', index, option.ik || 'notsure')}
+                ${buildIconPicker(`dur-${index}`, option.ik || 'notsure', `updateIntakeSectionItem('${meta.key}', 'durations', ${index}, 'ik', 'VALUE')`)}
                 <div class="intake-option-actions">
                     <button class="intake-option-btn" onclick="moveIntakeSectionItem('${meta.key}', 'durations', ${index}, -1)" aria-label="Move up">↑</button>
                     <button class="intake-option-btn" onclick="moveIntakeSectionItem('${meta.key}', 'durations', ${index}, 1)" aria-label="Move down">↓</button>
@@ -1388,7 +690,6 @@ function renderIntakeEditorSection() {
                 </div>
             </div>
         `).join('') || '<div class="intake-empty-state">No duration options yet. Add one to get started.</div>';
-
         bodyHtml = `
             <div class="intake-section-block">
                 <div class="intake-section-heading">Date Preference</div>
@@ -1427,7 +728,7 @@ function renderIntakeEditorSection() {
             ? (section.options || []).map((option, index) => `
                 <div class="intake-option-item">
                     <input type="text" value="${esc(option.l || '')}" oninput="updateIntakeSectionItem('${meta.key}', 'options', ${index}, 'l', this.value)" placeholder="Option label">
-                    ${buildIconPicker(meta.key, 'options', index, option.ik || 'notsure')}
+                    ${buildIconPicker(`${meta.key}-opt-${index}`, option.ik || 'notsure', `updateIntakeSectionItem('${meta.key}', 'options', ${index}, 'ik', 'VALUE')`)}
                     <div class="intake-option-actions">
                         <button class="intake-option-btn" onclick="moveIntakeSectionItem('${meta.key}', 'options', ${index}, -1)" aria-label="Move up">↑</button>
                         <button class="intake-option-btn" onclick="moveIntakeSectionItem('${meta.key}', 'options', ${index}, 1)" aria-label="Move down">↓</button>
@@ -1563,12 +864,10 @@ async function saveCustomizeQuestions() {
 
 window.setIntakeEditorSection = setIntakeEditorSection;
 window.updateIntakeSectionField = updateIntakeSectionField;
-window.updateIntakeSectionItem = updateIntakeSectionItem;
-window.addIntakeSectionItem = addIntakeSectionItem;
-window.deleteIntakeSectionItem = deleteIntakeSectionItem;
-window.moveIntakeSectionItem = moveIntakeSectionItem;
-window.toggleIconPicker = toggleIconPicker;
-window.selectIcon = selectIcon;
+window.updateIntakeOption = updateIntakeOption;
+window.addIntakeOption = addIntakeOption;
+window.deleteIntakeOption = deleteIntakeOption;
+window.moveIntakeOption = moveIntakeOption;
 window.resetIntakeSection = resetIntakeSection;
 window.saveIntakeFormConfig = saveIntakeFormConfig;
 window.loadCustomizeQuestions = loadCustomizeQuestions;
@@ -2177,5 +1476,3 @@ function tableError(id, cols, msg) {
     document.getElementById(id).innerHTML = `<tr class="error-row"><td colspan="${cols}">${esc(msg)}</td></tr>`;
 }
 </script>
-</body>
-</html>
