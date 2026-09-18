@@ -977,6 +977,13 @@ app.patch('/api/agent/leads/:id/status', requireAuth('agent'), async (req, res) 
             .update({ status, updated_at: new Date().toISOString() })
             .eq('id', req.params.id).eq('agent_id', req.agentId).select().single();
         if (error) throw error;
+        await recordCustomerActivity(
+            data.id,
+            req.agentId,
+            'status_changed',
+            `Customer status changed to ${status}`,
+            { status }
+        );
         res.status(200).json({ success: true, data });
     } catch (err) {
         console.error("❌ Error updating lead status:", err.message);
@@ -1111,6 +1118,14 @@ app.post('/api/feedback', feedbackRateLimit, async (req, res) => {
             continue_booking, agent_email: agent_email ? agent_email.trim().toLowerCase() : null
         });
         if (feedbackErr) throw feedbackErr;
+
+        await recordCustomerActivity(
+            clientId,
+            agentId,
+            'feedback_submitted',
+            'Customer feedback submitted',
+            { overall_rating: Number(overall_rating) }
+        );
 
         console.log(`✅ Feedback submitted by ${client_name} (${client_email})`);
         return res.status(201).json({
@@ -1358,6 +1373,20 @@ Keep the tone polished, exclusive, and tailored exactly to their profile. Do not
                     console.error('⚠️  Supabase client insert error:', clientInsertErr.message);
                 } else {
                     console.log('✅ Client stored. customer_id:', clientInsert.id);
+                    await recordCustomerActivity(
+                        clientInsert.id,
+                        agentId,
+                        'lead_received',
+                        'New customer lead received',
+                        { source: 'public_questionnaire' }
+                    );
+                    await recordCustomerActivity(
+                        clientInsert.id,
+                        agentId,
+                        'ai_analysis',
+                        'AI lead analysis completed',
+                        { generated: Boolean(dynamicAiSummary) }
+                    );
                 }
 
             } catch (dbErr) {
