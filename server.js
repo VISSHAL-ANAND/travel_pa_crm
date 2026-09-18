@@ -714,7 +714,10 @@ app.get('/api/agent/form-config', requireAuth('agent'), async (req, res) => {
         res.status(200).json({
             success: true,
             questions: (row && row.custom_questions) || [],
-            mainConfig: normalizeMainConfig(row ? row.main_config : {})
+            coreQuestions: (row && row.core_questions) || [],
+            mainConfig: normalizeMainConfig(row ? row.main_config : {}),
+            coreQuestionnaire: CORE_QUESTIONNAIRE,
+            version: CORE_QUESTIONNAIRE.version
         });
     } catch (err) {
         console.error("❌ Error fetching form config:", err.message);
@@ -745,7 +748,10 @@ app.put('/api/agent/form-config', requireAuth('agent'), async (req, res) => {
         const existingMainConfig = row?.main_config || {};
         const existingCoreQuestions = Array.isArray(row?.core_questions) ? row.core_questions : [];
         const version = Number(row?.version || 1);
-        const mergedMainConfig = buildMergedMainConfig(existingMainConfig, incomingMainConfig, deletedKeys);
+        // V2 core questionnaire is system-owned. Agent saves may only change
+        // custom questions; legacy main_config is retained for backwards compatibility
+        // but is not allowed to mutate the client-approved V2 core.
+        const mergedMainConfig = existingMainConfig;
 
         const { data, error } = await supabase.from('agent_form_config').upsert({
             agent_id: req.agentId,
@@ -762,7 +768,8 @@ app.put('/api/agent/form-config', requireAuth('agent'), async (req, res) => {
             questions: data.custom_questions || [],
             coreQuestions: data.core_questions || [],
             mainConfig: normalizeMainConfig(data.main_config || {}),
-            version: data.version
+            version: data.version,
+            coreQuestionnaire: CORE_QUESTIONNAIRE
         });
     } catch (err) {
         console.error("❌ Error saving form config:", err.message);
