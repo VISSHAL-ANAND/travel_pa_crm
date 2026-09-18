@@ -227,7 +227,6 @@
             if (data.success) {
                 localStorage.setItem('crm_token', data.token);
                 localStorage.setItem('crm_role',  activeRole);
-                if (activeRole === 'agent' && data.agentEmail) localStorage.setItem('crm_agent_email', data.agentEmail);
                 window.location.href = data.redirect;
             } else {
                 showError(data.message || 'Invalid credentials. Please try again.');

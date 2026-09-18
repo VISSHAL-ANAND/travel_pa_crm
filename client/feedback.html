@@ -191,26 +191,7 @@ body{font-family:'Jost',sans-serif;background:var(--cream);color:var(--txt);heig
 
 <script>
 const urlParams = new URLSearchParams(window.location.search);
-const AGENT_REF = urlParams.get('agent') || null;
-const AGENT_SLUG = urlParams.get('slug') || null;
-const AGENT_EMAIL = urlParams.get('email') || '';
-let AGENT_ID = AGENT_REF;
-async function resolveAgent() {
-  const endpoint = AGENT_REF
-    ? '/api/public/form-config/' + encodeURIComponent(AGENT_REF)
-    : AGENT_SLUG
-      ? '/api/public/form-config/slug/' + encodeURIComponent(AGENT_SLUG)
-      : null;
-  if (!endpoint) return;
-  try {
-    const r = await fetch(endpoint);
-    const p = await r.json();
-    if (r.ok && p.success) AGENT_ID = p.agent?.id || AGENT_ID;
-  } catch (e) {
-    console.warn('Unable to resolve feedback agent.', e);
-  }
-}
-resolveAgent();
+const AGENT_EMAIL = urlParams.get('agent') || urlParams.get('email') || '';
 
 const ratings = { overall: 0, service: 0, value: 0, recommend: 0 };
 let continueChoice = null;
@@ -280,7 +261,7 @@ window.submitFeedback = async function() {
     client_name: clientName, client_email: clientEmail, message: comment,
     overall_rating: ratings.overall, service_rating: ratings.service,
     value_rating: ratings.value, recommend_rating: ratings.recommend,
-    continue_booking: continueChoice, agent_email: AGENT_EMAIL, agent_id: AGENT_ID
+    continue_booking: continueChoice, agent_email: AGENT_EMAIL
   };
 
   const btn = document.getElementById('submitBtn');

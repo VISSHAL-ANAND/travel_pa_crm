@@ -731,8 +731,8 @@
 // ── Session ──
 const TOKEN       = localStorage.getItem('crm_token');
 const ROLE        = localStorage.getItem('crm_role');
-const AGENT_EMAIL = localStorage.getItem('crm_agent_email') || new URLSearchParams(location.search).get('email');
-const IS_AGENT    = ROLE === 'agent';
+const AGENT_EMAIL = new URLSearchParams(location.search).get('email');
+const IS_AGENT    = ROLE === 'agent' || !!AGENT_EMAIL;
 const COLORS      = ['c-blue', 'c-green', 'c-orange', 'c-purple'];
 
 if (!TOKEN) location.href = '/admin/login.html';
