@@ -10,6 +10,7 @@ const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const { createCustomerActivityService } = require('./server/customerActivity');
+const { CORE_QUESTIONNAIRE } = require('./server/questionnaireCore');
 
 const app = express();
 
@@ -912,7 +913,8 @@ app.get('/api/public/form-config/:agentId', async (req, res) => {
             questions: (row && row.custom_questions) || [],
             coreQuestions: (row && row.core_questions) || [],
             mainConfig: normalizeMainConfig(row ? row.main_config : {}),
-            version: (row && row.version) || 1
+            version: (row && row.version) || 1,
+            coreQuestionnaire: CORE_QUESTIONNAIRE
         });
     } catch (err) {
         console.error("❌ Error fetching public form config:", err.message);
@@ -958,7 +960,8 @@ app.get('/api/public/form-config/slug/:slug', async (req, res) => {
             questions: config?.custom_questions || [],
             coreQuestions: config?.core_questions || [],
             mainConfig: normalizeMainConfig(config?.main_config || {}),
-            version: config?.version || 1
+            version: config?.version || 1,
+            coreQuestionnaire: CORE_QUESTIONNAIRE
         });
     } catch (err) {
         console.error("❌ Error fetching public slug config:", err.message);
