@@ -110,6 +110,34 @@
         .profile-status { display:inline-flex; padding:4px 9px; border-radius:999px; font-size:11px; font-weight:700; background:#ecfdf5; color:#047857; }
         @media (max-width: 900px) { .profile-grid { grid-template-columns:1fr; } .profile-fields { grid-template-columns:1fr; } .profile-field.full { grid-column:auto; } }
 
+        /* ── V2 customer workspace ── */
+        .customer-toolbar { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px; }
+        .customer-toolbar input, .customer-toolbar select { padding:10px 12px; border:1px solid var(--border); border-radius:8px; background:#fff; font-size:14px; outline:none; }
+        .customer-toolbar input { flex:1; min-width:220px; }
+        .customer-toolbar input:focus, .customer-toolbar select:focus { border-color:var(--primary); }
+        .customer-table-wrap { overflow:auto; border:1px solid var(--border); border-radius:12px; }
+        .customer-table { width:100%; border-collapse:collapse; min-width:760px; }
+        .customer-table th { background:#f8fafc; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.05em; text-align:left; padding:12px 14px; }
+        .customer-table td { padding:13px 14px; border-top:1px solid var(--border); font-size:13px; vertical-align:middle; }
+        .customer-table tr.clickable { cursor:pointer; }
+        .customer-table tr.clickable:hover { background:#fafcff; }
+        .customer-name { font-weight:700; color:var(--text); }
+        .customer-sub { font-size:12px; color:var(--muted); margin-top:3px; }
+        .status-pill { display:inline-flex; padding:4px 9px; border-radius:999px; background:#eef2ff; color:#3730a3; font-size:11px; font-weight:700; }
+        .workspace { margin-top:22px; border:1px solid var(--border); border-radius:14px; background:#fff; overflow:hidden; }
+        .workspace-head { padding:20px 22px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; gap:15px; align-items:flex-start; }
+        .workspace-title { font-size:22px; font-weight:800; }
+        .workspace-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; padding:20px; }
+        .workspace-section { border:1px solid var(--border); border-radius:12px; padding:16px; }
+        .workspace-section h4 { font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin-bottom:10px; }
+        .workspace-section pre { white-space:pre-wrap; word-break:break-word; font:12px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace; color:#334155; max-height:260px; overflow:auto; }
+        .timeline { display:flex; flex-direction:column; gap:11px; }
+        .timeline-item { display:flex; gap:10px; align-items:flex-start; }
+        .timeline-dot { width:8px; height:8px; border-radius:50%; background:var(--primary); margin-top:5px; flex:0 0 auto; }
+        .timeline-label { font-size:13px; font-weight:600; }
+        .timeline-time { font-size:11px; color:var(--muted); margin-top:2px; }
+        @media (max-width:900px) { .workspace-grid { grid-template-columns:1fr; } }
+
         /* CSV Download Button */
         .btn-csv {
             background: #0f5caf; color: white; border: none; padding: 11px 20px;
@@ -476,6 +504,11 @@
             Custom
         </button>
 
+        <button class="nav-item" id="navCustomers" onclick="showView('customers')">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7h18M3 12h18M3 17h18"/></svg>
+            Customers
+        </button>
+
         <!-- ── FEEDBACK NAV ── -->
         <button class="nav-item" id="navFeedback" onclick="showView('feedback')">
             <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -620,6 +653,37 @@
                 </thead>
                 <tbody id="reportsBody"></tbody>
             </table>
+        </div>
+
+        <!-- ── CUSTOMERS / CUSTOMER WORKSPACE VIEW ── -->
+        <div id="viewCustomers" class="view-card">
+            <div class="view-head">
+                <div>
+                    <h2>Customers</h2>
+                    <p>${IS_AGENT ? "Manage your assigned customers and their complete workspace." : "Global customer workspace across every agent."}</p>
+                </div>
+            </div>
+            <div class="customer-toolbar">
+                <input id="customerSearch" type="search" placeholder="Search name, email or destination..." oninput="loadCustomers()">
+                <select id="customerStatus" onchange="loadCustomers()">
+                    <option value="">All statuses</option>
+                    <option value="new">New</option>
+                    <option value="in-progress">In Progress</option>
+                    <option value="contacted">Contacted</option>
+                    <option value="completed">Completed</option>
+                    <option value="closed">Closed</option>
+                </select>
+                <select id="customerAgentFilter" onchange="loadCustomers()" style="display:none">
+                    <option value="">All agents</option>
+                </select>
+            </div>
+            <div class="customer-table-wrap">
+                <table class="customer-table">
+                    <thead><tr><th>Customer</th><th>Destination</th><th>Travel dates</th><th>Budget</th><th>Status</th><th>Created</th></tr></thead>
+                    <tbody id="customersBody"><tr><td colspan="6">Open Customers to load records.</td></tr></tbody>
+                </table>
+            </div>
+            <div id="customerWorkspace"></div>
         </div>
 
         <!-- ── CUSTOM (INTAKE FORM) VIEW ── -->
@@ -811,6 +875,7 @@ let allAgents   = [];
 let allFeedback = [];
 let sortAsc     = true;
 let fbLoaded    = false;
+let customersRequest = 0;
 
 const INTAKE_EDITOR_SECTIONS = [
     { key: 'trip', label: 'Trip Type' },
@@ -1679,12 +1744,15 @@ window.addEventListener('DOMContentLoaded', () => {
 
 // ── Navigation ──
 function showView(v) {
-    ['agents','reports','custom','profile','feedback'].forEach(id => {
+    ['agents','reports','customers','custom','profile','feedback'].forEach(id => {
         const card = document.getElementById('view' + id.charAt(0).toUpperCase() + id.slice(1));
         if (card) card.classList.toggle('active', id === v);
         const nav = document.getElementById('nav' + id.charAt(0).toUpperCase() + id.slice(1));
         if (nav && nav.style.display !== 'none') nav.classList.toggle('active', id === v);
     });
+    if (v === 'customers') {
+        loadCustomers();
+    }
     if (v === 'custom') {
         loadIntakeFormConfig();
     }
@@ -1714,6 +1782,15 @@ async function loadAll() {
             else tableError('agentsBody', 5, j.message);
         } catch { tableError('agentsBody', 5, 'Could not reach the server.'); }
     }
+    if (!IS_AGENT) {
+        const sel = document.getElementById('customerAgentFilter');
+        if (sel && !sel.dataset.loaded) {
+            sel.innerHTML = '<option value="">All agents</option>' + allAgents.map(a => '<option value="' + escAttr(a.id) + '">' + esc(a.name) + '</option>').join('');
+            sel.dataset.loaded = '1';
+            sel.style.display = '';
+        }
+    }
+
     skeleton('reportsBody', 8, 6);
     try {
         const url = IS_AGENT ? `/api/agent/leads?email=${encodeURIComponent(AGENT_EMAIL)}` : '/api/admin/leads';
@@ -1722,6 +1799,102 @@ async function loadAll() {
         if (j.success) renderReports(j.data);
         else tableError('reportsBody', 8, j.message);
     } catch { tableError('reportsBody', 8, 'Could not reach the server.'); }
+}
+
+// ── V2 Customer Control Center ──
+async function loadCustomers() {
+    const requestId = ++customersRequest;
+    const H = { 'Authorization': 'Bearer ' + TOKEN };
+    const body = document.getElementById('customersBody');
+    if (!body) return;
+    body.innerHTML = '<tr><td colspan="6">Loading customers...</td></tr>';
+
+    const params = new URLSearchParams();
+    const search = document.getElementById('customerSearch')?.value.trim() || '';
+    const status = document.getElementById('customerStatus')?.value || '';
+    if (search) params.set('search', search);
+    if (status) params.set('status', status);
+    if (!IS_AGENT) {
+        const agentId = document.getElementById('customerAgentFilter')?.value || '';
+        if (agentId) params.set('agent_id', agentId);
+    }
+
+    try {
+        const endpoint = IS_AGENT ? '/api/agent/customers' : '/api/admin/customers';
+        const r = await fetch(endpoint + (params.toString() ? '?' + params.toString() : ''), { headers:H });
+        const j = await r.json();
+        if (requestId !== customersRequest) return;
+        if (!j.success) throw new Error(j.message || 'Failed to load customers.');
+        renderCustomers(j.data || []);
+    } catch (err) {
+        body.innerHTML = '<tr><td colspan="6" style="color:#dc2626">' + esc(err.message) + '</td></tr>';
+    }
+}
+
+function renderCustomers(rows) {
+    const body = document.getElementById('customersBody');
+    if (!rows.length) {
+        body.innerHTML = '<tr><td colspan="6" style="color:#6B7280">No customers found.</td></tr>';
+        return;
+    }
+    body.innerHTML = rows.map(c => {
+        const dates = [c.travel_date, c.travel_date_end].filter(Boolean).join(' — ') || '—';
+        const created = c.created_at ? new Date(c.created_at).toLocaleDateString() : '—';
+        const budget = c.budget != null ? ('£' + Number(c.budget).toLocaleString()) : '—';
+        return '<tr class="clickable" onclick="openCustomerWorkspace(\'' + escAttr(c.id) + '\')">' +
+            '<td><div class="customer-name">' + esc(c.name || 'Unknown Client') + '</div><div class="customer-sub">' + esc(c.email || 'No email') + '</div></td>' +
+            '<td>' + esc(c.concept || '—') + '</td><td>' + esc(dates) + '</td><td>' + esc(budget) + '</td>' +
+            '<td><span class="status-pill">' + esc((c.status || 'new').replaceAll('-', ' ')) + '</span></td><td>' + esc(created) + '</td></tr>';
+    }).join('');
+}
+
+async function openCustomerWorkspace(id) {
+    const H = { 'Authorization': 'Bearer ' + TOKEN };
+    const wrap = document.getElementById('customerWorkspace');
+    wrap.innerHTML = '<div class="workspace"><div class="workspace-head"><div><div class="workspace-title">Loading customer...</div></div></div></div>';
+    try {
+        const endpoint = IS_AGENT ? '/api/agent/customers/' + encodeURIComponent(id) : '/api/admin/customers/' + encodeURIComponent(id) + '/workspace';
+        const r = await fetch(endpoint, { headers:H });
+        const j = await r.json();
+        if (!j.success) throw new Error(j.message || 'Failed to load customer.');
+        const d = j.data;
+        const c = d.customer || {};
+        const feedback = d.feedback || [];
+        const activity = d.activity || [];
+        const questionnaire = c.custom_answers || {};
+        wrap.innerHTML =
+            '<div class="workspace">' +
+              '<div class="workspace-head"><div><div class="workspace-title">' + esc(c.name || 'Customer') + '</div><div class="customer-sub">' + esc(c.email || '') + ' · ' + esc(c.phone || 'No phone') + '</div></div>' +
+              '<select onchange="updateCustomerStatus(\'' + escAttr(c.id) + '\', this.value)">' +
+                ['new','in-progress','contacted','completed','closed'].map(s => '<option value="' + s + '"' + (s === c.status ? ' selected' : '') + '>' + s.replaceAll('-',' ') + '</option>').join('') +
+              '</select></div>' +
+              '<div class="workspace-grid">' +
+                '<div class="workspace-section"><h4>Travel requirements</h4><pre>' + esc(JSON.stringify({region:c.region,destination:c.destination,destination_specific:c.destination_specific,budget:c.budget,travel_date:c.travel_date,travel_date_end:c.travel_date_end,contact_method:c.contact_method,notes:c.notes}, null, 2)) + '</pre></div>' +
+                '<div class="workspace-section"><h4>AI strategy</h4><pre>' + esc(c.ai_strategy || 'No AI strategy stored.') + '</pre></div>' +
+                '<div class="workspace-section"><h4>Questionnaire answers</h4><pre>' + esc(JSON.stringify(questionnaire, null, 2)) + '</pre></div>' +
+                '<div class="workspace-section"><h4>Feedback</h4><pre>' + esc(feedback.length ? JSON.stringify(feedback, null, 2) : 'No feedback yet.') + '</pre></div>' +
+                '<div class="workspace-section" style="grid-column:1/-1"><h4>Activity timeline</h4><div class="timeline">' +
+                    (activity.length ? activity.map(a => '<div class="timeline-item"><span class="timeline-dot"></span><div><div class="timeline-label">' + esc(a.event_label) + '</div><div class="timeline-time">' + esc(a.created_at ? new Date(a.created_at).toLocaleString() : '') + '</div></div></div>').join('') : '<div class="customer-sub">No activity recorded yet.</div>') +
+                '</div></div>' +
+              '</div>' +
+            '</div>';
+    } catch (err) {
+        wrap.innerHTML = '<div class="workspace"><div style="padding:20px;color:#dc2626">' + esc(err.message) + '</div></div>';
+    }
+}
+
+async function updateCustomerStatus(id, status) {
+    if (!IS_AGENT) return;
+    const H = { 'Authorization': 'Bearer ' + TOKEN, 'Content-Type':'application/json' };
+    try {
+        const r = await fetch('/api/agent/leads/' + encodeURIComponent(id) + '/status', { method:'PATCH', headers:H, body:JSON.stringify({status}) });
+        const j = await r.json();
+        if (!j.success) throw new Error(j.message || 'Failed to update status.');
+        await loadCustomers();
+        await openCustomerWorkspace(id);
+    } catch (err) {
+        alert(err.message);
+    }
 }
 
 // ── Agent Feedback Link ──
