@@ -848,7 +848,6 @@ app.patch('/api/agent/leads/:id/status', requireAuth('agent'), async (req, res) 
 });
 
 // =========================================================================
-// ─── FEEDBACK ENDPOINTS ───// =========================================================================
 // ─── FEEDBACK ENDPOINTS ───
 // =========================================================================
 
@@ -868,7 +867,8 @@ app.post('/api/feedback', feedbackRateLimit, async (req, res) => {
             value_rating,
             recommend_rating,
             continue_booking,
-            agent_email
+            agent_email,
+            agent_id: requestedAgentId
         } = req.body;
 
         // --- Validation ---
