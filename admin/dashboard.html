@@ -1279,31 +1279,48 @@ function renderCustomizeQuestions() {
         list.innerHTML = '<div class="intake-empty-state">No custom questions yet. Add one to get started.</div>';
         return;
     }
-    list.innerHTML = intakeEditorQuestions.map((question, index) => `
-        <div class="custom-q-item">
-            <input type="text" value="${esc(question.label || '')}" oninput="updateCustomizeQuestion(${index}, this.value)" placeholder="Question label">
-            <label class="custom-q-required"><input type="checkbox" ${question.required ? 'checked' : ''} onchange="toggleCustomizeQuestionRequired(${index}, this.checked)"> Required</label>
-            <div class="intake-option-actions">
-                <button class="intake-option-btn" onclick="moveCustomizeQuestion(${index}, -1)" aria-label="Move up">↑</button>
-                <button class="intake-option-btn" onclick="moveCustomizeQuestion(${index}, 1)" aria-label="Move down">↓</button>
-                <button class="intake-option-btn danger" onclick="removeCustomizeQuestion(${index})" aria-label="Delete">✕</button>
-            </div>
-        </div>
-    `).join('');
+    list.innerHTML = intakeEditorQuestions.map((question, index) => {
+        const type = question.type || 'text';
+        const options = Array.isArray(question.options) ? question.options : [];
+        return '<div class="custom-q-item" style="align-items:flex-start;flex-wrap:wrap;">' +
+            '<div style="flex:1;min-width:220px;">' +
+              '<input type="text" value="' + esc(question.label || '') + '" oninput="updateCustomizeQuestion(' + index + ', \'label\', this.value)" placeholder="Question label">' +
+              '<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">' +
+                '<select onchange="updateCustomizeQuestion(' + index + ', \'type\', this.value)" style="padding:8px;border:1px solid var(--border);border-radius:8px;">' +
+                  ['text','textarea','number','date','select','multiselect','checkbox'].map(t => '<option value="' + t + '"' + (type===t?' selected':'') + '>' + t + '</option>').join('') +
+                '</select>' +
+                '<label class="custom-q-required"><input type="checkbox" ' + (question.required ? 'checked' : '') + ' onchange="toggleCustomizeQuestionRequired(' + index + ', this.checked)"> Required</label>' +
+              '</div>' +
+              ((type==='select'||type==='multiselect') ? '<input type="text" value="' + esc(options.join(', ')) + '" oninput="updateCustomizeQuestion(' + index + ', \'options\', this.value)" placeholder="Options, separated by commas" style="margin-top:8px;width:100%;">' : '') +
+            '</div>' +
+            '<div class="intake-option-actions">' +
+              '<button class="intake-option-btn" onclick="moveCustomizeQuestion(' + index + ', -1)" aria-label="Move up">↑</button>' +
+              '<button class="intake-option-btn" onclick="moveCustomizeQuestion(' + index + ', 1)" aria-label="Move down">↓</button>' +
+              '<button class="intake-option-btn danger" onclick="removeCustomizeQuestion(' + index + ')" aria-label="Delete">✕</button>' +
+            '</div>' +
+        '</div>';
+    }).join('');
 }
 
 function addCustomizeQuestion() {
     intakeEditorQuestions.push({
         id: makeCustomizeQuestionId('question'),
         label: '',
-        required: false
+        type: 'text',
+        required: false,
+        options: []
     });
     renderCustomizeQuestions();
 }
 
-function updateCustomizeQuestion(index, label) {
-    if (!intakeEditorQuestions[index]) return;
-    intakeEditorQuestions[index].label = label;
+function updateCustomizeQuestion(index, field, value) {
+    const q = intakeEditorQuestions[index];
+    if (!q) return;
+    if (field === 'options') q.options = String(value).split(',').map(v => v.trim()).filter(Boolean).slice(0, 50);
+    else if (field === 'type') {
+        q.type = value;
+        if (!['select','multiselect'].includes(value)) q.options = [];
+    } else q[field] = value;
 }
 
 function toggleCustomizeQuestionRequired(index, required) {
