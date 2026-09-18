@@ -65,3 +65,42 @@ CREATE INDEX IF NOT EXISTS idx_clients_agent_id ON clients(agent_id);
 CREATE INDEX IF NOT EXISTS idx_feedback_client_id ON feedback(client_id);
 CREATE INDEX IF NOT EXISTS idx_feedback_agent_id ON feedback(agent_id);
 CREATE INDEX IF NOT EXISTS idx_feedback_created_at ON feedback(created_at DESC);
+
+-- ============================================================================
+-- V2 FOUNDATION
+-- White-label agent profiles, customer enrichment, and safer status semantics.
+-- These statements are additive and safe to run against the existing database.
+-- ============================================================================
+
+ALTER TABLE agents ADD COLUMN IF NOT EXISTS logo_url TEXT;
+ALTER TABLE agents ADD COLUMN IF NOT EXISTS profile_photo_url TEXT;
+ALTER TABLE agents ADD COLUMN IF NOT EXISTS brand_name TEXT;
+ALTER TABLE agents ADD COLUMN IF NOT EXISTS brand_tagline TEXT;
+ALTER TABLE agents ADD COLUMN IF NOT EXISTS brand_primary_color TEXT;
+ALTER TABLE agents ADD COLUMN IF NOT EXISTS brand_secondary_color TEXT;
+ALTER TABLE agents ADD COLUMN IF NOT EXISTS contact_phone TEXT;
+ALTER TABLE agents ADD COLUMN IF NOT EXISTS contact_email TEXT;
+ALTER TABLE agents ADD COLUMN IF NOT EXISTS website_url TEXT;
+ALTER TABLE agents ADD COLUMN IF NOT EXISTS public_slug TEXT;
+ALTER TABLE agents ADD COLUMN IF NOT EXISTS is_active BOOLEAN NOT NULL DEFAULT TRUE;
+ALTER TABLE agents ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now());
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_agents_public_slug
+    ON agents(public_slug)
+    WHERE public_slug IS NOT NULL;
+
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS contact_method TEXT;
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS ai_strategy TEXT;
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS report_path TEXT;
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now());
+
+ALTER TABLE agent_form_config ADD COLUMN IF NOT EXISTS core_questions JSONB DEFAULT '[]';
+ALTER TABLE agent_form_config ADD COLUMN IF NOT EXISTS version INTEGER NOT NULL DEFAULT 1;
+
+CREATE INDEX IF NOT EXISTS idx_clients_email ON clients(email);
+CREATE INDEX IF NOT EXISTS idx_clients_status ON clients(status);
+CREATE INDEX IF NOT EXISTS idx_clients_created_at ON clients(created_at DESC);
+
+-- Keep status values controlled without destroying legacy rows.
+-- Existing deployments should review/normalize any unexpected status before
+-- validating this constraint in a future migration.
