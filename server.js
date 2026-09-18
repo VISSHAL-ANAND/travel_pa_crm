@@ -906,6 +906,52 @@ app.get('/api/public/form-config/:agentId', async (req, res) => {
     }
 });
 
+// GET /api/public/form-config/slug/:slug — public white-label config by agent slug
+app.get('/api/public/form-config/slug/:slug', async (req, res) => {
+    if (!supabase) return res.status(500).json({ success: false, message: "Database not configured." });
+    try {
+        const slug = typeof req.params.slug === 'string'
+            ? req.params.slug.trim().toLowerCase().replace(/[^a-z0-9-]/g, '')
+            : '';
+        if (!slug) return res.status(400).json({ success: false, message: 'Invalid agent slug.' });
+
+        const { data: agent, error: agentError } = await supabase
+            .from('agents')
+            .select('id, agent_name, email, logo_url, profile_photo_url, brand_name, brand_tagline, brand_primary_color, brand_secondary_color, contact_phone, contact_email, website_url, public_slug, is_active')
+            .eq('public_slug', slug).limit(1).maybeSingle();
+        if (agentError) throw agentError;
+        if (!agent || agent.is_active === false) return res.status(404).json({ success: false, message: 'Agent not found or inactive.' });
+
+        const { data: config, error: configError } = await supabase
+            .from('agent_form_config')
+            .select('custom_questions, main_config, core_questions, version')
+            .eq('agent_id', agent.id).limit(1).maybeSingle();
+        if (configError) throw configError;
+
+        res.json({
+            success: true,
+            agent: {
+                id: agent.id, name: agent.agent_name,
+                email: agent.contact_email || agent.email,
+                logoUrl: agent.logo_url, profilePhotoUrl: agent.profile_photo_url,
+                brandName: agent.brand_name || agent.agent_name,
+                brandTagline: agent.brand_tagline,
+                primaryColor: agent.brand_primary_color,
+                secondaryColor: agent.brand_secondary_color,
+                phone: agent.contact_phone, websiteUrl: agent.website_url,
+                publicSlug: agent.public_slug
+            },
+            questions: config?.custom_questions || [],
+            coreQuestions: config?.core_questions || [],
+            mainConfig: normalizeMainConfig(config?.main_config || {}),
+            version: config?.version || 1
+        });
+    } catch (err) {
+        console.error("❌ Error fetching public slug config:", err.message);
+        res.status(500).json({ success: false, message: "Failed to fetch public form config." });
+    }
+});
+
 // PATCH /api/agent/leads/:id/status
 app.patch('/api/agent/leads/:id/status', requireAuth('agent'), async (req, res) => {
     if (!supabase) return res.status(500).json({ success: false, message: "Database not configured." });
