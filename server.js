@@ -715,6 +715,43 @@ app.put('/api/agent/form-config', requireAuth('agent'), async (req, res) => {
     }
 });
 
+// PATCH /api/admin/agents/:id/password — reset an agent password
+app.patch('/api/admin/agents/:id/password', requireAuth('admin'), async (req, res) => {
+    if (!supabase) return res.status(500).json({ success: false, message: 'Database not configured.' });
+    try {
+        const password = typeof req.body?.password === 'string' ? req.body.password : '';
+        if (password.length < 8) return res.status(400).json({ success: false, message: 'Password must be at least 8 characters.' });
+        const hashedPassword = await bcrypt.hash(password, 12);
+        const { error } = await supabase.from('agents').update({ password: hashedPassword, updated_at: new Date().toISOString() }).eq('id', req.params.id);
+        if (error) throw error;
+        res.json({ success: true, message: 'Agent password updated.' });
+    } catch (err) {
+        console.error('❌ Error resetting agent password:', err.message);
+        res.status(500).json({ success: false, message: 'Failed to update agent password.' });
+    }
+});
+
+// PATCH /api/agent/password — authenticated agent changes their own password
+app.patch('/api/agent/password', requireAuth('agent'), async (req, res) => {
+    if (!supabase) return res.status(500).json({ success: false, message: 'Database not configured.' });
+    try {
+        const currentPassword = typeof req.body?.currentPassword === 'string' ? req.body.currentPassword : '';
+        const newPassword = typeof req.body?.newPassword === 'string' ? req.body.newPassword : '';
+        if (newPassword.length < 8) return res.status(400).json({ success: false, message: 'New password must be at least 8 characters.' });
+        const { data: agent, error: findErr } = await supabase.from('agents').select('password').eq('id', req.agentId).single();
+        if (findErr || !agent?.password) return res.status(404).json({ success: false, message: 'Agent not found.' });
+        const matches = await bcrypt.compare(currentPassword, agent.password);
+        if (!matches) return res.status(401).json({ success: false, message: 'Current password is incorrect.' });
+        const hashedPassword = await bcrypt.hash(newPassword, 12);
+        const { error } = await supabase.from('agents').update({ password: hashedPassword, updated_at: new Date().toISOString() }).eq('id', req.agentId);
+        if (error) throw error;
+        res.json({ success: true, message: 'Password changed successfully. Please sign in again.' });
+    } catch (err) {
+        console.error('❌ Error changing agent password:', err.message);
+        res.status(500).json({ success: false, message: 'Failed to change password.' });
+    }
+});
+
 // GET /api/agent/profile — authenticated agent profile and white-label settings
 app.get('/api/agent/profile', requireAuth('agent'), async (req, res) => {
     if (!supabase) return res.status(500).json({ success: false, message: 'Database not configured.' });
