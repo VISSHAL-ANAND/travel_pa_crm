@@ -476,6 +476,46 @@ app.get('/api/agent/leads/:id', requireAuth('agent'), async (req, res) => {
     }
 });
 
+// GET /api/admin/stats — global control-center metrics
+app.get('/api/admin/stats', requireAuth('admin'), async (req, res) => {
+    if (!supabase) return res.status(500).json({ success: false, message: 'Database not configured.' });
+    try {
+        const [{ data: agents }, { data: clients }, { data: feedback }] = await Promise.all([
+            supabase.from('agents').select('id, is_active, created_at'),
+            supabase.from('clients').select('id, agent_id, status, created_at'),
+            supabase.from('feedback').select('id, agent_id, overall_rating, created_at')
+        ]);
+        const clientRows = clients || [];
+        const feedbackRows = feedback || [];
+        const activeAgents = (agents || []).filter(a => a.is_active !== false).length;
+        const byStatus = clientRows.reduce((acc, row) => {
+            const key = row.status || 'unknown';
+            acc[key] = (acc[key] || 0) + 1;
+            return acc;
+        }, {});
+        const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+        const newLeads = clientRows.filter(c => c.created_at && new Date(c.created_at).getTime() >= sevenDaysAgo).length;
+        const ratings = feedbackRows.map(f => Number(f.overall_rating)).filter(Number.isFinite);
+        const averageRating = ratings.length ? Number((ratings.reduce((a,b) => a+b, 0) / ratings.length).toFixed(2)) : null;
+
+        res.json({
+            success: true,
+            data: {
+                totalAgents: (agents || []).length,
+                activeAgents,
+                totalCustomers: clientRows.length,
+                newLeads,
+                totalFeedback: feedbackRows.length,
+                averageRating,
+                customersByStatus: byStatus
+            }
+        });
+    } catch (err) {
+        console.error('❌ Error fetching admin stats:', err.message);
+        res.status(500).json({ success: false, message: 'Failed to fetch admin statistics.' });
+    }
+});
+
 // GET /api/admin/agents/:id — agent profile plus customers and feedback summary
 app.get('/api/admin/agents/:id', requireAuth('admin'), async (req, res) => {
     if (!supabase) return res.status(500).json({ success: false, message: 'Database not configured.' });
