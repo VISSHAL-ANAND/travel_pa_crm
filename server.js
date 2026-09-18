@@ -524,7 +524,7 @@ app.get('/api/agent/form-config', requireAuth('agent'), async (req, res) => {
 
         const { data, error } = await supabase
             .from('agent_form_config')
-            .select('custom_questions, main_config')
+            .select('custom_questions, main_config, core_questions, version')
             .eq('agent_id', agentRows[0].id)
             .limit(1);
         if (error) throw error;
@@ -545,7 +545,7 @@ app.get('/api/agent/form-config', requireAuth('agent'), async (req, res) => {
 app.put('/api/agent/form-config', requireAuth('agent'), async (req, res) => {
     if (!supabase) return res.status(500).json({ success: false, message: "Database not configured." });
     try {
-        const email = req.agentEmail || req.query.email;
+        const email = req.agentEmail;
         if (!email) return res.status(400).json({ success: false, message: "Agent email is required." });
 
         const { data: agentRows, error: agentErr } = await supabase
@@ -555,13 +555,21 @@ app.put('/api/agent/form-config', requireAuth('agent'), async (req, res) => {
 
         const agentId = agentRows[0].id;
         const incomingQuestions = Array.isArray(req.body?.questions) ? req.body.questions : [];
+        if (incomingQuestions.length > 100) return res.status(400).json({ success: false, message: 'Maximum 100 custom questions allowed.' });
+        for (const question of incomingQuestions) {
+            if (!question || typeof question !== 'object' || typeof question.id !== 'string' || typeof question.label !== 'string' || !question.label.trim()) {
+                return res.status(400).json({ success: false, message: 'Each custom question requires an id and label.' });
+            }
+        }
         const incomingMainConfig = req.body?.mainConfig && typeof req.body.mainConfig === 'object' ? req.body.mainConfig : {};
         const deletedKeys = Array.isArray(req.body?.deletedKeys) ? req.body.deletedKeys : [];
 
         const { data: existingRows, error: existingErr } = await supabase
-            .from('agent_form_config').select('main_config').eq('agent_id', agentId).limit(1);
+            .from('agent_form_config').select('main_config, core_questions, version').eq('agent_id', agentId).limit(1);
         if (existingErr) throw existingErr;
         const existingMainConfig = (existingRows && existingRows[0] && existingRows[0].main_config) || {};
+        const existingCoreQuestions = (existingRows && existingRows[0] && existingRows[0].core_questions) || [];
+        const version = Number((existingRows && existingRows[0] && existingRows[0].version) || 1);
 
         const mergedMainConfig = buildMergedMainConfig(existingMainConfig, incomingMainConfig, deletedKeys);
 
@@ -570,12 +578,14 @@ app.put('/api/agent/form-config', requireAuth('agent'), async (req, res) => {
             .upsert({
                 agent_id: agentId,
                 custom_questions: incomingQuestions,
+                core_questions: existingCoreQuestions,
                 main_config: mergedMainConfig,
+                version: version + 1,
                 updated_at: new Date()
             });
         if (error) throw error;
 
-        res.status(200).json({ success: true, mainConfig: mergedMainConfig, questions: incomingQuestions });
+        res.status(200).json({ success: true, mainConfig: mergedMainConfig, questions: incomingQuestions, coreQuestions: existingCoreQuestions, version: version + 1 });
     } catch (err) {
         console.error("❌ Error saving form config:", err.message);
         res.status(500).json({ success: false, message: "Failed to save form config.", error: err.message });
