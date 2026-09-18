@@ -1458,20 +1458,38 @@ function buildLeadObject(lead) {
 }
 
 function buildOptionsText(d) {
+    const custom = d.customAnswers && typeof d.customAnswers === 'object' ? d.customAnswers : {};
+    const dynamic = d.dynamic && typeof d.dynamic === 'object' ? d.dynamic : {};
     return `
-- Trip Concept: ${arr(d.tripDreams)}
-- Region: ${d.region || 'Not Specified'}
-- Destination: ${d.destination_specific || 'Not Specified'}
+- Holiday Types: ${arr(d.tripDreams)}
+- Destination: ${d.destination_specific || d.destination || 'Open to ideas'}
+- Open to ideas: ${d.ideas || 'Not Specified'}
 - Travel Party: ${arr(d.travelers)}
-- Date Flexibility: ${d.datesPreference || 'Not Specified'}
-- Stay Length: ${d.stayDuration || 'Not Specified'}
+- Adults: ${d.adults || 'Not Specified'}
+- Children: ${d.children || '0'}
+- Infants: ${d.infants || '0'}
+- Children Ages: ${d.childrenAges || 'Not Specified'}
+- Rooms: ${d.rooms || 'Not Specified'}
+- Room Type: ${arr(d.roomTypes)}
+- Accessibility: ${d.accessibility || 'Not Specified'}
+- Accessibility Details: ${d.accessibilityDetails || 'None'}
 - Travel Date Start: ${d.travelDateStart || 'Not Specified'}
 - Travel Date End: ${d.travelDateEnd || 'Not Specified'}
-- Required Assistance: ${arr(d.helpNeeded)}
-- Special Occasions/Priorities: ${arr(d.specialDetails)}
-- Accommodation Style: ${d.travelStyle || 'Not Specified'}
-- Nightly Budget Tier: £${d.nightlyBudget || 'Not Specified'}
-- Departing From (UK Airport): ${d.ukBaseLocation || 'Not Specified'}
+- Number of Nights: ${d.nights || 'Not Specified'}
+- Budget Type: ${d.budgetType || 'Not Specified'}
+- Approximate Budget: £${d.budget || d.nightlyBudget || 'Not Specified'}
+- Include Flights: ${d.flights || 'Not Specified'}
+- Holiday Preferences: ${arr(d.preferences)}
+- Special Occasion: ${arr(d.occasions)}
+- Must Have: ${d.mustHave || 'None specified'}
+- Things to Avoid: ${d.avoid || 'None specified'}
+- Anything Else: ${d.anythingElse || 'None specified'}
+- Preferred Contact: ${d.contactMethod || 'Not Specified'}
+- Best Time: ${d.bestTime || 'Not Specified'}
+- How They Found Us: ${d.referral || 'Not Specified'}
+- Referral Name: ${d.referralName || 'Not Specified'}
+- Dynamic Holiday Details: ${JSON.stringify(dynamic)}
+- Additional Agent Questions: ${JSON.stringify(custom)}
     `.trim();
 }
 
