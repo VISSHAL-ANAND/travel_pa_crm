@@ -925,16 +925,25 @@ app.post('/api/feedback', feedbackRateLimit, async (req, res) => {
             clientId = newClient.id;
         }
 
-        // --- Find agent ID if agent_email provided ---
+        // --- Resolve the agent from the public feedback link ---
         let agentId = null;
-        if (agent_email) {
+        if (requestedAgentId) {
             const { data: agentRows, error: agentFindErr } = await supabase
-                .from('agents')
-                .select('id')
-                .eq('email', agent_email.trim().toLowerCase())
-                .limit(1);
-
-            if (!agentFindErr && agentRows && agentRows.length > 0) {
+                .from('agents').select('id, email, is_active').eq('id', requestedAgentId).limit(1);
+            if (agentFindErr) throw agentFindErr;
+            if (!agentRows || agentRows.length === 0 || agentRows[0].is_active === false) {
+                return res.status(404).json({ success: false, message: 'Agent not found or inactive.' });
+            }
+            agentId = agentRows[0].id;
+            if (agent_email && agent_email.trim().toLowerCase() !== agentRows[0].email.toLowerCase()) {
+                return res.status(400).json({ success: false, message: 'Agent reference does not match the selected agent.' });
+            }
+        } else if (agent_email) {
+            const { data: agentRows, error: agentFindErr } = await supabase
+                .from('agents').select('id, email, is_active').eq('email', agent_email.trim().toLowerCase()).limit(1);
+            if (agentFindErr) throw agentFindErr;
+            if (agentRows && agentRows.length > 0) {
+                if (agentRows[0].is_active === false) return res.status(403).json({ success: false, message: 'This agent account is inactive.' });
                 agentId = agentRows[0].id;
             }
         }
