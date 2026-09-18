@@ -7,12 +7,34 @@ const PDFDocument = require('pdfkit');
 const { GoogleGenAI } = require('@google/genai');
 const { createClient } = require('@supabase/supabase-js');
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+// ─── Lightweight request rate limiting ───
+function rateLimit({ windowMs, max, message }) {
+    const hits = new Map();
+    return (req, res, next) => {
+        const key = req.ip || req.socket.remoteAddress || 'unknown';
+        const now = Date.now();
+        const current = hits.get(key);
+        if (!current || now - current.startedAt >= windowMs) {
+            hits.set(key, { startedAt: now, count: 1 });
+            return next();
+        }
+        current.count += 1;
+        if (current.count > max) return res.status(429).json({ success: false, message });
+        next();
+    };
+}
+
+const loginRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, message: 'Too many login attempts. Please try again later.' });
+const leadRateLimit = rateLimit({ windowMs: 60 * 1000, max: 20, message: 'Too many lead submissions. Please try again later.' });
+const feedbackRateLimit = rateLimit({ windowMs: 60 * 1000, max: 20, message: 'Too many feedback submissions. Please try again later.' });
 
 // ─── STATIC ROUTING ───
 app.use('/admin', express.static(path.join(__dirname, 'admin')));
@@ -168,104 +190,110 @@ async function resolveAdminId() {
 // ─── AUTHENTICATION ───
 // =========================================================================
 
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'SuperSecureAdmin2026';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const AUTH_SECRET = process.env.AUTH_SECRET || ADMIN_PASSWORD;
 
-function decodeAgentToken(token) {
+if (!ADMIN_PASSWORD) {
+    console.warn('⚠️ ADMIN_PASSWORD is not configured. Admin login will remain unavailable until it is set.');
+}
+if (!AUTH_SECRET) {
+    console.warn('⚠️ AUTH_SECRET is not configured. Authentication tokens cannot be issued until AUTH_SECRET or ADMIN_PASSWORD is set.');
+}
+
+function signAuthToken(payload) {
+    if (!AUTH_SECRET) return null;
+    const body = Buffer.from(JSON.stringify({ ...payload, exp: Date.now() + (8 * 60 * 60 * 1000) })).toString('base64url');
+    const signature = crypto.createHmac('sha256', AUTH_SECRET).update(body).digest('base64url');
+    return `tp_${body}.${signature}`;
+}
+
+function verifyAuthToken(token) {
+    if (!AUTH_SECRET || typeof token !== 'string' || !token.startsWith('tp_')) return null;
+    const raw = token.slice(3);
+    const [body, signature] = raw.split('.');
+    if (!body || !signature) return null;
+    const expected = crypto.createHmac('sha256', AUTH_SECRET).update(body).digest('base64url');
+    if (signature.length !== expected.length || !crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) return null;
     try {
-        const b64 = token.replace('token-agent-', '');
-        return Buffer.from(b64, 'base64').toString('utf8');
+        const payload = JSON.parse(Buffer.from(body, 'base64url').toString('utf8'));
+        if (!payload.exp || Date.now() >= payload.exp) return null;
+        return payload;
     } catch {
         return null;
     }
 }
 
-const requireAuth = (role) => {
-    return (req, res, next) => {
-        const authHeader = req.headers['authorization'];
-        const token = authHeader && authHeader.split(' ')[1];
+const requireAuth = (role) => (req, res, next) => {
+    const authHeader = req.headers.authorization || '';
+    const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : null;
+    const payload = verifyAuthToken(token);
 
-        if (!token) {
-            if (role === 'admin') return next();
-            if (role === 'agent' && req.query.email) return next();
-            return res.status(401).json({ success: false, message: "Access Denied: Auth token missing." });
-        }
+    if (!payload) {
+        return res.status(401).json({ success: false, message: 'Authentication required.' });
+    }
+    if (payload.role !== role) {
+        return res.status(403).json({ success: false, message: 'Forbidden.' });
+    }
 
-        if (role === 'admin' && token === `token-admin-${ADMIN_PASSWORD}`) return next();
-
-        if (role === 'agent' && token.startsWith('token-agent-')) {
-            const email = decodeAgentToken(token);
-            if (email) {
-                req.agentEmail = email;
-                return next();
-            }
-        }
-
-        return res.status(403).json({ success: false, message: "Forbidden: Invalid token." });
-    };
+    req.auth = payload;
+    if (role === 'agent') {
+        req.agentId = payload.agentId;
+        req.agentEmail = payload.email;
+    }
+    next();
 };
 
 // ─── Unified Login ───
-app.post('/api/auth/login', async (req, res) => {
-    const { role, email, password } = req.body;
+app.post('/api/auth/login', loginRateLimit, async (req, res) => {
+    const { role, email, password } = req.body || {};
 
     if (role === 'admin') {
-        console.log('🔐 Admin login attempt - comparing:', { incoming: password, expected: ADMIN_PASSWORD, match: password === ADMIN_PASSWORD });
-        if (password === ADMIN_PASSWORD) {
-            return res.status(200).json({
-                success: true,
-                token: `token-admin-${ADMIN_PASSWORD}`,
-                redirect: '/admin/dashboard.html'
-            });
+        if (!ADMIN_PASSWORD || !password || password !== ADMIN_PASSWORD) {
+            return res.status(401).json({ success: false, message: 'Invalid admin credentials.' });
         }
-        return res.status(401).json({ success: false, message: "Invalid admin password." });
+        const token = signAuthToken({ role: 'admin', email: (process.env.DEFAULT_ADMIN_EMAIL || '').trim().toLowerCase() });
+        if (!token) return res.status(503).json({ success: false, message: 'Authentication is not configured.' });
+        return res.status(200).json({ success: true, token, redirect: '/admin/dashboard.html' });
     }
 
     if (role === 'agent') {
-        if (!email || !password) {
-            return res.status(400).json({ success: false, message: "Email and password are required." });
-        }
-        if (!supabase) {
-            return res.status(500).json({ success: false, message: "Database not configured." });
-        }
+        if (!email || !password) return res.status(400).json({ success: false, message: 'Email and password are required.' });
+        if (!supabase) return res.status(500).json({ success: false, message: 'Database not configured.' });
 
+        const normalizedEmail = email.trim().toLowerCase();
         const { data: agentRows, error: agentErr } = await supabase
             .from('agents')
-            .select('id, email, password, agent_name')
-            .eq('email', email.trim().toLowerCase())
+            .select('id, email, password, agent_name, is_active')
+            .eq('email', normalizedEmail)
             .limit(1);
 
         if (agentErr) {
-            console.error("❌ DB error during agent login:", agentErr.message);
-            return res.status(500).json({ success: false, message: "Database error." });
+            console.error('❌ DB error during agent login:', agentErr.message);
+            return res.status(500).json({ success: false, message: 'Database error.' });
         }
-        if (!agentRows || agentRows.length === 0) {
-            return res.status(404).json({ success: false, message: "No agent found with that email." });
-        }
+        if (!agentRows || agentRows.length === 0) return res.status(401).json({ success: false, message: 'Invalid email or password.' });
 
         const agent = agentRows[0];
-
-        let passwordMatch = false;
-        if (agent.password.startsWith('$2b$') || agent.password.startsWith('$2a$')) {
-            passwordMatch = await bcrypt.compare(password, agent.password);
-        } else {
-            passwordMatch = (password === agent.password);
+        if (agent.is_active === false) return res.status(403).json({ success: false, message: 'This agent account is inactive.' });
+        if (!agent.password || !/^\\$2[aby]\\$/.test(agent.password)) {
+            return res.status(403).json({ success: false, message: 'Agent account requires a password reset before login.' });
         }
 
-        if (!passwordMatch) {
-            return res.status(401).json({ success: false, message: "Incorrect password." });
-        }
+        const passwordMatch = await bcrypt.compare(password, agent.password);
+        if (!passwordMatch) return res.status(401).json({ success: false, message: 'Invalid email or password.' });
 
-        const b64Email = Buffer.from(agent.email).toString('base64');
+        const token = signAuthToken({ role: 'agent', agentId: agent.id, email: agent.email });
+        if (!token) return res.status(503).json({ success: false, message: 'Authentication is not configured.' });
         return res.status(200).json({
             success: true,
-            token: `token-agent-${b64Email}`,
+            token,
             agentName: agent.agent_name,
             agentId: agent.id,
-            redirect: `/admin/dashboard.html?email=${encodeURIComponent(agent.email)}`
+            redirect: '/admin/dashboard.html'
         });
     }
 
-    return res.status(400).json({ success: false, message: "Invalid role specified." });
+    return res.status(400).json({ success: false, message: 'Invalid role specified.' });
 });
 
 // =========================================================================
@@ -405,7 +433,7 @@ app.delete('/api/admin/agents/:id', requireAuth('admin'), async (req, res) => {
 app.get('/api/agent/leads', requireAuth('agent'), async (req, res) => {
     if (!supabase) return res.status(500).json({ success: false, message: "Database not configured." });
     try {
-        const email = req.agentEmail || req.query.email;
+        const email = req.agentEmail;
         if (!email) return res.status(400).json({ success: false, message: "Agent email is required." });
 
         const { data: agentRows, error: agentErr } = await supabase
@@ -436,7 +464,7 @@ app.get('/api/agent/leads', requireAuth('agent'), async (req, res) => {
 app.get('/api/agent/link', requireAuth('agent'), async (req, res) => {
     if (!supabase) return res.status(500).json({ success: false, message: "Database not configured." });
     try {
-        const email = req.agentEmail || req.query.email;
+        const email = req.agentEmail;
         if (!email) return res.status(400).json({ success: false, message: "Agent email is required." });
 
         const { data: agentRows, error } = await supabase
@@ -581,7 +609,7 @@ app.patch('/api/agent/leads/:id/status', requireAuth('agent'), async (req, res) 
 // =========================================================================
 
 // POST /api/feedback — Submit new feedback
-app.post('/api/feedback', async (req, res) => {
+app.post('/api/feedback', feedbackRateLimit, async (req, res) => {
     if (!supabase) {
         return res.status(500).json({ success: false, message: "Database not configured." });
     }
@@ -832,7 +860,7 @@ app.get('/api/admin/feedback', requireAuth('admin'), async (req, res) => {
 // ─── NEW LEAD INTAKE (CLIENT QUESTIONNAIRE) ───
 // =========================================================================
 
-app.post('/api/new-lead', async (req, res) => {
+app.post('/api/new-lead', leadRateLimit, async (req, res) => {
     let dynamicAiSummary = "Fallback Summary: Onboarding details captured and forwarded to queue.";
     let finalStructuredReport = "";
 
