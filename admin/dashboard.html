@@ -2122,10 +2122,18 @@ function renderReports(list) {
 // ── Agent link helpers ──
 async function loadAgentLink() {
     try {
-        const r = await fetch(`/api/agent/link?email=${encodeURIComponent(AGENT_EMAIL)}`, { headers: { 'Authorization': 'Bearer ' + TOKEN } });
+        const r = await fetch('/api/agent/link', { headers: { 'Authorization': 'Bearer ' + TOKEN } });
         const j = await r.json();
-        if (j.success) document.getElementById('agentLinkInput').value = j.link;
-    } catch { document.getElementById('agentLinkInput').value = 'Could not load link.'; }
+        if (!j.success) throw new Error(j.message || 'Could not load link.');
+        document.getElementById('agentLinkInput').value = j.link || '';
+        const intake = document.getElementById('profileIntakeLink');
+        const feedback = document.getElementById('profileFeedbackLink');
+        if (intake) intake.value = j.link || '';
+        if (feedback) feedback.value = j.feedbackLink || '';
+        if (j.agentEmail) localStorage.setItem('crm_agent_email', j.agentEmail);
+    } catch {
+        document.getElementById('agentLinkInput').value = 'Could not load link.';
+    }
 }
 function copyAgentLink() {
     const input = document.getElementById('agentLinkInput');
