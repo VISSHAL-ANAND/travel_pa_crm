@@ -470,24 +470,10 @@ app.delete('/api/admin/agents/:id', requireAuth('admin'), async (req, res) => {
 app.get('/api/agent/leads', requireAuth('agent'), async (req, res) => {
     if (!supabase) return res.status(500).json({ success: false, message: "Database not configured." });
     try {
-        const email = req.agentEmail;
-        if (!email) return res.status(400).json({ success: false, message: "Agent email is required." });
-
-        const { data: agentRows, error: agentErr } = await supabase
-            .from('agents')
-            .select('id')
-            .eq('email', email.trim().toLowerCase())
-            .limit(1);
-        if (agentErr) throw agentErr;
-
-        if (!agentRows || agentRows.length === 0) {
-            return res.status(200).json({ success: true, data: [] });
-        }
-
         const { data: clients, error: clientsErr } = await supabase
             .from('clients')
             .select('*')
-            .eq('agent_id', agentRows[0].id);
+            .eq('agent_id', req.agentId);
         if (clientsErr) throw clientsErr;
 
         res.status(200).json({ success: true, data: clients.map(lead => buildLeadObject(lead)) });
@@ -528,7 +514,7 @@ app.get('/api/agent/link', requireAuth('agent'), async (req, res) => {
 app.get('/api/agent/form-config', requireAuth('agent'), async (req, res) => {
     if (!supabase) return res.status(500).json({ success: false, message: "Database not configured." });
     try {
-        const email = req.agentEmail || req.query.email;
+        const email = req.agentEmail;
         if (!email) return res.status(400).json({ success: false, message: "Agent email is required." });
 
         const { data: agentRows, error: agentErr } = await supabase
