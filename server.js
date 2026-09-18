@@ -552,21 +552,40 @@ app.get('/api/admin/agents/:id', requireAuth('admin'), async (req, res) => {
     }
 });
 
-// DELETE /api/admin/agents/:id
+// PATCH /api/admin/agents/:id/status — enable/disable an agent without deleting their data
+app.patch('/api/admin/agents/:id/status', requireAuth('admin'), async (req, res) => {
+    if (!supabase) return res.status(500).json({ success: false, message: "Database not configured." });
+    try {
+        const isActive = req.body?.is_active;
+        if (typeof isActive !== 'boolean') return res.status(400).json({ success: false, message: "is_active must be a boolean." });
+        const { data, error } = await supabase.from('agents')
+            .update({ is_active: isActive, updated_at: new Date().toISOString() })
+            .eq('id', req.params.id)
+            .select('id, agent_name, email, is_active')
+            .single();
+        if (error) throw error;
+        res.status(200).json({ success: true, data });
+    } catch (err) {
+        console.error("❌ Error updating agent status:", err.message);
+        res.status(500).json({ success: false, message: "Failed to update agent status." });
+    }
+});
+
+// DELETE /api/admin/agents/:id — destructive deletion is retained for admin use
 app.delete('/api/admin/agents/:id', requireAuth('admin'), async (req, res) => {
     if (!supabase) return res.status(500).json({ success: false, message: "Database not configured." });
     try {
-        const { id } = req.params;
-        const { error } = await supabase.from('agents').delete().eq('id', id);
+        const { error } = await supabase.from('agents').delete().eq('id', req.params.id);
         if (error) throw error;
         res.status(200).json({ success: true, message: "Agent deleted." });
     } catch (err) {
         console.error("❌ Error deleting agent:", err.message);
-        res.status(500).json({ success: false, message: "Failed to delete agent.", error: err.message });
+        res.status(500).json({ success: false, message: "Failed to delete agent." });
     }
 });
 
 // =========================================================================
+// ─── AGENT ENDPOINTS ───// =========================================================================
 // ─── AGENT ENDPOINTS ───
 // =========================================================================
 
@@ -814,26 +833,22 @@ app.get('/api/public/form-config/:agentId', async (req, res) => {
 app.patch('/api/agent/leads/:id/status', requireAuth('agent'), async (req, res) => {
     if (!supabase) return res.status(500).json({ success: false, message: "Database not configured." });
     try {
-        const { id } = req.params;
-        const { status } = req.body;
-        if (!status) return res.status(400).json({ success: false, message: "status is required." });
-
-        const { data, error } = await supabase
-            .from('clients')
-            .update({ status })
-            .eq('id', id)
-            .eq('agent_id', req.agentId)
-            .select()
-            .single();
+        const status = typeof req.body?.status === 'string' ? req.body.status.trim().toLowerCase() : '';
+        const allowedStatuses = new Set(['new', 'in-progress', 'contacted', 'completed', 'closed']);
+        if (!allowedStatuses.has(status)) return res.status(400).json({ success: false, message: "Invalid status." });
+        const { data, error } = await supabase.from('clients')
+            .update({ status, updated_at: new Date().toISOString() })
+            .eq('id', req.params.id).eq('agent_id', req.agentId).select().single();
         if (error) throw error;
         res.status(200).json({ success: true, data });
     } catch (err) {
         console.error("❌ Error updating lead status:", err.message);
-        res.status(500).json({ success: false, message: "Failed to update status.", error: err.message });
+        res.status(500).json({ success: false, message: "Failed to update status." });
     }
 });
 
 // =========================================================================
+// ─── FEEDBACK ENDPOINTS ───// =========================================================================
 // ─── FEEDBACK ENDPOINTS ───
 // =========================================================================
 
@@ -924,47 +939,32 @@ app.post('/api/feedback', feedbackRateLimit, async (req, res) => {
             }
         }
 
-        // --- Insert feedback ---
-        const { data: feedback, error: feedbackErr } = await supabase
-            .from('feedback')
-            .insert({
-                client_id: clientId,
-                agent_id: agentId,
-                client_name: client_name.trim(),
-                client_email: client_email.trim().toLowerCase(),
-                message: message.trim(),
-                overall_rating: overall_rating,
-                service_rating: service_rating,
-                value_rating: value_rating,
-                recommend_rating: recommend_rating,
-                continue_booking: continue_booking,
-                agent_email: agent_email || null
-            })
-            .select()
-            .single();
-
-        if (feedbackErr) throw feedbackErr;
-
-        // --- Update client's agent if they don't have one ---
+        // --- Verify customer/agent ownership BEFORE inserting feedback ---
         if (agentId) {
-            const { data: clientCheck } = await supabase
-                .from('clients')
-                .select('agent_id')
-                .eq('id', clientId)
-                .single();
-
+            const { data: clientCheck, error: clientCheckErr } = await supabase.from('clients')
+                .select('agent_id').eq('id', clientId).single();
+            if (clientCheckErr) throw clientCheckErr;
+            if (clientCheck?.agent_id && clientCheck.agent_id !== agentId) {
+                return res.status(409).json({ success: false, message: 'This customer is already associated with a different agent.' });
+            }
             if (clientCheck && !clientCheck.agent_id) {
-                await supabase
-                    .from('clients')
-                    .update({ agent_id: agentId })
-                    .eq('id', clientId);
-            } else if (clientCheck && clientCheck.agent_id && clientCheck.agent_id !== agentId) {
-                return res.status(409).json({
-                    success: false,
-                    message: 'This customer is already associated with a different agent.'
-                });
+                const { error: attachErr } = await supabase.from('clients')
+                    .update({ agent_id: agentId, updated_at: new Date().toISOString() })
+                    .eq('id', clientId).is('agent_id', null);
+                if (attachErr) throw attachErr;
             }
         }
+
+        // --- Insert feedback only after ownership has been validated ---
+        const { error: feedbackErr } = await supabase.from('feedback').insert({
+            client_id: clientId, agent_id: agentId,
+            client_name: client_name.trim(), client_email: client_email.trim().toLowerCase(),
+            message: message.trim(),
+            overall_rating: Number(overall_rating), service_rating: Number(service_rating),
+            value_rating: Number(value_rating), recommend_rating: Number(recommend_rating),
+            continue_booking, agent_email: agent_email ? agent_email.trim().toLowerCase() : null
+        });
+        if (feedbackErr) throw feedbackErr;
 
         console.log(`✅ Feedback submitted by ${client_name} (${client_email})`);
         return res.status(201).json({
