@@ -853,7 +853,7 @@ app.put('/api/agent/profile', requireAuth('agent'), async (req, res) => {
         if (updates.agent_name !== undefined && !updates.agent_name) {
             return res.status(400).json({ success: false, message: 'Agent name cannot be empty.' });
         }
-        if (updates.contact_email && !/^[^\s@]+@[^\s@]+\\.[^\s@]+$/.test(updates.contact_email)) {
+        if (updates.contact_email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(updates.contact_email)) {
             return res.status(400).json({ success: false, message: 'Invalid contact email.' });
         }
         if (updates.brand_primary_color && !/^#[0-9a-fA-F]{6}$/.test(updates.brand_primary_color)) {
@@ -1280,7 +1280,7 @@ app.post('/api/new-lead', leadRateLimit, async (req, res) => {
         const phone = typeof userData.phone === 'string' ? userData.phone.trim() : '';
         const holidayTypes = Array.isArray(userData.holidayTypes) ? userData.holidayTypes.filter(v => typeof v === 'string').map(v => v.trim()).filter(Boolean) : [];
         if (!firstName || !lastName) return res.status(400).json({ success: false, message: 'First and last name are required.' });
-        if (!email || !/^[^\s@]+@[^\s@]+\\.[^\s@]+$/.test(email)) return res.status(400).json({ success: false, message: 'A valid email address is required.' });
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({ success: false, message: 'A valid email address is required.' });
         if (!phone || phone.length < 6) return res.status(400).json({ success: false, message: 'A valid phone number is required.' });
         if (!holidayTypes.length || holidayTypes.length > 20) return res.status(400).json({ success: false, message: 'Please select at least one holiday type.' });
         if (JSON.stringify(userData).length > 100000) return res.status(413).json({ success: false, message: 'Questionnaire submission is too large.' });
