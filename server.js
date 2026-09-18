@@ -658,7 +658,7 @@ app.get('/api/agent/link', requireAuth('agent'), async (req, res) => {
 
         const { data: agentRows, error } = await supabase
             .from('agents')
-            .select('id, agent_name')
+            .select('id, agent_name, public_slug')
             .eq('email', email.trim().toLowerCase())
             .limit(1);
         if (error) throw error;
@@ -668,8 +668,15 @@ app.get('/api/agent/link', requireAuth('agent'), async (req, res) => {
         }
 
         const agent = agentRows[0];
-        const link = `${req.protocol}://${req.get('host')}/client/client_UI.html?agent=${agent.id}`;
-        res.status(200).json({ success: true, link, agentName: agent.agent_name });
+        const publicSlug = agent.public_slug;
+        const baseUrl = `${req.protocol}://${req.get('host')}`;
+        const link = publicSlug
+            ? `${baseUrl}/client/client_UI.html?slug=${encodeURIComponent(publicSlug)}`
+            : `${baseUrl}/client/client_UI.html?agent=${agent.id}`;
+        const feedbackLink = publicSlug
+            ? `${baseUrl}/feedback/feedback.html?slug=${encodeURIComponent(publicSlug)}`
+            : `${baseUrl}/feedback/feedback.html?agent=${agent.id}`;
+        res.status(200).json({ success: true, link, feedbackLink, agentId: agent.id, agentName: agent.agent_name, agentEmail: email, publicSlug });
     } catch (err) {
         console.error("❌ Error fetching agent link:", err.message);
         res.status(500).json({ success: false, message: "Failed to fetch link.", error: err.message });
