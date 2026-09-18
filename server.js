@@ -411,6 +411,38 @@ app.post('/api/admin/agents', requireAuth('admin'), async (req, res) => {
     }
 });
 
+// GET /api/admin/agents/:id — agent profile plus customers and feedback summary
+app.get('/api/admin/agents/:id', requireAuth('admin'), async (req, res) => {
+    if (!supabase) return res.status(500).json({ success: false, message: 'Database not configured.' });
+    try {
+        const { data: agent, error: agentError } = await supabase
+            .from('agents')
+            .select('id, agent_name, email, logo_url, profile_photo_url, brand_name, brand_tagline, brand_primary_color, brand_secondary_color, contact_phone, contact_email, website_url, public_slug, is_active, created_at, updated_at')
+            .eq('id', req.params.id)
+            .single();
+        if (agentError) throw agentError;
+
+        const [{ data: clients, error: clientsError }, { data: feedback, error: feedbackError }] = await Promise.all([
+            supabase.from('clients').select('*').eq('agent_id', agent.id).order('created_at', { ascending: false }),
+            supabase.from('feedback').select('*').eq('agent_id', agent.id).order('created_at', { ascending: false })
+        ]);
+        if (clientsError) throw clientsError;
+        if (feedbackError) throw feedbackError;
+
+        res.json({
+            success: true,
+            data: {
+                agent,
+                clients: (clients || []).map(buildLeadObject),
+                feedback: feedback || []
+            }
+        });
+    } catch (err) {
+        console.error('❌ Error fetching agent detail:', err.message);
+        res.status(500).json({ success: false, message: 'Failed to fetch agent detail.' });
+    }
+});
+
 // DELETE /api/admin/agents/:id
 app.delete('/api/admin/agents/:id', requireAuth('admin'), async (req, res) => {
     if (!supabase) return res.status(500).json({ success: false, message: "Database not configured." });
@@ -559,22 +591,113 @@ app.put('/api/agent/form-config', requireAuth('agent'), async (req, res) => {
     }
 });
 
+// GET /api/agent/profile — authenticated agent profile and white-label settings
+app.get('/api/agent/profile', requireAuth('agent'), async (req, res) => {
+    if (!supabase) return res.status(500).json({ success: false, message: 'Database not configured.' });
+    try {
+        const { data, error } = await supabase
+            .from('agents')
+            .select('id, agent_name, email, logo_url, profile_photo_url, brand_name, brand_tagline, brand_primary_color, brand_secondary_color, contact_phone, contact_email, website_url, public_slug, is_active')
+            .eq('id', req.agentId)
+            .single();
+        if (error) throw error;
+        res.json({ success: true, data });
+    } catch (err) {
+        console.error('❌ Error fetching agent profile:', err.message);
+        res.status(500).json({ success: false, message: 'Failed to fetch profile.' });
+    }
+});
+
+// PUT /api/agent/profile — update only the authenticated agent's white-label settings
+app.put('/api/agent/profile', requireAuth('agent'), async (req, res) => {
+    if (!supabase) return res.status(500).json({ success: false, message: 'Database not configured.' });
+    try {
+        const allowed = [
+            'agent_name', 'logo_url', 'profile_photo_url', 'brand_name', 'brand_tagline',
+            'brand_primary_color', 'brand_secondary_color', 'contact_phone', 'contact_email',
+            'website_url', 'public_slug'
+        ];
+        const updates = {};
+        for (const key of allowed) {
+            if (Object.prototype.hasOwnProperty.call(req.body || {}, key)) {
+                const value = req.body[key];
+                if (value !== null && typeof value !== 'string') {
+                    return res.status(400).json({ success: false, message: `${key} must be a string or null.` });
+                }
+                updates[key] = typeof value === 'string' ? value.trim() : value;
+            }
+        }
+        if (updates.agent_name !== undefined && !updates.agent_name) {
+            return res.status(400).json({ success: false, message: 'Agent name cannot be empty.' });
+        }
+        if (updates.contact_email && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(updates.contact_email)) {
+            return res.status(400).json({ success: false, message: 'Invalid contact email.' });
+        }
+        if (updates.brand_primary_color && !/^#[0-9a-fA-F]{6}$/.test(updates.brand_primary_color)) {
+            return res.status(400).json({ success: false, message: 'Primary color must be a hex color.' });
+        }
+        if (updates.brand_secondary_color && !/^#[0-9a-fA-F]{6}$/.test(updates.brand_secondary_color)) {
+            return res.status(400).json({ success: false, message: 'Secondary color must be a hex color.' });
+        }
+        updates.updated_at = new Date().toISOString();
+
+        const { data, error } = await supabase
+            .from('agents')
+            .update(updates)
+            .eq('id', req.agentId)
+            .select('id, agent_name, email, logo_url, profile_photo_url, brand_name, brand_tagline, brand_primary_color, brand_secondary_color, contact_phone, contact_email, website_url, public_slug, is_active')
+            .single();
+        if (error) throw error;
+        res.json({ success: true, data });
+    } catch (err) {
+        console.error('❌ Error updating agent profile:', err.message);
+        res.status(500).json({ success: false, message: 'Failed to update profile.' });
+    }
+});
+
 // GET /api/public/form-config/:agentId — public (no auth), used by client_UI.html
 app.get('/api/public/form-config/:agentId', async (req, res) => {
     if (!supabase) return res.status(500).json({ success: false, message: "Database not configured." });
     try {
+        const { data: agents, error: agentError } = await supabase
+            .from('agents')
+            .select('id, agent_name, email, logo_url, profile_photo_url, brand_name, brand_tagline, brand_primary_color, brand_secondary_color, contact_phone, contact_email, website_url, public_slug, is_active')
+            .eq('id', req.params.agentId)
+            .limit(1);
+        if (agentError) throw agentError;
+        const agent = agents && agents[0];
+        if (!agent || agent.is_active === false) {
+            return res.status(404).json({ success: false, message: 'Agent not found or inactive.' });
+        }
+
         const { data, error } = await supabase
             .from('agent_form_config')
-            .select('custom_questions, main_config')
-            .eq('agent_id', req.params.agentId)
+            .select('custom_questions, main_config, core_questions, version')
+            .eq('agent_id', agent.id)
             .limit(1);
         if (error) throw error;
 
         const row = data && data[0];
         res.status(200).json({
             success: true,
+            agent: {
+                id: agent.id,
+                name: agent.agent_name,
+                email: agent.contact_email || agent.email,
+                logoUrl: agent.logo_url,
+                profilePhotoUrl: agent.profile_photo_url,
+                brandName: agent.brand_name || agent.agent_name,
+                brandTagline: agent.brand_tagline,
+                primaryColor: agent.brand_primary_color,
+                secondaryColor: agent.brand_secondary_color,
+                phone: agent.contact_phone,
+                websiteUrl: agent.website_url,
+                publicSlug: agent.public_slug
+            },
             questions: (row && row.custom_questions) || [],
-            mainConfig: normalizeMainConfig(row ? row.main_config : {})
+            coreQuestions: (row && row.core_questions) || [],
+            mainConfig: normalizeMainConfig(row ? row.main_config : {}),
+            version: (row && row.version) || 1
         });
     } catch (err) {
         console.error("❌ Error fetching public form config:", err.message);
@@ -594,6 +717,7 @@ app.patch('/api/agent/leads/:id/status', requireAuth('agent'), async (req, res) 
             .from('clients')
             .update({ status })
             .eq('id', id)
+            .eq('agent_id', req.agentId)
             .select()
             .single();
         if (error) throw error;
