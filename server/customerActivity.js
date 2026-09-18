@@ -100,11 +100,18 @@ function createCustomerActivityService({ app, supabase, requireAuth, buildLeadOb
                 await recordCustomerActivity(customer.id, req.agentId, 'agent_opened', 'Customer workspace opened');
             }
 
+            const { data: latestActivity, error: latestActivityError } = await supabase
+                .from('customer_activity')
+                .select('*')
+                .eq('client_id', customer.id)
+                .order('created_at', { ascending:false });
+            if (latestActivityError) throw latestActivityError;
+
             res.json({ success:true, data:{
                 customer:buildLeadObject(customer),
                 agent:agent || null,
                 feedback:feedback || [],
-                activity:activity || []
+                activity:latestActivity || activity || []
             }});
         } catch (err) {
             console.error('❌ Error fetching customer workspace:', err.message);
