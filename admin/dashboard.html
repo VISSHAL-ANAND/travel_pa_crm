@@ -87,6 +87,29 @@
         .btn-primary:hover { background: #0050d8; }
         .btn-primary svg { width: 16px; height: 16px; }
 
+        /* ── Agent profile / white-label control center ── */
+        .profile-grid { display:grid; grid-template-columns: 1.1fr .9fr; gap:24px; }
+        .profile-panel { border:1px solid var(--border); border-radius:14px; padding:22px; background:#fff; }
+        .profile-panel h3 { font-size:17px; margin-bottom:5px; }
+        .profile-panel p { color:var(--muted); font-size:13px; margin-bottom:18px; line-height:1.5; }
+        .profile-fields { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+        .profile-field.full { grid-column:1 / -1; }
+        .profile-field label { display:block; font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px; }
+        .profile-field input { width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:8px; font-size:14px; outline:none; }
+        .profile-field input:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(0,98,255,.08); }
+        .profile-save { margin-top:18px; }
+        .profile-preview { border:1px solid var(--border); border-radius:16px; overflow:hidden; background:linear-gradient(145deg,#f8fbff,#fff); }
+        .profile-preview-head { padding:26px; display:flex; align-items:center; gap:16px; border-bottom:1px solid var(--border); }
+        .profile-photo { width:72px; height:72px; border-radius:50%; object-fit:cover; background:#eef2f7; border:1px solid var(--border); }
+        .profile-preview-brand { font-size:20px; font-weight:800; }
+        .profile-preview-tag { color:var(--muted); font-size:13px; margin-top:4px; }
+        .profile-preview-body { padding:22px; }
+        .profile-link { display:flex; gap:8px; margin-top:10px; }
+        .profile-link input { flex:1; min-width:0; padding:10px; border:1px solid var(--border); border-radius:8px; font-size:12px; }
+        .profile-note { font-size:12px; color:var(--muted); margin-top:10px; line-height:1.45; }
+        .profile-status { display:inline-flex; padding:4px 9px; border-radius:999px; font-size:11px; font-weight:700; background:#ecfdf5; color:#047857; }
+        @media (max-width: 900px) { .profile-grid { grid-template-columns:1fr; } .profile-fields { grid-template-columns:1fr; } .profile-field.full { grid-column:auto; } }
+
         /* CSV Download Button */
         .btn-csv {
             background: #0f5caf; color: white; border: none; padding: 11px 20px;
@@ -440,6 +463,10 @@
             </svg>
             Reports
         </button>
+        <button class="nav-item" id="navProfile" onclick="showView('profile')" style="display:none">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path stroke-linecap="round" stroke-linejoin="round" d="M4 21a8 8 0 0116 0"/></svg>
+            Profile & Brand
+        </button>
 
         <!-- ── CUSTOM (INTAKE FORM) NAV ── -->
         <button class="nav-item" id="navCustom" onclick="showView('custom')" style="display:none">
@@ -625,6 +652,48 @@
         <!-- ══════════════════════════════════════
              FEEDBACK VIEW
              ══════════════════════════════════════ -->
+        <div id="viewProfile" class="view-card">
+            <div class="view-head">
+                <div><h2>Profile & Brand</h2><p>Control the identity clients see on your intake and feedback pages.</p></div>
+                <span class="profile-status" id="profileStatus">Active</span>
+            </div>
+            <div class="profile-grid">
+                <div class="profile-panel">
+                    <h3>Agent identity</h3>
+                    <p>Your account identity is private to the CRM. Branding below is used for your public customer experience.</p>
+                    <div class="profile-fields">
+                        <div class="profile-field"><label>Agent name</label><input id="profileAgentName" maxlength="120"></div>
+                        <div class="profile-field"><label>Brand / company name</label><input id="profileBrandName" maxlength="120"></div>
+                        <div class="profile-field full"><label>Tagline</label><input id="profileTagline" maxlength="180" placeholder="A short line clients will see"></div>
+                        <div class="profile-field"><label>Profile photo URL</label><input id="profilePhotoUrl" type="url" placeholder="https://..."></div>
+                        <div class="profile-field"><label>Logo URL</label><input id="profileLogoUrl" type="url" placeholder="https://..."></div>
+                        <div class="profile-field"><label>Primary color</label><input id="profilePrimary" type="text" placeholder="#0062FF"></div>
+                        <div class="profile-field"><label>Secondary color</label><input id="profileSecondary" type="text" placeholder="#111827"></div>
+                        <div class="profile-field"><label>Contact phone</label><input id="profilePhone" maxlength="40"></div>
+                        <div class="profile-field"><label>Contact email</label><input id="profileContactEmail" type="email" maxlength="160"></div>
+                        <div class="profile-field full"><label>Website</label><input id="profileWebsite" type="url" placeholder="https://..."></div>
+                        <div class="profile-field full"><label>Public slug</label><input id="profileSlug" maxlength="60" placeholder="your-name"></div>
+                    </div>
+                    <div class="intake-editor-actions profile-save">
+                        <button class="btn-primary" onclick="saveAgentProfile()">Save Profile & Branding</button>
+                    </div>
+                </div>
+                <div class="profile-preview">
+                    <div class="profile-preview-head">
+                        <img id="profilePreviewPhoto" class="profile-photo" alt="Profile photo">
+                        <div><div id="profilePreviewBrand" class="profile-preview-brand">Your brand</div><div id="profilePreviewTag" class="profile-preview-tag">Your client experience</div></div>
+                    </div>
+                    <div class="profile-preview-body">
+                        <strong>Public customer links</strong>
+                        <div class="profile-note">Share these links with customers. Each link is isolated to this agent's configuration.</div>
+                        <div class="profile-link"><input id="profileIntakeLink" readonly><button class="btn-copy" onclick="copyProfileLink('profileIntakeLink',this)">Copy</button></div>
+                        <div class="profile-link"><input id="profileFeedbackLink" readonly><button class="btn-copy" onclick="copyProfileLink('profileFeedbackLink',this)">Copy</button></div>
+                        <div class="profile-note">Changing the slug changes the public links after you save.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div id="viewFeedback" class="view-card">
 
             <!-- Header -->
@@ -731,8 +800,9 @@
 // ── Session ──
 const TOKEN       = localStorage.getItem('crm_token');
 const ROLE        = localStorage.getItem('crm_role');
-const AGENT_EMAIL = new URLSearchParams(location.search).get('email');
-const IS_AGENT    = ROLE === 'agent' || !!AGENT_EMAIL;
+const STORED_AGENT_EMAIL = localStorage.getItem('crm_agent_email') || '';
+const AGENT_EMAIL = ROLE === 'agent' ? STORED_AGENT_EMAIL : null;
+const IS_AGENT    = ROLE === 'agent';
 const COLORS      = ['c-blue', 'c-green', 'c-orange', 'c-purple'];
 
 if (!TOKEN) location.href = '/admin/login.html';
@@ -1592,6 +1662,8 @@ window.addEventListener('DOMContentLoaded', () => {
         document.getElementById('agentFeedbackBanner').style.display = 'flex';
         document.getElementById('fbAgentsStat').style.display = 'none';
         document.getElementById('navCustom').style.display = 'flex';
+        document.getElementById('navProfile').style.display = 'flex';
+        loadAgentProfile();
         loadAgentLink();
         loadAgentFeedbackLink();
         showView('reports');
@@ -1607,7 +1679,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 // ── Navigation ──
 function showView(v) {
-    ['agents','reports','custom','feedback'].forEach(id => {
+    ['agents','reports','custom','profile','feedback'].forEach(id => {
         const card = document.getElementById('view' + id.charAt(0).toUpperCase() + id.slice(1));
         if (card) card.classList.toggle('active', id === v);
         const nav = document.getElementById('nav' + id.charAt(0).toUpperCase() + id.slice(1));
@@ -1615,6 +1687,9 @@ function showView(v) {
     });
     if (v === 'custom') {
         loadIntakeFormConfig();
+    }
+    if (v === 'profile') {
+        loadAgentProfile();
     }
     if (v === 'feedback' && !fbLoaded) {
         if (IS_AGENT) {
@@ -2176,6 +2251,75 @@ function skeleton(id, cols, rows) {
 function tableError(id, cols, msg) {
     document.getElementById(id).innerHTML = `<tr class="error-row"><td colspan="${cols}">${esc(msg)}</td></tr>`;
 }
+
+// ── Agent Profile / White-label control center ──
+let agentProfileLoaded = false;
+async function loadAgentProfile() {
+    if (!IS_AGENT || agentProfileLoaded) return;
+    try {
+        const r = await fetch('/api/agent/profile', { headers: { Authorization: 'Bearer ' + TOKEN } });
+        const j = await r.json();
+        if (!j.success) throw new Error(j.message || 'Failed to load profile.');
+        const p = j.data || {};
+        const set = (id, value) => { const el=document.getElementById(id); if(el) el.value=value || ''; };
+        set('profileAgentName', p.agent_name);
+        set('profileBrandName', p.brand_name || p.agent_name);
+        set('profileTagline', p.brand_tagline);
+        set('profilePhotoUrl', p.profile_photo_url);
+        set('profileLogoUrl', p.logo_url);
+        set('profilePrimary', p.brand_primary_color || '#0062FF');
+        set('profileSecondary', p.brand_secondary_color || '#111827');
+        set('profilePhone', p.contact_phone);
+        set('profileContactEmail', p.contact_email || p.email);
+        set('profileWebsite', p.website_url);
+        set('profileSlug', p.public_slug);
+        const status=document.getElementById('profileStatus'); status.textContent=p.is_active===false?'Inactive':'Active'; status.style.background=p.is_active===false?'#fef2f2':'#ecfdf5'; status.style.color=p.is_active===false?'#b91c1c':'#047857';
+        updateProfilePreview();
+        await loadAgentLink();
+        agentProfileLoaded = true;
+    } catch (err) {
+        toast(err.message || 'Could not load profile.', 'err');
+    }
+}
+function updateProfilePreview() {
+    const brand=document.getElementById('profileBrandName')?.value || document.getElementById('profileAgentName')?.value || 'Your brand';
+    const tag=document.getElementById('profileTagline')?.value || 'Your client experience';
+    const photo=document.getElementById('profilePhotoUrl')?.value || '';
+    document.getElementById('profilePreviewBrand').textContent=brand;
+    document.getElementById('profilePreviewTag').textContent=tag;
+    const img=document.getElementById('profilePreviewPhoto');
+    img.src=photo;
+    img.onerror=()=>{ img.removeAttribute('src'); };
+}
+['profileAgentName','profileBrandName','profileTagline','profilePhotoUrl'].forEach(id=>document.getElementById(id)?.addEventListener('input',updateProfilePreview));
+async function saveAgentProfile() {
+    const body={
+        agent_name:document.getElementById('profileAgentName').value.trim(),
+        brand_name:document.getElementById('profileBrandName').value.trim() || null,
+        brand_tagline:document.getElementById('profileTagline').value.trim() || null,
+        profile_photo_url:document.getElementById('profilePhotoUrl').value.trim() || null,
+        logo_url:document.getElementById('profileLogoUrl').value.trim() || null,
+        brand_primary_color:document.getElementById('profilePrimary').value.trim() || null,
+        brand_secondary_color:document.getElementById('profileSecondary').value.trim() || null,
+        contact_phone:document.getElementById('profilePhone').value.trim() || null,
+        contact_email:document.getElementById('profileContactEmail').value.trim() || null,
+        website_url:document.getElementById('profileWebsite').value.trim() || null,
+        public_slug:document.getElementById('profileSlug').value.trim().toLowerCase() || null
+    };
+    try {
+        const r=await fetch('/api/agent/profile',{method:'PUT',headers:{'Content-Type':'application/json',Authorization:'Bearer '+TOKEN},body:JSON.stringify(body)});
+        const j=await r.json();
+        if(!j.success) throw new Error(j.message || 'Failed to save profile.');
+        agentProfileLoaded=false;
+        await loadAgentProfile();
+        toast('Profile and branding saved.', 'ok');
+    } catch(err) { toast(err.message || 'Could not save profile.', 'err'); }
+}
+function copyProfileLink(id,btn) {
+    const el=document.getElementById(id); if(!el?.value) return;
+    navigator.clipboard.writeText(el.value).then(()=>{btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy',1600);});
+}
+
 </script>
 </body>
 </html>
