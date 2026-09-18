@@ -223,23 +223,23 @@ function verifyAuthToken(token) {
     }
 }
 
-const requireAuth = (role) => (req, res, next) => {
+const requireAuth = (role) => async (req, res, next) => {
     const authHeader = req.headers.authorization || '';
     const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : null;
     const payload = verifyAuthToken(token);
 
-    if (!payload) {
-        return res.status(401).json({ success: false, message: 'Authentication required.' });
-    }
-    if (payload.role !== role) {
-        return res.status(403).json({ success: false, message: 'Forbidden.' });
+    if (!payload) return res.status(401).json({ success: false, message: 'Authentication required.' });
+    if (payload.role !== role) return res.status(403).json({ success: false, message: 'Forbidden.' });
+
+    if (role === 'agent') {
+        if (!payload.agentId || !supabase) return res.status(401).json({ success: false, message: 'Invalid agent session.' });
+        const { data: agent, error } = await supabase.from('agents').select('id, email, is_active').eq('id', payload.agentId).single();
+        if (error || !agent || agent.is_active === false) return res.status(403).json({ success: false, message: 'Agent account is inactive or unavailable.' });
+        req.agentId = agent.id;
+        req.agentEmail = agent.email;
     }
 
     req.auth = payload;
-    if (role === 'agent') {
-        req.agentId = payload.agentId;
-        req.agentEmail = payload.email;
-    }
     next();
 };
 
