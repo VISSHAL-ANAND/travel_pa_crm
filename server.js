@@ -306,7 +306,7 @@ app.get('/api/admin/agents', requireAuth('admin'), async (req, res) => {
     try {
         const { data: agents, error: agentsErr } = await supabase
             .from('agents')
-            .select('id, agent_name, email');
+            .select('id, agent_name, email, logo_url, profile_photo_url, brand_name, brand_tagline, is_active');
 
         if (agentsErr) throw agentsErr;
 
@@ -322,6 +322,11 @@ app.get('/api/admin/agents', requireAuth('admin'), async (req, res) => {
                 id: agent.id,
                 name: agent.agent_name,
                 email: agent.email,
+                logo_url: agent.logo_url,
+                profile_photo_url: agent.profile_photo_url,
+                brand_name: agent.brand_name || agent.agent_name,
+                brand_tagline: agent.brand_tagline,
+                is_active: agent.is_active !== false,
                 client_count: count || 0
             };
         }));
@@ -417,7 +422,7 @@ app.get('/api/admin/agents/:id', requireAuth('admin'), async (req, res) => {
     try {
         const { data: agent, error: agentError } = await supabase
             .from('agents')
-            .select('id, agent_name, email, logo_url, profile_photo_url, brand_name, brand_tagline, brand_primary_color, brand_secondary_color, contact_phone, contact_email, website_url, public_slug, is_active, created_at, updated_at')
+            .select('id, agent_name, email, logo_url, profile_photo_url, brand_name, brand_tagline, brand_primary_color, brand_secondary_color, contact_phone, contact_email, website_url, public_slug, is_active, updated_at')
             .eq('id', req.params.id)
             .single();
         if (agentError) throw agentError;
