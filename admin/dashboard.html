@@ -1600,6 +1600,12 @@ function renderIntakeEditorSection() {
     card.style.display = 'block';
 }
 
+const CORE_QUESTIONNAIRE_V2 = {
+  version: 2,
+  sections: ['About You','Your Trip','Travellers','Budget','Holiday Style','Preferences','Review','Submit'],
+  locked: true
+};
+
 async function loadIntakeFormConfig() {
     if (intakeEditorLoaded) return;
     const card = document.getElementById('intakeEditorCard');
@@ -1607,52 +1613,56 @@ async function loadIntakeFormConfig() {
     if (!card) return;
     card.style.display = 'block';
     if (customCard) customCard.style.display = 'block';
-
-    const url = `/api/agent/form-config?email=${encodeURIComponent(AGENT_EMAIL)}`;
-
     try {
-        const response = await fetch(url, { headers: { Authorization: 'Bearer ' + TOKEN } });
+        const response = await fetch('/api/agent/form-config', { headers: { Authorization: 'Bearer ' + TOKEN } });
         const payload = await response.json();
         if (!payload.success) throw new Error(payload.message || 'Failed to load form config.');
-        const loadedMainConfig = payload.mainConfig && typeof payload.mainConfig === 'object' ? payload.mainConfig : {};
         intakeEditorQuestions = normalizeCustomQuestions(payload.questions);
-        intakeEditorOriginalMainConfig = JSON.parse(JSON.stringify(loadedMainConfig));
+        intakeEditorOriginalMainConfig = JSON.parse(JSON.stringify(payload.mainConfig || {}));
         intakeEditorDraft = {};
         INTAKE_EDITOR_SECTIONS.forEach(({ key }) => {
-            intakeEditorDraft[key] = normalizeIntakeSection(key, loadedMainConfig[key], DEFAULT_INTAKE_CONFIG[key]);
+            intakeEditorDraft[key] = normalizeIntakeSection(key, payload.mainConfig?.[key], DEFAULT_INTAKE_CONFIG[key]);
         });
         intakeEditorModifiedSections = new Set();
         intakeEditorResetSections = new Set();
         intakeEditorLoaded = true;
+        renderCoreQuestionnairePanel(payload.coreQuestionnaire || CORE_QUESTIONNAIRE_V2);
         renderIntakeEditorSection();
         loadCustomizeQuestions();
     } catch (err) {
         console.error('Intake form config load failed:', err);
         intakeEditorQuestions = [];
         intakeEditorDraft = {};
-        INTAKE_EDITOR_SECTIONS.forEach(({ key }) => {
-            intakeEditorDraft[key] = normalizeIntakeSection(key, null, DEFAULT_INTAKE_CONFIG[key]);
-        });
+        INTAKE_EDITOR_SECTIONS.forEach(({ key }) => { intakeEditorDraft[key] = normalizeIntakeSection(key, null, DEFAULT_INTAKE_CONFIG[key]); });
         intakeEditorLoaded = true;
+        renderCoreQuestionnairePanel(CORE_QUESTIONNAIRE_V2);
         renderIntakeEditorSection();
         loadCustomizeQuestions();
     }
 }
 
-async function saveIntakeFormConfig() {
-    const payload = {
-        questions: intakeEditorQuestions,
-        mainConfig: buildIntakeEditorPayload(),
-        deletedKeys: Array.from(intakeEditorResetSections)
-    };
+function renderCoreQuestionnairePanel(core) {
+    const card = document.getElementById('intakeEditorCard');
+    if (!card) return;
+    const existing = card.querySelector('.core-questionnaire-panel');
+    if (existing) existing.remove();
+    const panel = document.createElement('div');
+    panel.className = 'core-questionnaire-panel';
+    panel.style.cssText = 'margin-bottom:18px;padding:16px 18px;border:1px solid var(--border);border-radius:12px;background:#f8fafc;';
+    panel.innerHTML = '<div style="font-weight:800;font-size:14px;">Travel-PA Core Questionnaire V2 <span style="color:#087443;">LOCKED</span></div>' +
+      '<div style="font-size:12px;color:var(--muted);margin-top:5px;">The client-approved core flow cannot be deleted or structurally changed by an agent. You can add your own questions below it.</div>' +
+      '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:12px;">' +
+      (core.sections || CORE_QUESTIONNAIRE_V2.sections).map(s => '<span style="padding:5px 9px;border-radius:999px;background:white;border:1px solid var(--border);font-size:11px;">' + esc(typeof s === 'string' ? s : s.title) + '</span>').join('') +
+      '</div>';
+    card.prepend(panel);
+}
 
+async function saveIntakeFormConfig() {
+    const payload = { questions: intakeEditorQuestions, mainConfig: buildIntakeEditorPayload(), deletedKeys: Array.from(intakeEditorResetSections) };
     try {
-        const response = await fetch(`/api/agent/form-config?email=${encodeURIComponent(AGENT_EMAIL)}`, {
+        const response = await fetch('/api/agent/form-config', {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: 'Bearer ' + TOKEN
-            },
+            headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + TOKEN },
             body: JSON.stringify(payload)
         });
         const json = await response.json();
@@ -1661,7 +1671,7 @@ async function saveIntakeFormConfig() {
         intakeEditorOriginalMainConfig = JSON.parse(JSON.stringify(payload.mainConfig));
         intakeEditorModifiedSections = new Set();
         intakeEditorResetSections = new Set();
-        toast('Intake form updates saved.', 'ok');
+        toast('Agent customisation saved. Core questionnaire remains locked.', 'ok');
         renderIntakeEditorSection();
         renderCustomizeQuestions();
     } catch (err) {
@@ -1671,24 +1681,17 @@ async function saveIntakeFormConfig() {
 }
 
 async function saveCustomizeQuestions() {
-    const payload = {
-        questions: intakeEditorQuestions,
-        mainConfig: intakeEditorOriginalMainConfig,
-        deletedKeys: []
-    };
+    const payload = { questions: intakeEditorQuestions, mainConfig: intakeEditorOriginalMainConfig, deletedKeys: [] };
     try {
-        const response = await fetch(`/api/agent/form-config?email=${encodeURIComponent(AGENT_EMAIL)}`, {
+        const response = await fetch('/api/agent/form-config', {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: 'Bearer ' + TOKEN
-            },
+            headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + TOKEN },
             body: JSON.stringify(payload)
         });
         const json = await response.json();
         if (!json.success) throw new Error(json.message || 'Failed to save custom questions.');
         intakeEditorQuestions = normalizeCustomQuestions(json.questions);
-        toast('Custom questions saved.', 'ok');
+        toast('Custom questions saved. Core questionnaire remains locked.', 'ok');
         renderCustomizeQuestions();
     } catch (err) {
         console.error('Custom questions save failed:', err);
