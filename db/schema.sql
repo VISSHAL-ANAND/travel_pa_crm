@@ -92,6 +92,8 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_agents_public_slug
 ALTER TABLE clients ADD COLUMN IF NOT EXISTS contact_method TEXT;
 ALTER TABLE clients ADD COLUMN IF NOT EXISTS ai_strategy TEXT;
 ALTER TABLE clients ADD COLUMN IF NOT EXISTS report_path TEXT;
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS questionnaire_version INTEGER NOT NULL DEFAULT 2;
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS questionnaire_answers JSONB NOT NULL DEFAULT '{}';
 ALTER TABLE clients ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now());
 
 ALTER TABLE agent_form_config ADD COLUMN IF NOT EXISTS core_questions JSONB DEFAULT '[]';
