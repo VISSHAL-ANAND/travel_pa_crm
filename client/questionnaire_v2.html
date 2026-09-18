@@ -75,7 +75,7 @@ textarea{min-height:112px;resize:vertical}
 .start-btn{margin-top:28px;width:max-content;border:0;border-radius:13px;background:var(--secondary);color:#fff;padding:14px 22px;font-weight:850;cursor:pointer;box-shadow:0 9px 22px rgba(47,128,237,.23)}
 .welcome-points{display:flex;gap:18px;flex-wrap:wrap;margin-top:28px;color:#475467;font-size:11px;font-weight:750}
 .welcome-points span{display:flex;align-items:center;gap:6px}
-.welcome-art{position:relative;min-height:560px;background:
+.welcome-art{position:relative;min-height:560px;background-image:linear-gradient(155deg,rgba(21,76,112,.08),rgba(21,76,112,.48)),url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=85");background-size:cover;background-position:center;
  radial-gradient(circle at 74% 25%,rgba(255,255,255,.75) 0 4%,transparent 4.5%),
  linear-gradient(155deg,rgba(21,76,112,.05),rgba(21,76,112,.45)),
  linear-gradient(180deg,#b9e6f4 0 44%,#58b5d1 44% 55%,#247a9d 55% 100%);
@@ -193,7 +193,7 @@ function renderReview(){if(state.step!==6)return;values();const v=state.values;$
 function renderProgress(){const labels=['About You','Your Trip','Travellers','Budget','Holiday Style','Preferences','Review','Submit'];$('progress').innerHTML=labels.map((x,i)=>'<div class="step" data-p="'+i+'">'+(i+1)+' '+x+'</div>').join('');}
 function showWelcome(){$('welcomeWrap').classList.remove('hidden');$('formWrap').classList.add('hidden');}
 function startPlan(){$('welcomeWrap').classList.add('hidden');$('formWrap').classList.remove('hidden');state.started=true;showStep(0);}
-function showStep(n){if(!state.started)return;state.step=n;document.querySelectorAll('.section').forEach(x=>x.classList.toggle('active',Number(x.dataset.section)===n));document.querySelectorAll('.step').forEach(x=>x.classList.toggle('active',Number(x.dataset.p)===n));$('back').style.visibility=n?'visible':'hidden';$('next').textContent=n===7?'Submit':'Next';if(n===6)renderReview();window.scrollTo({top:0,behavior:'smooth'});}
+function showStep(n){if(!state.started)return;state.step=n;document.querySelectorAll('.section').forEach(x=>x.classList.toggle('active',Number(x.dataset.section)===n));document.querySelectorAll('.step').forEach(x=>{const i=Number(x.dataset.p);x.classList.toggle('active',i===n);x.classList.toggle('done',i<n)});$('back').style.visibility=n?'visible':'hidden';$('next').textContent=n===7?'Submit':'Next';if(n===6)renderReview();window.scrollTo({top:0,behavior:'smooth'});}
 function validStep(){const sec=document.querySelector('.section.active');if(!sec)return true;for(const e of sec.querySelectorAll('[required]'))if(!e.value.trim()){e.focus();return false}if(state.step===1&&!state.selected.holidayTypes.length){alert('Please select at least one holiday type.');return false}return true;}
 $('startPlan').onclick=startPlan;$('back').onclick=()=>{if(state.step>0)showStep(state.step-1)};$('next').onclick=async()=>{if(!validStep())return;if(state.step<7){showStep(state.step+1);return}await submit()};
 $('form').addEventListener('input',()=>{if(state.step===6)renderReview()});$('accessibility').addEventListener('change',e=>{if(e.target.checked)$('accessibilityDetailsWrap').style.display=e.target.value==='Yes'?'block':'none'});$('referrals').addEventListener('change',e=>{$('referralNameWrap').style.display=e.target.checked&&e.target.value==='Referral'?'block':'none'});
