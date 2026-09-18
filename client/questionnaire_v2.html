@@ -209,6 +209,7 @@ async function submit(){
    const pc=document.getElementById("pageContent");
    pc.innerHTML='<div class="complete"><div class="done-title">We could not submit this yet.</div><div class="gold-bar" style="margin:16px auto 20px"></div><div class="done-sub">'+esc(e.message||"Please try again.")+'</div></div>';
  }
+}
 async function init(){try{const ok=await loadConfig();if(!ok)throw new Error("This questionnaire link is missing its agent reference.");render()}catch(e){const pc=document.getElementById("pageContent");pc.innerHTML='<div class="complete"><div class="done-title">Questionnaire unavailable</div><div class="gold-bar" style="margin:16px auto 20px"></div><div class="done-sub">'+esc(e.message)+'</div></div>';document.getElementById("footer").style.display="none"}}
 s9=async function(pc){pc.innerHTML='<div class="complete"><div class="done-icon">'+icon("M5 12l4 4L19 6")+'</div><div class="done-title">Thank You.</div><div class="gold-bar" style="margin:16px auto 20px"></div><div class="done-sub">Your enquiry has been submitted. Your travel consultant will review everything and usually contact you within one working day.</div></div>'}
 document.addEventListener("DOMContentLoaded",init);
