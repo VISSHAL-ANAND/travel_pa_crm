@@ -191,11 +191,24 @@ function clearError(){const e=document.getElementById("err");if(e)e.remove()}
 function showError(){clearError();const e=document.createElement("div");e.id="err";e.style.cssText="color:#a33b31;font:600 12px Jost;margin:12px 0";e.textContent=errMsg();document.getElementById("pageContent").appendChild(e)}
 function updateNext(){const b=document.getElementById("nextBtn");if(b)b.style.opacity=validate()?"1":".55"}
 function render(){renderSteps();setSide();const pc=document.getElementById("pageContent");[s0,s1,s2,s3,s4,s5,s6,s7,s8,s9][cur](pc);document.getElementById("backBtn").style.visibility=cur===0?"hidden":"visible";document.getElementById("nextBtn").style.display=cur===9?"none":"block";updateNext()}
-function next(){if(!validate()){showError();return}clearError();if(cur<9){cur++;render()}}
+async function next(){
+  if(!validate()){showError();return}
+  clearError()
+  if(cur===8){await submit();return}
+  if(cur<9){cur++;render()}
+}
 function prev(){if(cur>0){cur--;render()}}
 async function submit(){
+ try {
  const payload={firstName:ans.firstName,lastName:ans.lastName,email:ans.email,phone:ans.phone,holidayTypes:ans.holidayTypes,tripDreams:ans.holidayTypes,destination:ans.destination,destinationVibes:ans.destination?[ans.destination]:[],ideas:ans.ideas,travelDateStart:ans.dates,travelDateEnd:ans.datesEnd,nights:ans.nights,adults:ans.adults,children:ans.children,infants:ans.infants,childrenAges:ans.childrenAges,rooms:ans.rooms,roomTypes:ans.roomType,accessibility:ans.accessibility,accessibilityDetails:ans.accessibilityDetails,budgetType:ans.budgetType,budget:ans.budget,nightlyBudget:ans.budget,flights:ans.flights,preferences:ans.preferences,occasions:ans.occasions,mustHave:ans.mustHave,avoid:ans.avoid,anythingElse:ans.anythingElse,specialDetails:ans.anythingElse,contactMethod:ans.contactMethod,bestTime:ans.bestTime,referral:ans.referral,referralName:ans.referralName,assignedAgent:agent?.name||"Direct Web Traffic",agentId,dynamic:ans.dynamic,customAnswers:ans.customAnswers,questionnaireVersion:Number(core.version||2)};
- const r=await fetch("/api/new-lead",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});const p=await r.json();if(!r.ok||!p.success)throw new Error(p.message||"Unable to submit your enquiry");cur=9;render()}
+ const r=await fetch("/api/new-lead",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+ const p=await r.json().catch(()=>({}));
+ if(!r.ok||!p.success)throw new Error(p.message||"Unable to submit your enquiry");
+ cur=9;render();
+ } catch(e) {
+   const pc=document.getElementById("pageContent");
+   pc.innerHTML='<div class="complete"><div class="done-title">We could not submit this yet.</div><div class="gold-bar" style="margin:16px auto 20px"></div><div class="done-sub">'+esc(e.message||"Please try again.")+'</div></div>';
+ }
 async function init(){try{const ok=await loadConfig();if(!ok)throw new Error("This questionnaire link is missing its agent reference.");render()}catch(e){const pc=document.getElementById("pageContent");pc.innerHTML='<div class="complete"><div class="done-title">Questionnaire unavailable</div><div class="gold-bar" style="margin:16px auto 20px"></div><div class="done-sub">'+esc(e.message)+'</div></div>';document.getElementById("footer").style.display="none"}}
 s9=async function(pc){pc.innerHTML='<div class="complete"><div class="done-icon">'+icon("M5 12l4 4L19 6")+'</div><div class="done-title">Thank You.</div><div class="gold-bar" style="margin:16px auto 20px"></div><div class="done-sub">Your enquiry has been submitted. Your travel consultant will review everything and usually contact you within one working day.</div></div>'}
 document.addEventListener("DOMContentLoaded",init);
