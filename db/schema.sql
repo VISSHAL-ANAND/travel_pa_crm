@@ -104,3 +104,25 @@ CREATE INDEX IF NOT EXISTS idx_clients_created_at ON clients(created_at DESC);
 -- Keep status values controlled without destroying legacy rows.
 -- Existing deployments should review/normalize any unexpected status before
 -- validating this constraint in a future migration.
+
+
+-- V2 CUSTOMER WORKSPACE
+CREATE TABLE IF NOT EXISTS customer_activity (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    client_id UUID NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
+    agent_id UUID REFERENCES agents(id) ON DELETE SET NULL,
+    event_type TEXT NOT NULL CHECK (event_type IN (
+        'lead_received','agent_opened','status_changed',
+        'report_generated','feedback_submitted','ai_analysis'
+    )),
+    event_label TEXT NOT NULL,
+    metadata JSONB NOT NULL DEFAULT '{}',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+);
+
+CREATE INDEX IF NOT EXISTS idx_customer_activity_client_created
+    ON customer_activity(client_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_customer_activity_agent_created
+    ON customer_activity(agent_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_customer_activity_type
+    ON customer_activity(event_type);
