@@ -191,7 +191,39 @@ body{font-family:'Jost',sans-serif;background:var(--cream);color:var(--txt);heig
 
 <script>
 const urlParams = new URLSearchParams(window.location.search);
-const AGENT_EMAIL = urlParams.get('agent') || urlParams.get('email') || '';
+const AGENT_ID = urlParams.get('agent') || urlParams.get('agentId') || '';
+const AGENT_EMAIL = urlParams.get('email') || '';
+
+async function loadAgentBranding() {
+  if (!AGENT_ID) return;
+  try {
+    const response = await fetch('/api/public/form-config/' + encodeURIComponent(AGENT_ID));
+    const result = await response.json();
+    if (!result.success || !result.agent) return;
+    const agent = result.agent;
+    const root = document.documentElement;
+    if (agent.primaryColor) root.style.setProperty('--gold', agent.primaryColor);
+    if (agent.secondaryColor) root.style.setProperty('--gold-l', agent.secondaryColor);
+    const title = document.querySelector('.fb-title');
+    const eyebrow = document.querySelector('.fb-eyebrow');
+    const subtitle = document.querySelector('.fb-sub');
+    const sidebarImage = document.querySelector('.sb-img');
+    if (eyebrow) eyebrow.textContent = agent.brandName || agent.name || 'Client Feedback';
+    if (title) title.innerHTML = 'Tell us about your<br>experience with ' + (agent.name || agent.brandName || 'your advisor');
+    if (subtitle && agent.brandTagline) subtitle.textContent = agent.brandTagline;
+    if (sidebarImage && agent.profilePhotoUrl) {
+      sidebarImage.src = agent.profilePhotoUrl;
+      sidebarImage.alt = (agent.name || 'Travel advisor') + ' profile photo';
+    }
+    if (agent.websiteUrl) {
+      document.querySelectorAll('.back-link').forEach(link => link.href = agent.websiteUrl);
+    }
+  } catch (error) {
+    console.warn('Could not load agent branding:', error.message);
+  }
+}
+
+loadAgentBranding();
 
 const ratings = { overall: 0, service: 0, value: 0, recommend: 0 };
 let continueChoice = null;
@@ -261,7 +293,7 @@ window.submitFeedback = async function() {
     client_name: clientName, client_email: clientEmail, message: comment,
     overall_rating: ratings.overall, service_rating: ratings.service,
     value_rating: ratings.value, recommend_rating: ratings.recommend,
-    continue_booking: continueChoice, agent_email: AGENT_EMAIL
+    continue_booking: continueChoice, agent_id: AGENT_ID || undefined, agent_email: AGENT_EMAIL || undefined
   };
 
   const btn = document.getElementById('submitBtn');
