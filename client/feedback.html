@@ -192,15 +192,22 @@ body{font-family:'Jost',sans-serif;background:var(--cream);color:var(--txt);heig
 <script>
 const urlParams = new URLSearchParams(window.location.search);
 const AGENT_ID = urlParams.get('agent') || urlParams.get('agentId') || '';
-const AGENT_EMAIL = urlParams.get('email') || '';
+const AGENT_SLUG = urlParams.get('slug') || '';
+let RESOLVED_AGENT_ID = AGENT_ID;
+let AGENT_EMAIL = '';
 
 async function loadAgentBranding() {
-  if (!AGENT_ID) return;
+  if (!AGENT_ID && !AGENT_SLUG) return;
   try {
-    const response = await fetch('/api/public/form-config/' + encodeURIComponent(AGENT_ID));
+    const endpoint = AGENT_SLUG
+      ? '/api/public/form-config/slug/' + encodeURIComponent(AGENT_SLUG)
+      : '/api/public/form-config/' + encodeURIComponent(AGENT_ID);
+    const response = await fetch(endpoint);
     const result = await response.json();
     if (!result.success || !result.agent) return;
     const agent = result.agent;
+    RESOLVED_AGENT_ID = agent.id || RESOLVED_AGENT_ID;
+    AGENT_EMAIL = agent.email || '';
     const root = document.documentElement;
     if (agent.primaryColor) root.style.setProperty('--gold', agent.primaryColor);
     if (agent.secondaryColor) root.style.setProperty('--gold-l', agent.secondaryColor);
@@ -293,7 +300,7 @@ window.submitFeedback = async function() {
     client_name: clientName, client_email: clientEmail, message: comment,
     overall_rating: ratings.overall, service_rating: ratings.service,
     value_rating: ratings.value, recommend_rating: ratings.recommend,
-    continue_booking: continueChoice, agent_id: AGENT_ID || undefined, agent_email: AGENT_EMAIL || undefined
+    continue_booking: continueChoice, agent_id: RESOLVED_AGENT_ID || undefined, agent_email: AGENT_EMAIL || undefined
   };
 
   const btn = document.getElementById('submitBtn');
