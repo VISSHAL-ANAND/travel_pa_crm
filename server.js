@@ -60,7 +60,7 @@ app.get(/^\/Report_.*\.pdf$/, (req, res) => {
 });
 
 app.get('/', (req, res) => {
-    res.redirect('/client/client_UI.html');
+    res.redirect('/client/questionnaire_v2.html');
 });
 
 // ─── GEMINI INIT ───
@@ -393,7 +393,7 @@ app.get('/api/admin/agents', requireAuth('admin'), async (req, res) => {
             brand_tagline: a.brand_tagline,
             is_active: a.is_active,
             client_count: a.client_count,
-            intakeLink: `${baseUrl}/client/client_UI.html?agent=${a.id}`
+            intakeLink: `${baseUrl}/client/questionnaire_v2.html?agent=${a.id}`
         }));        
         res.status(200).json({ success: true, data: mapped });
     } catch (err) {
@@ -461,7 +461,7 @@ app.post('/api/admin/agents', requireAuth('admin'), async (req, res) => {
                 ...data,
                 name: data.agent_name,
                 client_count: 0,
-                intakeLink: `${baseUrl}/client/client_UI.html?agent=${data.id}`
+                intakeLink: `${baseUrl}/client/questionnaire_v2.html?agent=${data.id}`
             }
         });
 
@@ -679,8 +679,8 @@ app.get('/api/agent/link', requireAuth('agent'), async (req, res) => {
         const publicSlug = agent.public_slug;
         const baseUrl = `${req.protocol}://${req.get('host')}`;
         const link = publicSlug
-            ? `${baseUrl}/client/client_UI.html?slug=${encodeURIComponent(publicSlug)}`
-            : `${baseUrl}/client/client_UI.html?agent=${agent.id}`;
+            ? `${baseUrl}/client/questionnaire_v2.html?slug=${encodeURIComponent(publicSlug)}`
+            : `${baseUrl}/client/questionnaire_v2.html?agent=${agent.id}`;
         const feedbackLink = publicSlug
             ? `${baseUrl}/feedback/feedback.html?slug=${encodeURIComponent(publicSlug)}`
             : `${baseUrl}/feedback/feedback.html?agent=${agent.id}`;
@@ -1621,7 +1621,7 @@ const PORT = process.env.PORT || 5005;
 resolveAdminId().then(() => {
     app.listen(PORT, () => {
         console.log(`\n🚀 Server running on http://localhost:${PORT}/`);
-        console.log(`   Client Portal: http://localhost:${PORT}/client/client_UI.html`);
+        console.log(`   Client Portal: http://localhost:${PORT}/client/questionnaire_v2.html`);
         console.log(`   Admin Portal:  http://localhost:${PORT}/admin/login.html\n`);
     });
 });
