@@ -87,57 +87,6 @@
         .btn-primary:hover { background: #0050d8; }
         .btn-primary svg { width: 16px; height: 16px; }
 
-        /* ── Agent profile / white-label control center ── */
-        .profile-grid { display:grid; grid-template-columns: 1.1fr .9fr; gap:24px; }
-        .profile-panel { border:1px solid var(--border); border-radius:14px; padding:22px; background:#fff; }
-        .profile-panel h3 { font-size:17px; margin-bottom:5px; }
-        .profile-panel p { color:var(--muted); font-size:13px; margin-bottom:18px; line-height:1.5; }
-        .profile-fields { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-        .profile-field.full { grid-column:1 / -1; }
-        .profile-field label { display:block; font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px; }
-        .profile-field input { width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:8px; font-size:14px; outline:none; }
-        .profile-field input:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(0,98,255,.08); }
-        .profile-save { margin-top:18px; }
-        .profile-preview { border:1px solid var(--border); border-radius:16px; overflow:hidden; background:linear-gradient(145deg,#f8fbff,#fff); }
-        .profile-preview-head { padding:26px; display:flex; align-items:center; gap:16px; border-bottom:1px solid var(--border); }
-        .profile-photo { width:72px; height:72px; border-radius:50%; object-fit:cover; background:#eef2f7; border:1px solid var(--border); }
-        .profile-preview-brand { font-size:20px; font-weight:800; }
-        .profile-preview-tag { color:var(--muted); font-size:13px; margin-top:4px; }
-        .profile-preview-body { padding:22px; }
-        .profile-link { display:flex; gap:8px; margin-top:10px; }
-        .profile-link input { flex:1; min-width:0; padding:10px; border:1px solid var(--border); border-radius:8px; font-size:12px; }
-        .profile-note { font-size:12px; color:var(--muted); margin-top:10px; line-height:1.45; }
-        .profile-status { display:inline-flex; padding:4px 9px; border-radius:999px; font-size:11px; font-weight:700; background:#ecfdf5; color:#047857; }
-        @media (max-width: 900px) { .profile-grid { grid-template-columns:1fr; } .profile-fields { grid-template-columns:1fr; } .profile-field.full { grid-column:auto; } }
-
-        /* ── V2 customer workspace ── */
-        .customer-toolbar { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px; }
-        .customer-toolbar input, .customer-toolbar select { padding:10px 12px; border:1px solid var(--border); border-radius:8px; background:#fff; font-size:14px; outline:none; }
-        .customer-toolbar input { flex:1; min-width:220px; }
-        .customer-toolbar input:focus, .customer-toolbar select:focus { border-color:var(--primary); }
-        .customer-table-wrap { overflow:auto; border:1px solid var(--border); border-radius:12px; }
-        .customer-table { width:100%; border-collapse:collapse; min-width:760px; }
-        .customer-table th { background:#f8fafc; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.05em; text-align:left; padding:12px 14px; }
-        .customer-table td { padding:13px 14px; border-top:1px solid var(--border); font-size:13px; vertical-align:middle; }
-        .customer-table tr.clickable { cursor:pointer; }
-        .customer-table tr.clickable:hover { background:#fafcff; }
-        .customer-name { font-weight:700; color:var(--text); }
-        .customer-sub { font-size:12px; color:var(--muted); margin-top:3px; }
-        .status-pill { display:inline-flex; padding:4px 9px; border-radius:999px; background:#eef2ff; color:#3730a3; font-size:11px; font-weight:700; }
-        .workspace { margin-top:22px; border:1px solid var(--border); border-radius:14px; background:#fff; overflow:hidden; }
-        .workspace-head { padding:20px 22px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; gap:15px; align-items:flex-start; }
-        .workspace-title { font-size:22px; font-weight:800; }
-        .workspace-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; padding:20px; }
-        .workspace-section { border:1px solid var(--border); border-radius:12px; padding:16px; }
-        .workspace-section h4 { font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin-bottom:10px; }
-        .workspace-section pre { white-space:pre-wrap; word-break:break-word; font:12px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace; color:#334155; max-height:260px; overflow:auto; }
-        .timeline { display:flex; flex-direction:column; gap:11px; }
-        .timeline-item { display:flex; gap:10px; align-items:flex-start; }
-        .timeline-dot { width:8px; height:8px; border-radius:50%; background:var(--primary); margin-top:5px; flex:0 0 auto; }
-        .timeline-label { font-size:13px; font-weight:600; }
-        .timeline-time { font-size:11px; color:var(--muted); margin-top:2px; }
-        @media (max-width:900px) { .workspace-grid { grid-template-columns:1fr; } }
-
         /* CSV Download Button */
         .btn-csv {
             background: #0f5caf; color: white; border: none; padding: 11px 20px;
@@ -491,10 +440,6 @@
             </svg>
             Reports
         </button>
-        <button class="nav-item" id="navProfile" onclick="showView('profile')" style="display:none">
-            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path stroke-linecap="round" stroke-linejoin="round" d="M4 21a8 8 0 0116 0"/></svg>
-            Profile & Brand
-        </button>
 
         <!-- ── CUSTOM (INTAKE FORM) NAV ── -->
         <button class="nav-item" id="navCustom" onclick="showView('custom')" style="display:none">
@@ -502,11 +447,6 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
             </svg>
             Custom
-        </button>
-
-        <button class="nav-item" id="navCustomers" onclick="showView('customers')">
-            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7h18M3 12h18M3 17h18"/></svg>
-            Customers
         </button>
 
         <!-- ── FEEDBACK NAV ── -->
@@ -655,37 +595,6 @@
             </table>
         </div>
 
-        <!-- ── CUSTOMERS / CUSTOMER WORKSPACE VIEW ── -->
-        <div id="viewCustomers" class="view-card">
-            <div class="view-head">
-                <div>
-                    <h2>Customers</h2>
-                    <p>Manage customer records, travel requirements, AI strategy, feedback, and lifecycle activity.</p>
-                </div>
-            </div>
-            <div class="customer-toolbar">
-                <input id="customerSearch" type="search" placeholder="Search name, email or destination..." oninput="loadCustomers()">
-                <select id="customerStatus" onchange="loadCustomers()">
-                    <option value="">All statuses</option>
-                    <option value="new">New</option>
-                    <option value="in-progress">In Progress</option>
-                    <option value="contacted">Contacted</option>
-                    <option value="completed">Completed</option>
-                    <option value="closed">Closed</option>
-                </select>
-                <select id="customerAgentFilter" onchange="loadCustomers()" style="display:none">
-                    <option value="">All agents</option>
-                </select>
-            </div>
-            <div class="customer-table-wrap">
-                <table class="customer-table">
-                    <thead><tr><th>Customer</th><th>Destination</th><th>Travel dates</th><th>Budget</th><th>Status</th><th>Created</th></tr></thead>
-                    <tbody id="customersBody"><tr><td colspan="6">Open Customers to load records.</td></tr></tbody>
-                </table>
-            </div>
-            <div id="customerWorkspace"></div>
-        </div>
-
         <!-- ── CUSTOM (INTAKE FORM) VIEW ── -->
         <div id="viewCustom" class="view-card">
             <div class="view-head">
@@ -716,48 +625,6 @@
         <!-- ══════════════════════════════════════
              FEEDBACK VIEW
              ══════════════════════════════════════ -->
-        <div id="viewProfile" class="view-card">
-            <div class="view-head">
-                <div><h2>Profile & Brand</h2><p>Control the identity clients see on your intake and feedback pages.</p></div>
-                <span class="profile-status" id="profileStatus">Active</span>
-            </div>
-            <div class="profile-grid">
-                <div class="profile-panel">
-                    <h3>Agent identity</h3>
-                    <p>Your account identity is private to the CRM. Branding below is used for your public customer experience.</p>
-                    <div class="profile-fields">
-                        <div class="profile-field"><label>Agent name</label><input id="profileAgentName" maxlength="120"></div>
-                        <div class="profile-field"><label>Brand / company name</label><input id="profileBrandName" maxlength="120"></div>
-                        <div class="profile-field full"><label>Tagline</label><input id="profileTagline" maxlength="180" placeholder="A short line clients will see"></div>
-                        <div class="profile-field"><label>Profile photo URL</label><input id="profilePhotoUrl" type="url" placeholder="https://..."></div>
-                        <div class="profile-field"><label>Logo URL</label><input id="profileLogoUrl" type="url" placeholder="https://..."></div>
-                        <div class="profile-field"><label>Primary color</label><input id="profilePrimary" type="text" placeholder="#0062FF"></div>
-                        <div class="profile-field"><label>Secondary color</label><input id="profileSecondary" type="text" placeholder="#111827"></div>
-                        <div class="profile-field"><label>Contact phone</label><input id="profilePhone" maxlength="40"></div>
-                        <div class="profile-field"><label>Contact email</label><input id="profileContactEmail" type="email" maxlength="160"></div>
-                        <div class="profile-field full"><label>Website</label><input id="profileWebsite" type="url" placeholder="https://..."></div>
-                        <div class="profile-field full"><label>Public slug</label><input id="profileSlug" maxlength="60" placeholder="your-name"></div>
-                    </div>
-                    <div class="intake-editor-actions profile-save">
-                        <button class="btn-primary" onclick="saveAgentProfile()">Save Profile & Branding</button>
-                    </div>
-                </div>
-                <div class="profile-preview">
-                    <div class="profile-preview-head">
-                        <img id="profilePreviewPhoto" class="profile-photo" alt="Profile photo">
-                        <div><div id="profilePreviewBrand" class="profile-preview-brand">Your brand</div><div id="profilePreviewTag" class="profile-preview-tag">Your client experience</div></div>
-                    </div>
-                    <div class="profile-preview-body">
-                        <strong>Public customer links</strong>
-                        <div class="profile-note">Share these links with customers. Each link is isolated to this agent's configuration.</div>
-                        <div class="profile-link"><input id="profileIntakeLink" readonly><button class="btn-copy" onclick="copyProfileLink('profileIntakeLink',this)">Copy</button></div>
-                        <div class="profile-link"><input id="profileFeedbackLink" readonly><button class="btn-copy" onclick="copyProfileLink('profileFeedbackLink',this)">Copy</button></div>
-                        <div class="profile-note">Changing the slug changes the public links after you save.</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <div id="viewFeedback" class="view-card">
 
             <!-- Header -->
@@ -864,9 +731,8 @@
 // ── Session ──
 const TOKEN       = localStorage.getItem('crm_token');
 const ROLE        = localStorage.getItem('crm_role');
-const STORED_AGENT_EMAIL = localStorage.getItem('crm_agent_email') || '';
-const AGENT_EMAIL = ROLE === 'agent' ? STORED_AGENT_EMAIL : null;
-const IS_AGENT    = ROLE === 'agent';
+const AGENT_EMAIL = new URLSearchParams(location.search).get('email');
+const IS_AGENT    = ROLE === 'agent' || !!AGENT_EMAIL;
 const COLORS      = ['c-blue', 'c-green', 'c-orange', 'c-purple'];
 
 if (!TOKEN) location.href = '/admin/login.html';
@@ -875,7 +741,6 @@ let allAgents   = [];
 let allFeedback = [];
 let sortAsc     = true;
 let fbLoaded    = false;
-let customersRequest = 0;
 
 const INTAKE_EDITOR_SECTIONS = [
     { key: 'trip', label: 'Trip Type' },
@@ -1279,48 +1144,31 @@ function renderCustomizeQuestions() {
         list.innerHTML = '<div class="intake-empty-state">No custom questions yet. Add one to get started.</div>';
         return;
     }
-    list.innerHTML = intakeEditorQuestions.map((question, index) => {
-        const type = question.type || 'text';
-        const options = Array.isArray(question.options) ? question.options : [];
-        return '<div class="custom-q-item" style="align-items:flex-start;flex-wrap:wrap;">' +
-            '<div style="flex:1;min-width:220px;">' +
-              '<input type="text" value="' + esc(question.label || '') + '" oninput="updateCustomizeQuestion(' + index + ', \'label\', this.value)" placeholder="Question label">' +
-              '<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">' +
-                '<select onchange="updateCustomizeQuestion(' + index + ', \'type\', this.value)" style="padding:8px;border:1px solid var(--border);border-radius:8px;">' +
-                  ['text','textarea','number','date','select','multiselect','checkbox'].map(t => '<option value="' + t + '"' + (type===t?' selected':'') + '>' + t + '</option>').join('') +
-                '</select>' +
-                '<label class="custom-q-required"><input type="checkbox" ' + (question.required ? 'checked' : '') + ' onchange="toggleCustomizeQuestionRequired(' + index + ', this.checked)"> Required</label>' +
-              '</div>' +
-              ((type==='select'||type==='multiselect') ? '<input type="text" value="' + esc(options.join(', ')) + '" oninput="updateCustomizeQuestion(' + index + ', \'options\', this.value)" placeholder="Options, separated by commas" style="margin-top:8px;width:100%;">' : '') +
-            '</div>' +
-            '<div class="intake-option-actions">' +
-              '<button class="intake-option-btn" onclick="moveCustomizeQuestion(' + index + ', -1)" aria-label="Move up">↑</button>' +
-              '<button class="intake-option-btn" onclick="moveCustomizeQuestion(' + index + ', 1)" aria-label="Move down">↓</button>' +
-              '<button class="intake-option-btn danger" onclick="removeCustomizeQuestion(' + index + ')" aria-label="Delete">✕</button>' +
-            '</div>' +
-        '</div>';
-    }).join('');
+    list.innerHTML = intakeEditorQuestions.map((question, index) => `
+        <div class="custom-q-item">
+            <input type="text" value="${esc(question.label || '')}" oninput="updateCustomizeQuestion(${index}, this.value)" placeholder="Question label">
+            <label class="custom-q-required"><input type="checkbox" ${question.required ? 'checked' : ''} onchange="toggleCustomizeQuestionRequired(${index}, this.checked)"> Required</label>
+            <div class="intake-option-actions">
+                <button class="intake-option-btn" onclick="moveCustomizeQuestion(${index}, -1)" aria-label="Move up">↑</button>
+                <button class="intake-option-btn" onclick="moveCustomizeQuestion(${index}, 1)" aria-label="Move down">↓</button>
+                <button class="intake-option-btn danger" onclick="removeCustomizeQuestion(${index})" aria-label="Delete">✕</button>
+            </div>
+        </div>
+    `).join('');
 }
 
 function addCustomizeQuestion() {
     intakeEditorQuestions.push({
         id: makeCustomizeQuestionId('question'),
         label: '',
-        type: 'text',
-        required: false,
-        options: []
+        required: false
     });
     renderCustomizeQuestions();
 }
 
-function updateCustomizeQuestion(index, field, value) {
-    const q = intakeEditorQuestions[index];
-    if (!q) return;
-    if (field === 'options') q.options = String(value).split(',').map(v => v.trim()).filter(Boolean).slice(0, 50);
-    else if (field === 'type') {
-        q.type = value;
-        if (!['select','multiselect'].includes(value)) q.options = [];
-    } else q[field] = value;
+function updateCustomizeQuestion(index, label) {
+    if (!intakeEditorQuestions[index]) return;
+    intakeEditorQuestions[index].label = label;
 }
 
 function toggleCustomizeQuestionRequired(index, required) {
@@ -1617,12 +1465,6 @@ function renderIntakeEditorSection() {
     card.style.display = 'block';
 }
 
-const CORE_QUESTIONNAIRE_V2 = {
-  version: 2,
-  sections: ['About You','Your Trip','Travellers','Budget','Holiday Style','Preferences','Review','Submit'],
-  locked: true
-};
-
 async function loadIntakeFormConfig() {
     if (intakeEditorLoaded) return;
     const card = document.getElementById('intakeEditorCard');
@@ -1630,56 +1472,52 @@ async function loadIntakeFormConfig() {
     if (!card) return;
     card.style.display = 'block';
     if (customCard) customCard.style.display = 'block';
+
+    const url = `/api/agent/form-config?email=${encodeURIComponent(AGENT_EMAIL)}`;
+
     try {
-        const response = await fetch('/api/agent/form-config', { headers: { Authorization: 'Bearer ' + TOKEN } });
+        const response = await fetch(url, { headers: { Authorization: 'Bearer ' + TOKEN } });
         const payload = await response.json();
         if (!payload.success) throw new Error(payload.message || 'Failed to load form config.');
+        const loadedMainConfig = payload.mainConfig && typeof payload.mainConfig === 'object' ? payload.mainConfig : {};
         intakeEditorQuestions = normalizeCustomQuestions(payload.questions);
-        intakeEditorOriginalMainConfig = JSON.parse(JSON.stringify(payload.mainConfig || {}));
+        intakeEditorOriginalMainConfig = JSON.parse(JSON.stringify(loadedMainConfig));
         intakeEditorDraft = {};
         INTAKE_EDITOR_SECTIONS.forEach(({ key }) => {
-            intakeEditorDraft[key] = normalizeIntakeSection(key, payload.mainConfig?.[key], DEFAULT_INTAKE_CONFIG[key]);
+            intakeEditorDraft[key] = normalizeIntakeSection(key, loadedMainConfig[key], DEFAULT_INTAKE_CONFIG[key]);
         });
         intakeEditorModifiedSections = new Set();
         intakeEditorResetSections = new Set();
         intakeEditorLoaded = true;
-        renderCoreQuestionnairePanel(payload.coreQuestionnaire || CORE_QUESTIONNAIRE_V2);
         renderIntakeEditorSection();
         loadCustomizeQuestions();
     } catch (err) {
         console.error('Intake form config load failed:', err);
         intakeEditorQuestions = [];
         intakeEditorDraft = {};
-        INTAKE_EDITOR_SECTIONS.forEach(({ key }) => { intakeEditorDraft[key] = normalizeIntakeSection(key, null, DEFAULT_INTAKE_CONFIG[key]); });
+        INTAKE_EDITOR_SECTIONS.forEach(({ key }) => {
+            intakeEditorDraft[key] = normalizeIntakeSection(key, null, DEFAULT_INTAKE_CONFIG[key]);
+        });
         intakeEditorLoaded = true;
-        renderCoreQuestionnairePanel(CORE_QUESTIONNAIRE_V2);
         renderIntakeEditorSection();
         loadCustomizeQuestions();
     }
 }
 
-function renderCoreQuestionnairePanel(core) {
-    const card = document.getElementById('intakeEditorCard');
-    if (!card) return;
-    const existing = card.querySelector('.core-questionnaire-panel');
-    if (existing) existing.remove();
-    const panel = document.createElement('div');
-    panel.className = 'core-questionnaire-panel';
-    panel.style.cssText = 'margin-bottom:18px;padding:16px 18px;border:1px solid var(--border);border-radius:12px;background:#f8fafc;';
-    panel.innerHTML = '<div style="font-weight:800;font-size:14px;">Travel-PA Core Questionnaire V2 <span style="color:#087443;">LOCKED</span></div>' +
-      '<div style="font-size:12px;color:var(--muted);margin-top:5px;">The client-approved core flow cannot be deleted or structurally changed by an agent. You can add your own questions below it.</div>' +
-      '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:12px;">' +
-      (core.sections || CORE_QUESTIONNAIRE_V2.sections).map(s => '<span style="padding:5px 9px;border-radius:999px;background:white;border:1px solid var(--border);font-size:11px;">' + esc(typeof s === 'string' ? s : s.title) + '</span>').join('') +
-      '</div>';
-    card.prepend(panel);
-}
-
 async function saveIntakeFormConfig() {
-    const payload = { questions: intakeEditorQuestions, mainConfig: buildIntakeEditorPayload(), deletedKeys: Array.from(intakeEditorResetSections) };
+    const payload = {
+        questions: intakeEditorQuestions,
+        mainConfig: buildIntakeEditorPayload(),
+        deletedKeys: Array.from(intakeEditorResetSections)
+    };
+
     try {
-        const response = await fetch('/api/agent/form-config', {
+        const response = await fetch(`/api/agent/form-config?email=${encodeURIComponent(AGENT_EMAIL)}`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + TOKEN },
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: 'Bearer ' + TOKEN
+            },
             body: JSON.stringify(payload)
         });
         const json = await response.json();
@@ -1688,7 +1526,7 @@ async function saveIntakeFormConfig() {
         intakeEditorOriginalMainConfig = JSON.parse(JSON.stringify(payload.mainConfig));
         intakeEditorModifiedSections = new Set();
         intakeEditorResetSections = new Set();
-        toast('Agent customisation saved. Core questionnaire remains locked.', 'ok');
+        toast('Intake form updates saved.', 'ok');
         renderIntakeEditorSection();
         renderCustomizeQuestions();
     } catch (err) {
@@ -1698,17 +1536,24 @@ async function saveIntakeFormConfig() {
 }
 
 async function saveCustomizeQuestions() {
-    const payload = { questions: intakeEditorQuestions, mainConfig: intakeEditorOriginalMainConfig, deletedKeys: [] };
+    const payload = {
+        questions: intakeEditorQuestions,
+        mainConfig: intakeEditorOriginalMainConfig,
+        deletedKeys: []
+    };
     try {
-        const response = await fetch('/api/agent/form-config', {
+        const response = await fetch(`/api/agent/form-config?email=${encodeURIComponent(AGENT_EMAIL)}`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + TOKEN },
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: 'Bearer ' + TOKEN
+            },
             body: JSON.stringify(payload)
         });
         const json = await response.json();
         if (!json.success) throw new Error(json.message || 'Failed to save custom questions.');
         intakeEditorQuestions = normalizeCustomQuestions(json.questions);
-        toast('Custom questions saved. Core questionnaire remains locked.', 'ok');
+        toast('Custom questions saved.', 'ok');
         renderCustomizeQuestions();
     } catch (err) {
         console.error('Custom questions save failed:', err);
@@ -1747,8 +1592,6 @@ window.addEventListener('DOMContentLoaded', () => {
         document.getElementById('agentFeedbackBanner').style.display = 'flex';
         document.getElementById('fbAgentsStat').style.display = 'none';
         document.getElementById('navCustom').style.display = 'flex';
-        document.getElementById('navProfile').style.display = 'flex';
-        loadAgentProfile();
         loadAgentLink();
         loadAgentFeedbackLink();
         showView('reports');
@@ -1764,20 +1607,14 @@ window.addEventListener('DOMContentLoaded', () => {
 
 // ── Navigation ──
 function showView(v) {
-    ['agents','reports','customers','custom','profile','feedback'].forEach(id => {
+    ['agents','reports','custom','feedback'].forEach(id => {
         const card = document.getElementById('view' + id.charAt(0).toUpperCase() + id.slice(1));
         if (card) card.classList.toggle('active', id === v);
         const nav = document.getElementById('nav' + id.charAt(0).toUpperCase() + id.slice(1));
         if (nav && nav.style.display !== 'none') nav.classList.toggle('active', id === v);
     });
-    if (v === 'customers') {
-        loadCustomers();
-    }
     if (v === 'custom') {
         loadIntakeFormConfig();
-    }
-    if (v === 'profile') {
-        loadAgentProfile();
     }
     if (v === 'feedback' && !fbLoaded) {
         if (IS_AGENT) {
@@ -1802,15 +1639,6 @@ async function loadAll() {
             else tableError('agentsBody', 5, j.message);
         } catch { tableError('agentsBody', 5, 'Could not reach the server.'); }
     }
-    if (!IS_AGENT) {
-        const sel = document.getElementById('customerAgentFilter');
-        if (sel && !sel.dataset.loaded) {
-            sel.innerHTML = '<option value="">All agents</option>' + allAgents.map(a => '<option value="' + escAttr(a.id) + '">' + esc(a.name) + '</option>').join('');
-            sel.dataset.loaded = '1';
-            sel.style.display = '';
-        }
-    }
-
     skeleton('reportsBody', 8, 6);
     try {
         const url = IS_AGENT ? `/api/agent/leads?email=${encodeURIComponent(AGENT_EMAIL)}` : '/api/admin/leads';
@@ -1819,102 +1647,6 @@ async function loadAll() {
         if (j.success) renderReports(j.data);
         else tableError('reportsBody', 8, j.message);
     } catch { tableError('reportsBody', 8, 'Could not reach the server.'); }
-}
-
-// ── V2 Customer Control Center ──
-async function loadCustomers() {
-    const requestId = ++customersRequest;
-    const H = { 'Authorization': 'Bearer ' + TOKEN };
-    const body = document.getElementById('customersBody');
-    if (!body) return;
-    body.innerHTML = '<tr><td colspan="6">Loading customers...</td></tr>';
-
-    const params = new URLSearchParams();
-    const search = document.getElementById('customerSearch')?.value.trim() || '';
-    const status = document.getElementById('customerStatus')?.value || '';
-    if (search) params.set('search', search);
-    if (status) params.set('status', status);
-    if (!IS_AGENT) {
-        const agentId = document.getElementById('customerAgentFilter')?.value || '';
-        if (agentId) params.set('agent_id', agentId);
-    }
-
-    try {
-        const endpoint = IS_AGENT ? '/api/agent/customers' : '/api/admin/customers';
-        const r = await fetch(endpoint + (params.toString() ? '?' + params.toString() : ''), { headers:H });
-        const j = await r.json();
-        if (requestId !== customersRequest) return;
-        if (!j.success) throw new Error(j.message || 'Failed to load customers.');
-        renderCustomers(j.data || []);
-    } catch (err) {
-        body.innerHTML = '<tr><td colspan="6" style="color:#dc2626">' + esc(err.message) + '</td></tr>';
-    }
-}
-
-function renderCustomers(rows) {
-    const body = document.getElementById('customersBody');
-    if (!rows.length) {
-        body.innerHTML = '<tr><td colspan="6" style="color:#6B7280">No customers found.</td></tr>';
-        return;
-    }
-    body.innerHTML = rows.map(c => {
-        const dates = [c.travel_date, c.travel_date_end].filter(Boolean).join(' — ') || '—';
-        const created = c.created_at ? new Date(c.created_at).toLocaleDateString() : '—';
-        const budget = c.budget != null ? ('£' + Number(c.budget).toLocaleString()) : '—';
-        return '<tr class="clickable" onclick="openCustomerWorkspace(\'' + escAttr(c.id) + '\')">' +
-            '<td><div class="customer-name">' + esc(c.name || 'Unknown Client') + '</div><div class="customer-sub">' + esc(c.email || 'No email') + '</div></td>' +
-            '<td>' + esc(c.concept || '—') + '</td><td>' + esc(dates) + '</td><td>' + esc(budget) + '</td>' +
-            '<td><span class="status-pill">' + esc((c.status || 'new').replaceAll('-', ' ')) + '</span></td><td>' + esc(created) + '</td></tr>';
-    }).join('');
-}
-
-async function openCustomerWorkspace(id) {
-    const H = { 'Authorization': 'Bearer ' + TOKEN };
-    const wrap = document.getElementById('customerWorkspace');
-    wrap.innerHTML = '<div class="workspace"><div class="workspace-head"><div><div class="workspace-title">Loading customer...</div></div></div></div>';
-    try {
-        const endpoint = IS_AGENT ? '/api/agent/customers/' + encodeURIComponent(id) : '/api/admin/customers/' + encodeURIComponent(id) + '/workspace';
-        const r = await fetch(endpoint, { headers:H });
-        const j = await r.json();
-        if (!j.success) throw new Error(j.message || 'Failed to load customer.');
-        const d = j.data;
-        const c = d.customer || {};
-        const feedback = d.feedback || [];
-        const activity = d.activity || [];
-        const questionnaire = c.custom_answers || {};
-        wrap.innerHTML =
-            '<div class="workspace">' +
-              '<div class="workspace-head"><div><div class="workspace-title">' + esc(c.name || 'Customer') + '</div><div class="customer-sub">' + esc(c.email || '') + ' · ' + esc(c.phone || 'No phone') + '</div></div>' +
-              '<select onchange="updateCustomerStatus(\'' + escAttr(c.id) + '\', this.value)">' +
-                ['new','in-progress','contacted','completed','closed'].map(s => '<option value="' + s + '"' + (s === c.status ? ' selected' : '') + '>' + s.replaceAll('-',' ') + '</option>').join('') +
-              '</select></div>' +
-              '<div class="workspace-grid">' +
-                '<div class="workspace-section"><h4>Travel requirements</h4><pre>' + esc(JSON.stringify({region:c.region,destination:c.destination,destination_specific:c.destination_specific,budget:c.budget,travel_date:c.travel_date,travel_date_end:c.travel_date_end,contact_method:c.contact_method,notes:c.notes}, null, 2)) + '</pre></div>' +
-                '<div class="workspace-section"><h4>AI strategy</h4><pre>' + esc(c.ai_strategy || 'No AI strategy stored.') + '</pre></div>' +
-                '<div class="workspace-section"><h4>Questionnaire answers</h4><pre>' + esc(JSON.stringify(questionnaire, null, 2)) + '</pre></div>' +
-                '<div class="workspace-section"><h4>Feedback</h4><pre>' + esc(feedback.length ? JSON.stringify(feedback, null, 2) : 'No feedback yet.') + '</pre></div>' +
-                '<div class="workspace-section" style="grid-column:1/-1"><h4>Activity timeline</h4><div class="timeline">' +
-                    (activity.length ? activity.map(a => '<div class="timeline-item"><span class="timeline-dot"></span><div><div class="timeline-label">' + esc(a.event_label) + '</div><div class="timeline-time">' + esc(a.created_at ? new Date(a.created_at).toLocaleString() : '') + '</div></div></div>').join('') : '<div class="customer-sub">No activity recorded yet.</div>') +
-                '</div></div>' +
-              '</div>' +
-            '</div>';
-    } catch (err) {
-        wrap.innerHTML = '<div class="workspace"><div style="padding:20px;color:#dc2626">' + esc(err.message) + '</div></div>';
-    }
-}
-
-async function updateCustomerStatus(id, status) {
-    if (!IS_AGENT) return;
-    const H = { 'Authorization': 'Bearer ' + TOKEN, 'Content-Type':'application/json' };
-    try {
-        const r = await fetch('/api/agent/leads/' + encodeURIComponent(id) + '/status', { method:'PATCH', headers:H, body:JSON.stringify({status}) });
-        const j = await r.json();
-        if (!j.success) throw new Error(j.message || 'Failed to update status.');
-        await loadCustomers();
-        await openCustomerWorkspace(id);
-    } catch (err) {
-        alert(err.message);
-    }
 }
 
 // ── Agent Feedback Link ──
@@ -2315,18 +2047,10 @@ function renderReports(list) {
 // ── Agent link helpers ──
 async function loadAgentLink() {
     try {
-        const r = await fetch('/api/agent/link', { headers: { 'Authorization': 'Bearer ' + TOKEN } });
+        const r = await fetch(`/api/agent/link?email=${encodeURIComponent(AGENT_EMAIL)}`, { headers: { 'Authorization': 'Bearer ' + TOKEN } });
         const j = await r.json();
-        if (!j.success) throw new Error(j.message || 'Could not load link.');
-        document.getElementById('agentLinkInput').value = j.link || '';
-        const intake = document.getElementById('profileIntakeLink');
-        const feedback = document.getElementById('profileFeedbackLink');
-        if (intake) intake.value = j.link || '';
-        if (feedback) feedback.value = j.feedbackLink || '';
-        if (j.agentEmail) localStorage.setItem('crm_agent_email', j.agentEmail);
-    } catch {
-        document.getElementById('agentLinkInput').value = 'Could not load link.';
-    }
+        if (j.success) document.getElementById('agentLinkInput').value = j.link;
+    } catch { document.getElementById('agentLinkInput').value = 'Could not load link.'; }
 }
 function copyAgentLink() {
     const input = document.getElementById('agentLinkInput');
@@ -2452,75 +2176,6 @@ function skeleton(id, cols, rows) {
 function tableError(id, cols, msg) {
     document.getElementById(id).innerHTML = `<tr class="error-row"><td colspan="${cols}">${esc(msg)}</td></tr>`;
 }
-
-// ── Agent Profile / White-label control center ──
-let agentProfileLoaded = false;
-async function loadAgentProfile() {
-    if (!IS_AGENT || agentProfileLoaded) return;
-    try {
-        const r = await fetch('/api/agent/profile', { headers: { Authorization: 'Bearer ' + TOKEN } });
-        const j = await r.json();
-        if (!j.success) throw new Error(j.message || 'Failed to load profile.');
-        const p = j.data || {};
-        const set = (id, value) => { const el=document.getElementById(id); if(el) el.value=value || ''; };
-        set('profileAgentName', p.agent_name);
-        set('profileBrandName', p.brand_name || p.agent_name);
-        set('profileTagline', p.brand_tagline);
-        set('profilePhotoUrl', p.profile_photo_url);
-        set('profileLogoUrl', p.logo_url);
-        set('profilePrimary', p.brand_primary_color || '#0062FF');
-        set('profileSecondary', p.brand_secondary_color || '#111827');
-        set('profilePhone', p.contact_phone);
-        set('profileContactEmail', p.contact_email || p.email);
-        set('profileWebsite', p.website_url);
-        set('profileSlug', p.public_slug);
-        const status=document.getElementById('profileStatus'); status.textContent=p.is_active===false?'Inactive':'Active'; status.style.background=p.is_active===false?'#fef2f2':'#ecfdf5'; status.style.color=p.is_active===false?'#b91c1c':'#047857';
-        updateProfilePreview();
-        await loadAgentLink();
-        agentProfileLoaded = true;
-    } catch (err) {
-        toast(err.message || 'Could not load profile.', 'err');
-    }
-}
-function updateProfilePreview() {
-    const brand=document.getElementById('profileBrandName')?.value || document.getElementById('profileAgentName')?.value || 'Your brand';
-    const tag=document.getElementById('profileTagline')?.value || 'Your client experience';
-    const photo=document.getElementById('profilePhotoUrl')?.value || '';
-    document.getElementById('profilePreviewBrand').textContent=brand;
-    document.getElementById('profilePreviewTag').textContent=tag;
-    const img=document.getElementById('profilePreviewPhoto');
-    img.src=photo;
-    img.onerror=()=>{ img.removeAttribute('src'); };
-}
-['profileAgentName','profileBrandName','profileTagline','profilePhotoUrl'].forEach(id=>document.getElementById(id)?.addEventListener('input',updateProfilePreview));
-async function saveAgentProfile() {
-    const body={
-        agent_name:document.getElementById('profileAgentName').value.trim(),
-        brand_name:document.getElementById('profileBrandName').value.trim() || null,
-        brand_tagline:document.getElementById('profileTagline').value.trim() || null,
-        profile_photo_url:document.getElementById('profilePhotoUrl').value.trim() || null,
-        logo_url:document.getElementById('profileLogoUrl').value.trim() || null,
-        brand_primary_color:document.getElementById('profilePrimary').value.trim() || null,
-        brand_secondary_color:document.getElementById('profileSecondary').value.trim() || null,
-        contact_phone:document.getElementById('profilePhone').value.trim() || null,
-        contact_email:document.getElementById('profileContactEmail').value.trim() || null,
-        website_url:document.getElementById('profileWebsite').value.trim() || null,
-        public_slug:document.getElementById('profileSlug').value.trim().toLowerCase() || null
-    };
-    try {
-        const r=await fetch('/api/agent/profile',{method:'PUT',headers:{'Content-Type':'application/json',Authorization:'Bearer '+TOKEN},body:JSON.stringify(body)});
-        const j=await r.json();
-        if(!j.success) throw new Error(j.message || 'Failed to save profile.');
-        agentProfileLoaded=false;
-        await loadAgentProfile();
-        toast('Profile and branding saved.', 'ok');
-    } catch(err) { toast(err.message || 'Could not save profile.', 'err'); }
-}
-function copyProfileLink(id,btn) {
-    const el=document.getElementById(id); if(!el?.value) return;
-    navigator.clipboard.writeText(el.value).then(()=>{btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy',1600);});
-}
-
 </script>
 </body>
 </html>
