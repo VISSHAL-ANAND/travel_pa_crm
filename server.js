@@ -1083,7 +1083,12 @@ Keep the tone polished, exclusive, and tailored exactly to their profile. Do not
                     notes:       Array.isArray(userData.specialDetails) && userData.specialDetails.length > 0
                                     ? userData.specialDetails.join(', ')
                                     : (userData.notes || null),
-                    status: 'new'
+                    status: 'new',
+                    contact_method: contactMethod,
+                    custom_answers: userData.customAnswers && typeof userData.customAnswers === 'object'
+                        ? userData.customAnswers
+                        : {},
+                    ai_strategy: dynamicAiSummary
                 };
 
                 const { data: clientInsert, error: clientInsertErr } = await supabase
