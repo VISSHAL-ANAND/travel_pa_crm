@@ -332,6 +332,7 @@ app.post('/api/auth/login', loginRateLimit, async (req, res) => {
             token,
             agentName: agent.agent_name,
             agentId: agent.id,
+            agentEmail: agent.email,
             redirect: '/admin/dashboard.html'
         });
     }
