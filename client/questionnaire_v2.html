@@ -97,10 +97,47 @@ async function init(){
 function applyBrand(a){$('brandName').textContent=a.brandName||a.name||'Travel-PA';$('brandTagline').textContent=a.brandTagline||'Travel planning made personal';$('heroTitle').textContent=a.coreQuestionnaire?.title||'Let\'s start planning your holiday';$('heroSubtitle').textContent=a.coreQuestionnaire?.subtitle||$('heroSubtitle').textContent; if(a.primaryColor)document.documentElement.style.setProperty('--primary',a.primaryColor);if(a.secondaryColor)document.documentElement.style.setProperty('--secondary',a.secondaryColor);if(a.logoUrl){$('logo').src=a.logoUrl;$('logo').style.display='block'}if(a.profilePhotoUrl){$('photo').src=a.profilePhotoUrl;$('photo').style.display='block'}}
 function options(id,items,multi=false,selected=[]){$(id).innerHTML=items.map((x,i)=>'<label class="option"><input type="'+(multi?'checkbox':'radio')+'" name="'+id+'" value="'+esc(x)+'" '+((multi?selected.includes(x):selected===x)?'checked':'')+'><span>'+esc(x)+'</span></label>').join('');$(id).querySelectorAll('input').forEach(el=>el.addEventListener('change',()=>{if(multi)state.selected[id]=[...$(id).querySelectorAll('input:checked')].map(x=>x.value);else state.selected[id]=el.value;renderDynamic();renderReview();}));}
 function renderCore(core){options('holidayTypes',core.holidayTypes,true);options('ideas',['Yes','Maybe','No']);options('roomTypes',core.roomTypes,true);options('accessibility',['Yes','No']);options('budgetType',['Total Holiday','Per Person','Accommodation Only','Not Sure']);options('flights',['Yes','No','Not Sure']);options('preferences',core.holidayPreferences,true);options('occasions',core.occasions,true);options('contactMethods',core.contactMethods);options('bestTimes',core.bestTimes);options('referrals',core.referralSources);}
-function renderDynamic(){const box=$('dynamicHoliday');const types=state.selected.holidayTypes||[];let html='';if(types.includes('Cruise'))html+='<h3>Cruise details</h3><div class="field"><label>Cruise type</label><div id="cruiseType" class="options"></div></div><div class="field"><label>Preferred cruise line</label><input id="cruiseLine" placeholder="Optional"></div><div class="field"><label>Cabin preference</label><input id="cabin" placeholder="e.g. Balcony, Suite"></div><div class="field"><label>Fly cruise?</label><div id="flyCruise" class="options"></div></div><div class="field"><label>Departure port</label><input id="departurePort"></div>';if(types.includes('Sports/Event Travel'))html+='<h3>Sports / event details</h3><div class="field"><label>Which sport?</label><div id="sport" class="options"></div></div><div class="field"><label>Which event?</label><input id="eventName"></div><div class="field"><label>Preferred dates?</label><input id="eventDates" placeholder="Optional"></div>';if(types.includes('Ski Holiday'))html+='<h3>Ski details</h3><div class="field"><label>Preferred ski destination/resort</label><input id="skiResort"></div>';if(types.includes('Safari'))html+='<h3>Safari details</h3><div class="field"><label>Safari interests</label><input id="safariInterest" placeholder="Wildlife, photography, luxury camp..."></div>';if(types.length){box.style.display='block';box.innerHTML=html;const core=state.config.coreQuestionnaire; if($('cruiseType'))options('cruiseType',core.cruiseTypes);if($('sport'))options('sport',core.sports);if($('flyCruise'))options('flyCruise',['Yes','No','Not Sure']);}else box.style.display='none';}
+function renderDynamic(){
+  const box=$('dynamicHoliday');
+  const types=state.selected.holidayTypes||[];
+  const branches=state.config.coreQuestionnaire?.conditionalBranches||{};
+  const active=types.map(t=>({type:t,branch:branches[t]})).filter(x=>x.branch);
+  if(!active.length){box.style.display='none';box.innerHTML='';return;}
+  box.style.display='block';
+  box.innerHTML=active.map((x,bi)=>{
+    const q=x.branch.questions||[];
+    return '<div class="dynamic-branch" data-branch="'+esc(x.type)+'"><h3>'+esc(x.branch.title||x.type+' details')+'</h3>'+
+      q.map(item=>renderConditionalQuestion(item,bi)).join('')+'</div>';
+  }).join('');
+  active.forEach((x,bi)=>(x.branch.questions||[]).forEach(q=>bindConditionalQuestion(q,bi)));
+}
+function renderConditionalQuestion(q,bi){
+  const id='branch_'+safeId(q.id);
+  if(q.type==='select'||q.type==='multiselect'){
+    const multi=q.type==='multiselect';
+    return '<div class="field"><label>'+esc(q.label)+'</label><div id="'+id+'" class="options"></div></div>';
+  }
+  return '<div class="field"><label>'+esc(q.label)+'</label><input id="'+id+'" type="'+(q.type==='date'?'date':'text')+'" placeholder="'+esc(q.placeholder||'')+'"></div>';
+}
+function bindConditionalQuestion(q,bi){
+  const id='branch_'+safeId(q.id), e=$(id);
+  if(!e)return;
+  if(q.type==='select'||q.type==='multiselect'){
+    options(id,q.options||[],q.type==='multiselect',state.selected[id]||[]);
+  }
+}
+function safeId(v){return String(v||'').toLowerCase().replace(/[^a-z0-9_]+/g,'_');}
 function renderCustom(qs){if(!qs.length)return;$('customQuestions').style.display='block';$('customFields').innerHTML=qs.map(q=>{let input='';if(['select','multiselect'].includes(q.type))input='<select '+(q.type==='multiselect'?'multiple':'')+' name="custom_'+esc(q.id)+'">'+(q.type==='select'?'<option value="">Select...</option>':'')+(q.options||[]).map(o=>'<option>'+esc(o)+'</option>').join('')+'</select>';else if(q.type==='textarea')input='<textarea name="custom_'+esc(q.id)+'"></textarea>';else if(q.type==='checkbox')input='<input type="checkbox" name="custom_'+esc(q.id)+'">';else input='<input type="'+(q.type==='number'?'number':q.type==='date'?'date':'text')+'" name="custom_'+esc(q.id)+'">';return '<div class="field"><label>'+esc(q.label)+(q.required?' <span class="required">*</span>':'')+'</label>'+input+'</div>'}).join('');}
 function values(){const fd=new FormData($('form'));state.values=Object.fromEntries(fd.entries());state.values.holidayTypes=state.selected.holidayTypes;state.values.destination=state.values.destination||'';state.values.ideas=state.selected.ideas;state.values.roomTypes=state.selected.roomTypes;state.values.accessibility=state.selected.accessibility;state.values.budgetType=state.selected.budgetType;state.values.flights=state.selected.flights;state.values.preferences=state.selected.preferences;state.values.occasions=state.selected.occasions;state.values.contactMethod=state.selected.contactMethod;state.values.bestTime=state.selected.bestTime;state.values.referral=state.selected.referral;const custom={};Object.keys(state.values).filter(k=>k.startsWith('custom_')).forEach(k=>custom[k.slice(7)]=state.values[k]);state.values.customAnswers=custom;state.values.dynamic=collectDynamic();}
-function collectDynamic(){const ids=['cruiseType','cruiseLine','cabin','flyCruise','departurePort','sport','eventName','eventDates','skiResort','safariInterest'];const o={};ids.forEach(id=>{const e=$(id);if(!e)return;if(e.querySelectorAll&&e.querySelectorAll('input:checked').length)o[id]=[...e.querySelectorAll('input:checked')].map(x=>x.value);else o[id]=e.value||''});return o;}
+function collectDynamic(){
+  const o={};
+  document.querySelectorAll('[id^="branch_"]').forEach(e=>{
+    const key=e.id.replace(/^branch_/,'');
+    const checked=e.querySelectorAll?.('input:checked');
+    o[key]=checked?.length?[...checked].map(x=>x.value):(e.value||'');
+  });
+  return o;
+}
 function renderReview(){if(state.step!==6)return;values();const v=state.values;$('review').textContent='Holiday: '+(v.holidayTypes||[]).join(', ')+'\nDestination: '+(v.destination||'Open to ideas')+'\nTravellers: '+v.adults+' adults, '+v.children+' children, '+v.infants+' infants · '+v.rooms+' room(s)'+'\nDates: '+(v.travelDateStart||'')+' → '+(v.travelDateEnd||'')+'\nBudget: '+(v.budgetType||'')+' £'+(v.budget||'Not specified')+' · Flights: '+(v.flights||'')+'\nPreferences: '+(v.preferences||[]).join(', ')+'\nOccasion: '+(v.occasions||[]).join(', ')+'\nMust have: '+(v.mustHave||'')+'\nAvoid: '+(v.avoid||'');}
 function renderProgress(){const labels=['About You','Your Trip','Travellers','Budget','Holiday Style','Preferences','Review','Submit'];$('progress').innerHTML=labels.map((x,i)=>'<div class="step" data-p="'+i+'">'+(i+1)+' '+x+'</div>').join('');}
 function showStep(n){state.step=n;document.querySelectorAll('.section').forEach(x=>x.classList.toggle('active',Number(x.dataset.section)===n));document.querySelectorAll('.step').forEach(x=>x.classList.toggle('active',Number(x.dataset.p)===n));$('back').style.visibility=n?'visible':'hidden';$('next').textContent=n===7?'Submit':'Next';if(n===6)renderReview();window.scrollTo({top:0,behavior:'smooth'});}
