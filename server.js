@@ -9,6 +9,7 @@ const { createClient } = require('@supabase/supabase-js');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
+const { createCustomerActivityService } = require('./server/customerActivity');
 
 const app = express();
 
@@ -285,6 +286,11 @@ const requireAuth = (role) => async (req, res, next) => {
     req.auth = payload;
     next();
 };
+
+// ─── CUSTOMER WORKSPACE / ACTIVITY SERVICE ───
+// Installed after auth middleware exists; routes are additive and preserve legacy lead endpoints.
+const customerActivityService = createCustomerActivityService({ app, supabase, requireAuth, buildLeadObject: (lead) => buildLeadObject(lead) });
+const recordCustomerActivity = customerActivityService.recordCustomerActivity;
 
 // ─── Unified Login ───
 app.post('/api/auth/login', loginRateLimit, async (req, res) => {
