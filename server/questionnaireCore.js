@@ -31,7 +31,27 @@ const CORE_QUESTIONNAIRE = {
   nights: ["5","7","10","11","14","21","Flexible","Other"],
   contactMethods: ["Phone","WhatsApp","Email"],
   bestTimes: ["Morning","Afternoon","Evening","Anytime"],
-  referralSources: ["Google","Facebook","Referral","Repeat Customer","Website","Other"]
+  referralSources: ["Google","Facebook","Referral","Repeat Customer","Website","Other"],
+  conditionalBranches: {
+    "Cruise": {
+      title: "Cruise details",
+      questions: [
+        { id: "cruise_type", label: "Cruise type", type: "multiselect", options: ["Ocean Cruise","River Cruise","Luxury Cruise","Family Cruise","Expedition Cruise"] },
+        { id: "cruise_line", label: "Preferred cruise line", type: "text" },
+        { id: "cabin", label: "Cabin preference", type: "text" },
+        { id: "fly_cruise", label: "Fly cruise?", type: "select", options: ["Yes","No","Not Sure"] },
+        { id: "departure_port", label: "Departure port", type: "text" }
+      ]
+    },
+    "Sports/Event Travel": {
+      title: "Sports / event details",
+      questions: [
+        { id: "sport", label: "Which sport?", type: "select", options: ["Football","Formula One","Golf","Tennis","Rugby","Cycling","Walking","Skiing","Horse Racing","Basketball","Cricket","Other"] },
+        { id: "event_name", label: "Which event?", type: "text" },
+        { id: "event_dates", label: "Preferred dates?", type: "text" }
+      ]
+    }
+  }
 };
 
 module.exports = { CORE_QUESTIONNAIRE };
