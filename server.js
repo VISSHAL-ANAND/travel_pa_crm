@@ -1273,9 +1273,21 @@ app.post('/api/new-lead', leadRateLimit, async (req, res) => {
         console.log("📥 Parsing incoming lead form...");
         const userData = req.body || {};
 
-        const customerName  = `${userData.firstName || 'Unknown'} ${userData.lastName || 'Client'}`;
-        const customerEmail = userData.email || 'No Email';
-        const customerPhone = userData.phone || 'Not Provided';
+        // Server-side validation: never trust the public browser to enforce required fields.
+        const firstName = typeof userData.firstName === 'string' ? userData.firstName.trim() : '';
+        const lastName = typeof userData.lastName === 'string' ? userData.lastName.trim() : '';
+        const email = typeof userData.email === 'string' ? userData.email.trim().toLowerCase() : '';
+        const phone = typeof userData.phone === 'string' ? userData.phone.trim() : '';
+        const holidayTypes = Array.isArray(userData.holidayTypes) ? userData.holidayTypes.filter(v => typeof v === 'string').map(v => v.trim()).filter(Boolean) : [];
+        if (!firstName || !lastName) return res.status(400).json({ success: false, message: 'First and last name are required.' });
+        if (!email || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) return res.status(400).json({ success: false, message: 'A valid email address is required.' });
+        if (!phone || phone.length < 6) return res.status(400).json({ success: false, message: 'A valid phone number is required.' });
+        if (!holidayTypes.length || holidayTypes.length > 20) return res.status(400).json({ success: false, message: 'Please select at least one holiday type.' });
+        if (JSON.stringify(userData).length > 100000) return res.status(413).json({ success: false, message: 'Questionnaire submission is too large.' });
+
+        const customerName  = `${firstName} ${lastName}`;
+        const customerEmail = email;
+        const customerPhone = phone;
         const contactMethod = userData.contactMethod || 'Email';
         const assignedAgent = userData.assignedAgent || 'Unassigned';
 
@@ -1370,6 +1382,38 @@ Keep the tone polished, exclusive, and tailored exactly to their profile. Do not
                     custom_answers: userData.customAnswers && typeof userData.customAnswers === 'object'
                         ? userData.customAnswers
                         : {},
+                    questionnaire_version: Number(userData.questionnaireVersion) || CORE_QUESTIONNAIRE.version,
+                    questionnaire_answers: {
+                        core: {
+                            firstName, lastName, email, phone, holidayTypes,
+                            destination: userData.destination || '',
+                            ideas: userData.ideas || '',
+                            travelDateStart: userData.travelDateStart || '',
+                            travelDateEnd: userData.travelDateEnd || '',
+                            nights: userData.nights || '',
+                            adults: userData.adults || '',
+                            children: userData.children || '',
+                            infants: userData.infants || '',
+                            childrenAges: userData.childrenAges || '',
+                            rooms: userData.rooms || '',
+                            roomType: userData.roomTypes || [],
+                            accessibility: userData.accessibility || '',
+                            accessibilityDetails: userData.accessibilityDetails || '',
+                            budgetType: userData.budgetType || '',
+                            budget: userData.budget || '',
+                            flights: userData.flights || '',
+                            preferences: userData.preferences || [],
+                            occasions: userData.occasions || [],
+                            mustHave: userData.mustHave || '',
+                            avoid: userData.avoid || '',
+                            anythingElse: userData.anythingElse || '',
+                            contactMethod, bestTime: userData.bestTime || '',
+                            referral: userData.referral || '',
+                            referralName: userData.referralName || ''
+                        },
+                        conditional: userData.dynamic && typeof userData.dynamic === 'object' ? userData.dynamic : {},
+                        custom: userData.customAnswers && typeof userData.customAnswers === 'object' ? userData.customAnswers : {}
+                    },
                     ai_strategy: dynamicAiSummary
                 };
 
