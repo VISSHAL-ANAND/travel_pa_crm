@@ -1,232 +1,204 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Plan Your Holiday | Travel-PA</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Travel-PA — Holiday Enquiry</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{
- --primary:#173f5f;--secondary:#2f80ed;--accent:#f2c94c;--bg:#f4f7fb;--card:#fff;
- --text:#152238;--muted:#667085;--border:#e3e8ef;--success:#15966b;
- --radius:20px;--shadow:0 18px 55px rgba(19,42,70,.09)
-}
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;background:linear-gradient(180deg,#eef5fb 0,#f7f9fc 45%,#f4f6fa 100%);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-button,input,select,textarea{font:inherit}
-.page{min-height:100vh}
-.top{background:linear-gradient(135deg,var(--primary),#215d83);color:#fff;padding:20px 22px 54px;position:relative;overflow:hidden}
-.top:after{content:"";position:absolute;right:-120px;top:-180px;width:480px;height:480px;border-radius:50%;background:rgba(255,255,255,.08)}
-.top-inner{max-width:1080px;margin:auto;position:relative;z-index:1}
-.brand{display:flex;align-items:center;gap:12px}
-.brand img{width:44px;height:44px;object-fit:contain;border-radius:12px;background:#fff;padding:5px;display:none}
-.brand-photo{width:44px;height:44px;border-radius:50%;object-fit:cover;display:none;border:2px solid rgba(255,255,255,.75)}
-.brand-name{font-size:18px;font-weight:850;letter-spacing:-.2px}
-.brand-tagline{font-size:12px;opacity:.78;margin-top:2px}
-.hero{max-width:760px;margin:54px 0 0}
-.hero h1{font-size:clamp(34px,5vw,54px);line-height:1.05;letter-spacing:-1.8px;margin:0 0 15px}
-.hero p{margin:0;max-width:650px;opacity:.88;line-height:1.7;font-size:15px}
-.hero .hero-note{display:inline-flex;align-items:center;gap:8px;margin-top:20px;font-size:12px;opacity:.9}
-.progress{background:rgba(255,255,255,.96);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:20;backdrop-filter:blur(12px)}
-.progress-inner{max-width:1080px;margin:auto;display:flex;gap:4px;padding:13px 18px;overflow:auto}
-.step{flex:1;min-width:78px;text-align:center;font-size:10px;color:#98a2b3;padding:8px 5px 7px;border-bottom:3px solid transparent;font-weight:800;white-space:nowrap}
-.step.active{color:var(--primary);border-color:var(--secondary)}
-.step.done{color:var(--success)}
-.main{max-width:1080px;margin:28px auto;padding:0 18px 80px}
-.card{background:var(--card);border:1px solid rgba(227,232,239,.9);border-radius:var(--radius);padding:clamp(22px,4vw,38px);box-shadow:var(--shadow)}
-.section{display:none;animation:fadeUp .25s ease}
-.section.active{display:block}
-@keyframes fadeUp{from{opacity:.3;transform:translateY(5px)}to{opacity:1;transform:none}}
-.section h2{margin:0 0 7px;font-size:clamp(24px,3vw,30px);letter-spacing:-.7px}
-.hint{color:var(--muted);font-size:13px;margin:0 0 28px;line-height:1.65}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
-.field{margin-bottom:19px}.field.full{grid-column:1/-1}
-label{display:block;font-size:12px;font-weight:800;margin-bottom:8px;color:#344054}
-.required{color:#d92d20}
-input,select,textarea{width:100%;border:1px solid #d6dde7;border-radius:12px;padding:13px 14px;background:#fff;color:var(--text);outline:none;transition:.18s}
-input::placeholder,textarea::placeholder{color:#a0a9b6}
-input:focus,select:focus,textarea:focus{border-color:var(--secondary);box-shadow:0 0 0 4px rgba(47,128,237,.11)}
-textarea{min-height:112px;resize:vertical}
-.options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
-.option{border:1px solid var(--border);border-radius:13px;padding:13px 12px;cursor:pointer;display:flex;gap:10px;align-items:center;font-size:12px;background:#fff;min-height:48px;transition:.18s}
-.option:hover{border-color:#b8c5d5;transform:translateY(-1px)}
-.option:has(input:checked){border-color:var(--secondary);background:#f1f7ff;box-shadow:0 5px 15px rgba(47,128,237,.08)}
-.option input{width:auto;margin:0;accent-color:var(--secondary)}
-.dynamic{margin:20px 0;padding:22px;border-radius:16px;background:#f7fbff;border:1px solid #dceafb}
-.dynamic h3{font-size:16px;margin:0 0 17px;color:var(--primary)}
-.dynamic-branch+.dynamic-branch{border-top:1px solid #dceafb;margin-top:22px;padding-top:22px}
-.custom-block{margin-top:28px;border-top:1px solid var(--border);padding-top:24px}
-.custom-block h3{font-size:16px;margin:0 0 17px}
-.nav{display:flex;justify-content:space-between;align-items:center;margin-top:28px;gap:12px}
-.btn{border:0;border-radius:12px;padding:13px 22px;font-weight:850;cursor:pointer;transition:.18s}
-.btn:disabled{opacity:.55;cursor:not-allowed}
-.back{background:#eef2f6;color:#344054}.back:hover{background:#e5eaf0}
-.next,.submit{background:var(--secondary);color:#fff;box-shadow:0 7px 18px rgba(47,128,237,.22)}
-.next:hover{transform:translateY(-1px);filter:brightness(.97)}
-.review{background:#f8fafc;border:1px solid var(--border);border-radius:14px;padding:18px;white-space:pre-wrap;font-size:13px;line-height:1.7}
-.success{text-align:center;padding:55px 18px}.success h2{font-size:32px;letter-spacing:-1px}
-.success-icon{width:62px;height:62px;border-radius:50%;margin:0 auto 18px;background:#e8f8f2;color:var(--success);display:grid;place-items:center;font-size:28px;font-weight:900}
-.error{color:#b42318;font-size:13px;margin-top:12px}
-.welcome{display:grid;grid-template-columns:1.05fr .95fr;min-height:560px;border-radius:24px;overflow:hidden;background:#fff;box-shadow:var(--shadow);border:1px solid var(--border)}
-.welcome-copy{padding:clamp(30px,5vw,62px);display:flex;flex-direction:column;justify-content:center}
-.welcome-kicker{font-size:11px;font-weight:900;letter-spacing:1.3px;text-transform:uppercase;color:var(--secondary);margin-bottom:15px}
-.welcome h2{font-size:clamp(36px,5vw,58px);line-height:1.02;letter-spacing:-2px;margin:0 0 18px}
-.welcome p{font-size:15px;color:var(--muted);line-height:1.75;max-width:530px;margin:0}
-.start-btn{margin-top:28px;width:max-content;border:0;border-radius:13px;background:var(--secondary);color:#fff;padding:14px 22px;font-weight:850;cursor:pointer;box-shadow:0 9px 22px rgba(47,128,237,.23)}
-.welcome-points{display:flex;gap:18px;flex-wrap:wrap;margin-top:28px;color:#475467;font-size:11px;font-weight:750}
-.welcome-points span{display:flex;align-items:center;gap:6px}
-.welcome-art{position:relative;min-height:560px;background-image:linear-gradient(155deg,rgba(21,76,112,.08),rgba(21,76,112,.48)),url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=85");background-size:cover;background-position:center;overflow:hidden}
-.welcome-art:before{content:"";position:absolute;width:150%;height:55%;left:-20%;bottom:-10%;background:rgba(255,255,255,.18);border-radius:50% 50% 0 0/25% 25% 0 0;transform:rotate(-5deg)}
-.art-card{position:absolute;right:12%;bottom:12%;width:210px;background:rgba(255,255,255,.94);border-radius:18px;padding:18px;box-shadow:0 18px 45px rgba(20,55,80,.22)}
-.art-card strong{display:block;font-size:13px;margin-bottom:6px}.art-card small{color:var(--muted);line-height:1.5}
-.hidden{display:none!important}
-@media(max-width:800px){.welcome{grid-template-columns:1fr}.welcome-art{min-height:300px;order:-1}.options{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:560px){.grid,.options{grid-template-columns:1fr}.main{padding:0 12px 50px}.top{padding:17px 16px 38px}.hero{margin-top:40px}.hero h1{letter-spacing:-1.2px}.card{padding:20px}.welcome-copy{padding:30px 24px}.welcome h2{font-size:38px}.welcome-art{min-height:230px}.art-card{right:8%;bottom:8%;width:190px}.step{min-width:68px}}
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--gold:#c9a84c;--gold-l:#e0c46a;--gold-d:#9a7a28;--gold-gradient:linear-gradient(135deg,#c9a84c,#e8d08a,#c9a84c);--navy:#0e1c2e;--cream:#faf7f2;--white:#fff;--txt:#0e1c2e;--muted:#666878;--border:#ddd6c8;--sel:#fdf8ed;--shadow:0 8px 32px rgba(14,28,46,.12)}
+body{font-family:'Cormorant Garamond',serif;background:var(--cream);color:var(--txt);height:100vh;overflow:hidden}
+.app{display:grid;grid-template-columns:340px 1fr;height:100vh}
+.sidebar{position:relative;overflow:hidden;background:var(--navy)}
+.sb-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .5s}
+.sb-overlay{position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(14,28,46,.38));z-index:1}
+.main{background:#fff;display:flex;flex-direction:column;height:100vh;min-width:0}
+.prog{padding:18px 52px 14px;border-bottom:1px solid #ede8df;background:#fff}
+.steps{display:flex}.step{flex:1;text-align:center;position:relative}
+.step:not(:last-child):after{content:'';position:absolute;top:14px;left:50%;width:100%;height:1px;background:#ede8df}.step.done:not(:last-child):after,.step.active:not(:last-child):after{background:var(--gold)}
+.step-dot{position:relative;z-index:1;margin:auto;width:28px;height:28px;border:1.5px solid var(--border);border-radius:50%;display:grid;place-items:center;background:#fff;font:600 10px Jost;color:#999}
+.step.done .step-dot,.step.active .step-dot{background:var(--gold-gradient);border-color:var(--gold);color:#fff}
+.step.active .step-dot{box-shadow:0 0 0 4px rgba(201,168,76,.18)}
+.step-label{margin-top:6px;font:600 8.5px Jost;color:#999;text-transform:uppercase;letter-spacing:.7px;white-space:nowrap}
+.step.done .step-label,.step.active .step-label{color:var(--gold-d)}
+.content{flex:1;overflow-y:auto;padding:38px 56px 24px}
+.content::-webkit-scrollbar{width:4px}.content::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.pg-title{font:700 38px/1.15 'Playfair Display';color:var(--navy);margin-bottom:10px}
+.pg-sub{font:italic 16px/1.5 'Cormorant Garamond';color:#4a4a5a}
+.gold-bar{width:48px;height:2px;background:var(--gold-gradient);margin:18px 0 28px}
+.grid{display:grid;gap:12px}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.card{position:relative;border:1px solid var(--border);border-radius:14px;min-height:98px;padding:22px 14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:#fff;cursor:pointer;text-align:center;box-shadow:0 2px 10px rgba(14,28,46,.05);transition:.2s}
+.card:hover{border-color:var(--gold-l);box-shadow:var(--shadow);transform:translateY(-2px)}.card.sel{border-color:var(--gold);background:var(--sel);box-shadow:0 0 0 1.5px var(--gold),0 6px 20px rgba(14,28,46,.08)}
+.card svg{width:27px;height:27px;stroke:currentColor;fill:none;stroke-width:1.5;color:#87909c}.card.sel svg{color:var(--gold)}
+.c-lbl{font:600 13px Jost;color:var(--txt)}.card.sel .c-lbl{color:var(--gold-d)}
+.chk{position:absolute;right:9px;top:9px;width:19px;height:19px;border-radius:50%;display:none;place-items:center;background:var(--gold-gradient);color:#fff}.chk svg{width:11px;height:11px;stroke:#fff}.card.sel .chk{display:grid}
+.sec-lbl{font:700 10px Jost;letter-spacing:2px;text-transform:uppercase;color:#999;margin:24px 0 13px}
+.row{display:flex;gap:10px;flex-wrap:wrap}.row .card{min-width:130px;min-height:54px;flex-direction:row;padding:13px 18px}
+.fg{margin-bottom:16px}.fg label{display:block;font:700 10px Jost;letter-spacing:1.5px;text-transform:uppercase;color:#8a8a8a;margin-bottom:8px}.required{color:#b24b3d}
+input,select,textarea{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:13px 15px;background:#fff;color:var(--txt);font:400 15px Jost;outline:none}input:focus,select:focus,textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.1)}textarea{min-height:110px;resize:vertical}
+.form-max{max-width:780px}.conditional-panel{border:1px solid #e8dfcf;background:#fdfbf7;border-radius:15px;padding:18px;margin-top:24px}.conditional-panel .sec-lbl{margin-top:0}.conditional-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.region-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.region-card{border:1px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;background:#fff}.region-card.sel{border-color:var(--gold);background:var(--sel)}.region-name{font:600 15px Jost}.region-count{font:400 11px Jost;color:#999;margin-top:3px}
+.dest-pills{display:flex;gap:9px;flex-wrap:wrap}.dest-pill{border:1px solid var(--border);padding:10px 16px;border-radius:999px;background:#fff;font:500 13px Jost;cursor:pointer}.dest-pill.sel{border-color:var(--gold);background:var(--sel);color:var(--gold-d)}
+.timing-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;max-width:850px}.date-box{border:1px solid var(--border);border-radius:10px;padding:14px;font:600 13px Jost;margin-bottom:12px}.cal-wrap{border:1px solid var(--border);border-radius:12px;padding:15px;max-width:420px}.cal-hd{display:flex;justify-content:space-between;align-items:center;font:600 13px Jost;margin-bottom:10px}.cal-nav{border:0;background:none;font-size:24px;cursor:pointer}.cal-body{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}.cal-d{padding:9px 0;text-align:center;border-radius:7px;font:500 12px Jost;cursor:pointer}.cal-dl{font:700 9px Jost;color:#999;text-align:center;padding:4px 0}.cal-d:hover{background:var(--sel)}.cal-d.past{color:#ccc!important}.cal-d.today{font-weight:800}.cal-d.picked,.cal-d.range-start,.cal-d.range-end{background:var(--gold);color:#fff}.cal-d.range-middle{background:#f5ecd5;color:var(--gold-d)}
+.footer{display:flex;align-items:center;justify-content:space-between;padding:13px 52px 18px;border-top:1px solid #ede8df;background:#fff}.btn{border:0;border-radius:9px;padding:12px 21px;font:600 13px Jost;cursor:pointer}.btn-back{background:#f2f2f2;color:#344054}.btn-next{background:var(--gold-gradient);color:#fff;box-shadow:0 5px 18px rgba(201,168,76,.25)}.btn:disabled{opacity:.55}.secure{font:600 10px Jost;color:#aaa;letter-spacing:1px;text-transform:uppercase}.complete{text-align:center;padding:70px 20px;max-width:700px;margin:auto}.done-icon{width:76px;height:76px;border-radius:50%;background:var(--gold);display:grid;place-items:center;margin:0 auto 24px}.done-icon svg{stroke:#fff;width:34px;height:34px}.done-title{font:600 42px 'Playfair Display';color:var(--navy)}.done-sub{font:italic 17px/1.6 'Cormorant Garamond';color:#5d5d68}
+@media(max-width:1050px){.app{grid-template-columns:260px 1fr}.content{padding:30px 30px}.prog{padding:14px 25px}.footer{padding:12px 25px}.g4{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:720px){body{overflow:auto}.app{display:block;height:auto;min-height:100vh}.sidebar{height:190px}.sb-img{object-position:center}.main{height:auto;min-height:calc(100vh - 190px)}.prog{overflow:auto}.steps{min-width:650px}.content{padding:24px 18px}.g4,.g3,.g2,.region-grid,.conditional-grid,.timing-grid{grid-template-columns:1fr 1fr}.pg-title{font-size:29px}.footer{padding:12px 18px}.secure{display:none}}
+@media(max-width:480px){.g4,.g3,.g2,.region-grid,.conditional-grid{grid-template-columns:1fr}.content{padding:20px 14px}.pg-title{font-size:26px}.step-label{font-size:7px}.footer{position:sticky;bottom:0}.row .card{flex:1;min-width:110px}}
 </style>
 </head>
 <body>
-<div class="page">
-<header class="top"><div class="top-inner">
-<div class="brand"><img id="logo" alt=""><img id="photo" class="brand-photo" alt=""><div><div id="brandName" class="brand-name">Travel-PA</div><div id="brandTagline" class="brand-tagline">Travel planning made personal</div></div></div>
-<div class="hero"><div class="hero-kicker">Your dream holiday, our priority</div><h1 id="heroTitle">Let's start planning your holiday</h1><p id="heroSubtitle">This quick form takes around 3 minutes to complete. The more you tell us, the better we can tailor your holiday.</p><div class="hero-note">✦ Personalised planning &nbsp; • &nbsp; Expert support</div></div>
-</div></header>
-<div id="welcomeWrap" class="main"><div class="welcome">
-<div class="welcome-copy"><div class="welcome-kicker">A better way to plan</div><h2>Let's make your next holiday one to remember.</h2><p>Tell us a little about what you're looking for. Your travel consultant will use your answers to create a holiday that fits you, your travel style and your budget.</p><button id="startPlan" class="start-btn" type="button">Start your holiday plan&nbsp; →</button><div class="welcome-points"><span>✓ Personalised recommendations</span><span>✓ Expert support</span><span>✓ Best-fit options</span></div></div>
-<div class="welcome-art"><div class="art-card"><strong>Made around you</strong><small>Your answers help your consultant understand what matters before they get in touch.</small></div></div>
-</div></div>
-<div id="formWrap" class="hidden">
-<div class="progress"><div class="progress-inner" id="progress"></div></div>
-<main class="main"><div class="card">
-<form id="form">
-<section class="section active" data-section="0"><h2>Tell us a bit about you</h2><p class="hint">This helps us understand who we'll be planning for.</p><div class="grid">
-<div class="field"><label>First name <span class="required">*</span></label><input name="firstName" required placeholder="Your first name"></div>
-<div class="field"><label>Last name <span class="required">*</span></label><input name="lastName" required placeholder="Your last name"></div>
-</div></section>
-
-<section class="section" data-section="1"><h2>What are you dreaming of?</h2><p class="hint">Choose one or more holiday types. We'll ask a few extra questions when a specific type needs more detail.</p>
-<div class="field"><label>Holiday type <span class="required">*</span></label><div id="holidayTypes" class="options"></div></div>
-<div id="dynamicHoliday" class="dynamic" style="display:none"></div>
-<div class="field"><label>Where would you like to go?</label><input id="destination" name="destination" list="destinations" placeholder="Search destination..." autocomplete="off"><datalist id="destinations"><option>London</option><option>Paris</option><option>Rome</option><option>Barcelona</option><option>Greek Islands</option><option>Canary Islands</option><option>Dubai</option><option>Abu Dhabi</option><option>Maldives</option><option>Thailand</option><option>Japan</option><option>New York</option><option>Orlando</option><option>Caribbean</option><option>South Africa</option><option>Australia</option><option>New Zealand</option></datalist></div>
-<div class="field"><label>Open to ideas?</label><div id="ideas" class="options"></div></div>
-<div class="grid"><div class="field"><label>Departure date</label><input type="date" name="travelDateStart"></div><div class="field"><label>Return date</label><input type="date" name="travelDateEnd"></div><div class="field"><label>Number of nights</label><select name="nights"><option value="">Select...</option><option>5</option><option>7</option><option>10</option><option>11</option><option>14</option><option>21</option><option>Flexible</option><option>Other</option></select></div></div>
-</section>
-
-<section class="section" data-section="2"><h2>Who are you travelling with?</h2><p class="hint">Tell us about your group so we can match accommodation and travel arrangements.</p><div class="grid">
-<div class="field"><label>Adults</label><input type="number" name="adults" min="1" value="2"></div><div class="field"><label>Children</label><input type="number" name="children" min="0" value="0"></div><div class="field"><label>Infants</label><input type="number" name="infants" min="0" value="0"></div><div class="field"><label>Number of rooms</label><input type="number" name="rooms" min="1" value="1"></div>
-<div class="field full"><label>Children ages</label><input name="childrenAges" placeholder="e.g. 4, 8, 12"></div><div class="field full"><label>Room type</label><div id="roomTypes" class="options"></div></div><div class="field full"><label>Accessibility required?</label><div id="accessibility" class="options"></div></div><div class="field full" id="accessibilityDetailsWrap" style="display:none"><label>Accessibility details</label><textarea name="accessibilityDetails" placeholder="Please tell us what you need"></textarea></div>
-</div></section>
-
-<section class="section" data-section="3"><h2>Let's talk budget</h2><p class="hint">An approximate figure helps your consultant focus on realistic options. It doesn't need to be exact.</p>
-<div class="field"><label>How would you like to give your budget?</label><div id="budgetType" class="options"></div></div><div class="grid"><div class="field"><label>Approximate budget (£)</label><input type="number" name="budget" min="0" step="50" placeholder="e.g. 5000"></div><div class="field"><label>Include flights?</label><div id="flights" class="options"></div></div></div></section>
-
-<section class="section" data-section="4"><h2>What matters most to you?</h2><p class="hint">Select everything that would make your holiday feel right.</p><div id="preferences" class="options"></div></section>
-
-<section class="section" data-section="5"><h2>The little details</h2><p class="hint">These details help your consultant personalise the enquiry.</p><div class="field"><label>Special occasion</label><div id="occasions" class="options"></div></div><div class="field"><label>Must have</label><textarea name="mustHave" placeholder="What must your holiday include?"></textarea></div><div class="field"><label>Things you'd like to avoid</label><textarea name="avoid" placeholder="Anything you definitely don't want?"></textarea></div><div class="field"><label>Anything else we should know</label><textarea name="anythingElse" placeholder="Anything that would help us understand your trip?"></textarea></div><div id="customQuestions" class="custom-block" style="display:none"><h3>One more thing</h3><div id="customFields"></div></div></section>
-
-<section class="section" data-section="6"><h2>Review your holiday plan</h2><p class="hint">Almost there. Check the details below before we ask how you'd like us to contact you.</p><div id="review" class="review"></div></section>
-
-<section class="section" data-section="7"><h2>How should we contact you?</h2><p class="hint">Your travel consultant will review your enquiry and contact you personally.</p><div class="grid"><div class="field"><label>Phone <span class="required">*</span></label><input name="phone" required placeholder="+44 ..."></div><div class="field"><label>Email <span class="required">*</span></label><input name="email" type="email" required placeholder="you@example.com"></div><div class="field"><label>Preferred contact</label><div id="contactMethods" class="options"></div></div><div class="field"><label>Best time</label><div id="bestTimes" class="options"></div></div><div class="field full"><label>How did you find us?</label><div id="referrals" class="options"></div></div><div class="field full" id="referralNameWrap" style="display:none"><label>Referral name</label><input name="referralName" placeholder="Who referred you?"></div></div><div id="error" class="error"></div></section>
-</form>
-<div class="nav"><button id="back" class="btn back" type="button">Back</button><button id="next" class="btn next" type="button">Next&nbsp; →</button></div>
-<div id="success" class="success" style="display:none"><div class="success-icon">✓</div><h2>Thank you</h2><p>Your holiday enquiry has been submitted. Your travel consultant will review everything and usually contact you within one working day.</p></div>
-</div></main></div></div><script>
-const state={started:false,step:0,total:8,agentId:null,slug:null,config:null,values:{},selected:{holidayTypes:[],ideas:'',roomTypes:[],accessibility:'',budgetType:'',flights:'',preferences:[],occasions:[],contactMethod:'',bestTime:'',referral:''},dynamic:{}};
-const $=id=>document.getElementById(id);
-const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-function query(){const p=new URLSearchParams(location.search);state.agentId=p.get('agent')||p.get('agentId');state.slug=p.get('slug');}
-function cfgUrl(){return state.slug?'/api/public/form-config/slug/'+encodeURIComponent(state.slug):'/api/public/form-config/'+encodeURIComponent(state.agentId||'');}
-async function init(){
- query();
- if(!state.agentId&&!state.slug){return fail('This questionnaire link is missing its agent reference.');}
- try{const r=await fetch(cfgUrl());const j=await r.json();if(!j.success)throw new Error(j.message||'Unable to load questionnaire.');state.config=j;state.agentId=j.agent.id;applyBrand(j.agent);renderCore(j.coreQuestionnaire);renderCustom(j.questions||[]);renderProgress();showWelcome();}catch(e){fail(e.message);}
+<div class="app">
+<aside class="sidebar"><div class="sb-overlay"></div><img id="sideImg" class="sb-img" alt="Travel destination"></aside>
+<main class="main">
+<div class="prog"><div id="steps" class="steps"></div></div>
+<div id="pageContent" class="content"></div>
+<div id="footer" class="footer"><button id="backBtn" class="btn btn-back" onclick="prev()">← Back</button><div class="secure">Private &amp; Secure</div><button id="nextBtn" class="btn btn-next" onclick="next()">Next →</button></div>
+</main>
+</div>
+<script>
+const STEPS=["Holiday","Destination","Travellers","Dates","Preferences","Occasion","Budget","Departure","Contact","Complete"];
+const IMAGES=[
+"https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=80",
+"https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=900&q=80",
+"https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=900&q=80",
+"https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&w=900&q=80",
+"https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=900&q=80",
+"https://images.unsplash.com/photo-1530789253388-582c481c54b0?auto=format&fit=crop&w=900&q=80",
+"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=900&q=80",
+"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=900&q=80",
+"https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?auto=format&fit=crop&w=900&q=80",
+"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80"
+];
+const params=new URLSearchParams(location.search);
+const agentRef=params.get("agent");
+const slugRef=params.get("slug");
+let agentId=agentRef;
+let agent=null;
+let core={};
+let customQuestions=[];
+let cur=0;
+const ans={
+ holidayTypes:[],dynamic:{},destination:"",ideas:"",
+ adults:2,children:0,infants:0,childrenAges:"",rooms:"1",roomType:"",accessibility:"",accessibilityDetails:"",
+ dates:"",datesEnd:"",nights:"",preferences:[],occasions:[],mustHave:"",avoid:"",anythingElse:"",
+ budgetType:"",budget:"",flights:"",loc:"",firstName:"",lastName:"",email:"",phone:"",
+ contactMethod:"Email",bestTime:"Anytime",referral:"",referralName:"",customAnswers:{}
+};
+const destinationRegions=[
+["Indian Ocean",["Maldives","Mauritius","Seychelles","Sri Lanka","India"]],
+["Middle East",["Dubai","Abu Dhabi","Oman","Fujairah","Ras al Khaimah","Qatar","Saudi Arabia","AlUla"]],
+["Europe",["Greece","Spain","Cyprus","Portugal","Turkey","Croatia","Italy","Lapland","Switzerland","Malta","Montenegro","Iceland","France","Finland"]],
+["Caribbean & Mexico",["Barbados","Saint Lucia","Antigua And Barbuda","Aruba","Grenada","Jamaica","St Barths","Dominican Republic","Anguilla","Bahamas","Mexico"]],
+["Far East",["Thailand","Indonesia","Vietnam","Malaysia","Cambodia","Singapore","Japan","Philippines","Hong Kong"]],
+["North America",["USA","Canada"]],["Africa",["South Africa","Kenya","Tanzania and Zanzibar","Morocco","Botswana","Zimbabwe","Rwanda"]],
+["Australasia",["Australia","New Zealand"]],["Cruise",["Mediterranean","Caribbean","Northern Europe","Asia & Far East","South America","Alaska","Antarctica"]]
+];
+const icon=(path)=>'<svg viewBox="0 0 24 24"><path d="'+path+'"/></svg>';
+const icons={plane:"M3 11l18-7-7 18-3-8-8-3z",hotel:"M3 20V8h18v12M7 12h3M14 12h3M7 16h3M14 16h3",ship:"M3 17h18M5 14l2-7h10l2 7M12 7V3M8 14h8",heart:"M20.8 8.8c0 5-8.8 10.5-8.8 10.5S3.2 13.8 3.2 8.8A4.8 4.8 0 0112 6.2a4.8 4.8 0 018.8 2.6z",family:"M8 7a3 3 0 100-6 3 3 0 000 6M16 8a2.5 2.5 0 100-5 2.5 2.5 0 000 5M2 21v-4a6 6 0 0112 0v4M13 21v-3a5 5 0 0110 0v3",sport:"M12 3a9 9 0 100 18 9 9 0 000-18",spa:"M12 22C7 18 5 13 8 9c2-3 6-3 8 0 3 4 1 9-4 13z",search:"M21 21l-4.3-4.3M10.8 18a7.2 7.2 0 100-14.4 7.2 7.2 0 000 14.4z"};
+function chk(){return '<span class="chk"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4L19 6"/></svg></span>'}
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+function card(value,label,key,icoKey="search"){const selected=Array.isArray(ans[key])&&ans[key].includes(value);return '<div class="card '+(selected?'sel':'')+'" onclick="toggleArray(\''+key+'\',\''+esc(value).replace(/'/g,"\\'")+'\',this)">'+chk()+icon(icons[icoKey]||icons.search)+'<div class="c-lbl">'+esc(label)+'</div></div>'}
+function toggleArray(key,value,el){if(!Array.isArray(ans[key]))ans[key]=[];const i=ans[key].indexOf(value);if(i>=0)ans[key].splice(i,1);else ans[key].push(value);if(el)el.classList.toggle("sel",i<0);if(key==="holidayTypes")renderConditional();updateNext();clearError()}
+function setValue(key,value){ans[key]=value;updateNext();clearError()}
+async function loadConfig(){
+ const endpoint=agentRef?"/api/public/form-config/"+encodeURIComponent(agentRef):slugRef?"/api/public/form-config/slug/"+encodeURIComponent(slugRef):null;
+ if(!endpoint)return false;
+ const r=await fetch(endpoint);const p=await r.json();
+ if(!r.ok||!p.success)throw new Error(p.message||"Unable to load questionnaire");
+ agentId=p.agent?.id||agentId;agent=p.agent||null;core=p.coreQuestionnaire||{};customQuestions=p.questions||[];
+ if(agent?.brandName)document.title=agent.brandName+" — Holiday Enquiry";
+ return true;
 }
-function applyBrand(a){$('brandName').textContent=a.brandName||a.name||'Travel-PA';$('brandTagline').textContent=a.brandTagline||'Travel planning made personal';$('heroTitle').textContent=a.coreQuestionnaire?.title||'Let\'s start planning your holiday';$('heroSubtitle').textContent=a.coreQuestionnaire?.subtitle||$('heroSubtitle').textContent; if(a.primaryColor)document.documentElement.style.setProperty('--primary',a.primaryColor);if(a.secondaryColor)document.documentElement.style.setProperty('--secondary',a.secondaryColor);if(a.logoUrl){$('logo').src=a.logoUrl;$('logo').style.display='block'}if(a.profilePhotoUrl){$('photo').src=a.profilePhotoUrl;$('photo').style.display='block'}}
-function options(id,items,multi=false,selected=[]){$(id).innerHTML=items.map((x,i)=>'<label class="option"><input type="'+(multi?'checkbox':'radio')+'" name="'+id+'" value="'+esc(x)+'" '+((multi?selected.includes(x):selected===x)?'checked':'')+'><span>'+esc(x)+'</span></label>').join('');$(id).querySelectorAll('input').forEach(el=>el.addEventListener('change',()=>{if(multi)state.selected[id]=[...$(id).querySelectorAll('input:checked')].map(x=>x.value);else state.selected[id]=el.value;renderDynamic();renderReview();}));}
-function renderCore(core){options('holidayTypes',core.holidayTypes,true);options('ideas',['Yes','Maybe','No']);options('roomTypes',core.roomTypes,true);options('accessibility',['Yes','No']);options('budgetType',['Total Holiday','Per Person','Accommodation Only','Not Sure']);options('flights',['Yes','No','Not Sure']);options('preferences',core.holidayPreferences,true);options('occasions',core.occasions,true);options('contactMethods',core.contactMethods);options('bestTimes',core.bestTimes);options('referrals',core.referralSources);}
-function renderDynamic(){
-  const previous=collectDynamic(); if(Object.keys(previous).length)Object.assign(state.dynamic,previous);
-  const box=$('dynamicHoliday');
-  const types=state.selected.holidayTypes||[];
-  const branches=state.config.coreQuestionnaire?.conditionalBranches||{};
-  const active=types.map(t=>({type:t,branch:branches[t]})).filter(x=>x.branch);
-  if(!active.length){box.style.display='none';box.innerHTML='';return;}
-  box.style.display='block';
-  box.innerHTML=active.map((x,bi)=>{
-    const q=x.branch.questions||[];
-    return '<div class="dynamic-branch" data-branch="'+esc(x.type)+'"><h3>'+esc(x.branch.title||x.type+' details')+'</h3>'+
-      q.map(item=>renderConditionalQuestion(item,bi)).join('')+'</div>';
-  }).join('');
-  active.forEach((x,bi)=>(x.branch.questions||[]).forEach(q=>bindConditionalQuestion(q,bi)));
+function renderSteps(){document.getElementById("steps").innerHTML=STEPS.map((s,i)=>'<div class="step '+(i<cur?"done":i===cur?"active":"")+'"><div class="step-dot">'+(i<cur?"✓":i+1)+'</div><div class="step-label">'+s+'</div></div>').join("")}
+function setSide(){const im=document.getElementById("sideImg");if(im)im.src=IMAGES[cur]||IMAGES[0]}
+function field(label,html){return '<div class="fg"><label>'+label+'</label>'+html+'</div>}
+function choiceRow(key,values){return '<div class="row">'+values.map(v=>'<div class="card '+(ans[key]===v?"sel":"")+'" onclick="setSingle(\''+key+'\',\''+esc(v).replace(/'/g,"\\'")+'\',this)">'+chk()+'<div class="c-lbl">'+esc(v)+'</div></div>').join("")+'</div>'}
+function setSingle(key,value,el){ans[key]=value;if(el)el.parentElement.querySelectorAll(".card").forEach(c=>c.classList.remove("sel"));if(el)el.classList.add("sel");updateNext();clearError()}
+function conditionalActive(branchName){const values=ans.holidayTypes||[];return values.includes(branchName)}
+function renderConditional(){
+ const host=document.getElementById("conditional");if(!host)return;
+ const branches=core.conditionalBranches||{};
+ const active=Object.entries(branches).filter(([name])=>conditionalActive(name));
+ host.innerHTML=active.map(([name,b])=>'<div class="conditional-panel"><div class="sec-lbl">'+esc(b.title||name)+'</div><div class="conditional-grid">'+(b.questions||[]).map(q=>renderCore(q)).join("")+'</div></div>').join("");
 }
-function renderConditionalQuestion(q,bi){
-  const id='branch_'+safeId(q.id);
-  if(q.type==='select'||q.type==='multiselect'){
-    const multi=q.type==='multiselect';
-    return '<div class="field"><label>'+esc(q.label)+'</label><div id="'+id+'" class="options"></div></div>';
-  }
-  return '<div class="field"><label>'+esc(q.label)+'</label><input id="'+id+'" type="'+(q.type==='date'?'date':'text')+'" value="'+esc(state.dynamic[safeId(q.id)]||'')+'" placeholder="'+esc(q.placeholder||'')+'"></div>';
+function renderCore(q){
+ const v=ans.dynamic[q.id];const label=esc(q.label||q.id);
+ if(q.type==="multiselect")return field(label+'<span class="required">*</span>','<div class="grid g3">'+(q.options||[]).map(o=>'<div class="card '+(Array.isArray(v)&&v.includes(o)?"sel":"")+'" onclick="toggleDynamic(\''+q.id+'\',\''+esc(o).replace(/'/g,"\\'")+'\',this)">'+chk()+'<div class="c-lbl">'+esc(o)+'</div></div>').join("")+'</div>');
+ if(q.type==="select")return field(label+'<span class="required">*</span>','<select onchange="setDynamic(\''+q.id+'\',this.value)"><option value="">Select...</option>'+(q.options||[]).map(o=>'<option '+(v===o?"selected":"")+'>'+esc(o)+'</option>').join("")+'</select>');
+ return field(label+'<span class="required">*</span>','<input type="'+(q.type==="date"?"date":q.type==="number"?"number":"text")+'" value="'+esc(v||"")+'" oninput="setDynamic(\''+q.id+'\',this.value)">');
 }
-function bindConditionalQuestion(q,bi){
-  const id='branch_'+safeId(q.id), e=$(id);
-  if(!e)return;
-  if(q.type==='select'||q.type==='multiselect'){
-    options(id,q.options||[],q.type==='multiselect',state.selected[id]||state.dynamic[safeId(q.id)]||[]);
-  }
+function setDynamic(id,v){ans.dynamic[id]=v;updateNext();clearError()}
+function toggleDynamic(id,v,el){if(!Array.isArray(ans.dynamic[id]))ans.dynamic[id]=[];const i=ans.dynamic[id].indexOf(v);if(i>=0)ans.dynamic[id].splice(i,1);else ans.dynamic[id].push(v);if(el)el.classList.toggle("sel",i<0);updateNext();clearError()}
+function s0(pc){
+ const types=core.holidayTypes||["Package Holiday","Tailor Made Holiday","Cruise","Villa","Tour","City Break","Family Holiday","Honeymoon","Group Travel","Business Travel","Sports/Event Travel","Ski Holiday","Safari","Luxury Holiday","Beach Holiday","Not Sure Yet"];
+ const iconsFor={Cruise:"ship","Honeymoon:"heart","Family Holiday:"family","Sports/Event Travel:"sport","Luxury Holiday:"hotel","Beach Holiday:"spa"};
+ pc.innerHTML='<div class="pg-title">Let\'s start planning your holiday.</div><div class="pg-sub">Choose all the holiday types that describe what you\'re looking for.</div><div class="gold-bar"></div><div class="grid g4">'+types.map(t=>card(t,t,"holidayTypes",iconsFor[t]||"search")).join("")+'</div><div id="conditional"></div>';renderConditional()
 }
-function safeId(v){return String(v||'').toLowerCase().replace(/[^a-z0-9_]+/g,'_');}
-function renderCustom(qs){if(!qs.length)return;$('customQuestions').style.display='block';$('customFields').innerHTML=qs.map(q=>{let input='';if(['select','multiselect'].includes(q.type))input='<select '+(q.type==='multiselect'?'multiple':'')+' name="custom_'+esc(q.id)+'">'+(q.type==='select'?'<option value="">Select...</option>':'')+(q.options||[]).map(o=>'<option>'+esc(o)+'</option>').join('')+'</select>';else if(q.type==='textarea')input='<textarea name="custom_'+esc(q.id)+'"></textarea>';else if(q.type==='checkbox')input='<input type="checkbox" name="custom_'+esc(q.id)+'">';else input='<input type="'+(q.type==='number'?'number':q.type==='date'?'date':'text')+'" name="custom_'+esc(q.id)+'">';return '<div class="field"><label>'+esc(q.label)+(q.required?' <span class="required">*</span>':'')+'</label>'+input+'</div>'}).join('');}
-function values(){
-  const fd=new FormData($('form'));state.values=Object.fromEntries(fd.entries());
-  state.values.holidayTypes=state.selected.holidayTypes;state.values.destination=state.values.destination||'';
-  state.values.ideas=state.selected.ideas;state.values.roomTypes=state.selected.roomTypes;
-  state.values.accessibility=state.selected.accessibility;state.values.budgetType=state.selected.budgetType;
-  state.values.flights=state.selected.flights;state.values.preferences=state.selected.preferences;
-  state.values.occasions=state.selected.occasions;state.values.contactMethod=state.selected.contactMethods||'';
-  state.values.bestTime=state.selected.bestTimes||'';state.values.referral=state.selected.referrals||'';
-  const custom={};
-  document.querySelectorAll('[name^="custom_"]').forEach(e=>{
-    const key=e.name.slice(7);
-    if(e.type==='checkbox')custom[key]=e.checked;
-    else if(e.multiple)custom[key]=[...e.selectedOptions].map(o=>o.value);
-    else custom[key]=e.value;
-  });
-  state.values.customAnswers=custom;state.values.dynamic=collectDynamic();
+function s1(pc){
+ const all=destinationRegions.flatMap(x=>x[1]);
+ pc.innerHTML='<div class="pg-title">Where would you like to go?</div><div class="pg-sub">Search for a destination, or tell us if you are open to ideas.</div><div class="gold-bar"></div>'+
+ field("Destination",'<input list="destinations" value="'+esc(ans.destination)+'" placeholder="Search destination..." oninput="setValue(\'destination\',this.value);ans.dest=this.value?[this.value]:[]"><datalist id="destinations">'+all.map(x=>'<option>'+esc(x)+'</option>').join("")+'</datalist>')+
+ '<div class="sec-lbl">Open to ideas?</div>'+choiceRow("ideas",["Yes","Maybe","No"])+
+ '<div class="sec-lbl">Explore by region</div><div class="region-grid">'+destinationRegions.map(x=>'<div class="region-card '+(ans.destRegions[0]===x[0]?"sel":"")+'" onclick="selectRegion(\''+esc(x[0]).replace(/'/g,"\\'")+'\')"><div class="region-name">'+esc(x[0])+'</div><div class="region-count">'+x[1].length+' destinations</div></div>').join("")+'</div>'+
+ '<div id="regionDest"></div>';renderRegionDest()
 }
-function collectDynamic(){
-  const o={};
-  document.querySelectorAll('[id^="branch_"]').forEach(e=>{
-    const key=e.id.replace(/^branch_/,'');
-    const checked=e.querySelectorAll?.('input:checked');
-    o[key]=checked?.length?[...checked].map(x=>x.value):(e.value||'');
-  });
-  return o;
+function selectRegion(name){ans.destRegions=[name];renderRegionDest();updateNext();clearError()}
+function renderRegionDest(){const host=document.getElementById("regionDest");if(!host)return;const r=destinationRegions.find(x=>x[0]===ans.destRegions[0]);if(!r){host.innerHTML="";return}host.innerHTML='<div class="sec-lbl">Destinations in '+esc(r[0])+'</div><div class="dest-pills">'+r[1].map(d=>'<div class="dest-pill '+(ans.destination===d?"sel":"")+'" onclick="setDestination(\''+esc(d).replace(/'/g,"\\'")+'\')">'+esc(d)+'</div>').join("")+'</div>'}
+function setDestination(d){ans.destination=d;ans.dest=[d];renderRegionDest();updateNext();clearError()}
+function s2(pc){
+ pc.innerHTML='<div class="pg-title">Tell us about your travellers.</div><div class="pg-sub">This helps us match the right rooms and arrangements.</div><div class="gold-bar"></div>'+
+ '<div class="grid g3 form-max">'+field("Adults *",'<input type="number" min="1" value="'+ans.adults+'" oninput="setValue(\'adults\',Number(this.value)||0)">')+field("Children",'<input type="number" min="0" value="'+ans.children+'" oninput="setValue(\'children\',Number(this.value)||0)">')+field("Infants",'<input type="number" min="0" value="'+ans.infants+'" oninput="setValue(\'infants\',Number(this.value)||0)">')+'</div>'+
+ '<div class="grid g2 form-max">'+field("Children ages",'<input value="'+esc(ans.childrenAges)+'" placeholder="e.g. 6, 10" oninput="setValue(\'childrenAges\',this.value)">')+field("Rooms",'<select onchange="setValue(\'rooms\',this.value)">'+["1","2","3"].map(v=>'<option '+(ans.rooms===v?"selected":"")+'>'+v+'</option>').join("")+'</select>')+field("Room type",'<input value="'+esc(ans.roomType)+'" placeholder="Double, Twin, Family..." oninput="setValue(\'roomType\',this.value)">')+field("Accessibility",'<select onchange="setValue(\'accessibility\',this.value);renderAccessibility()"><option value="">Select...</option><option '+(ans.accessibility==="Yes"?"selected":"")+'>Yes</option><option '+(ans.accessibility==="No"?"selected":"")+'>No</option></select>')+'</div><div id="accessibilityField" class="form-max"></div>';renderAccessibility()}
+function renderAccessibility(){const h=document.getElementById("accessibilityField");if(h)h.innerHTML=ans.accessibility==="Yes"?field("If yes, please tell us more",'<textarea oninput="setValue(\'accessibilityDetails\',this.value)">'+esc(ans.accessibilityDetails)+'</textarea>'):""}
+function s3(pc){
+ pc.innerHTML='<div class="pg-title">When would you like to travel?</div><div class="pg-sub">Choose your departure and return dates, or give us the number of nights.</div><div class="gold-bar"></div><div class="grid g2 form-max">'+field("Departure date *",'<input type="date" value="'+ans.dates+'" min="'+new Date().toISOString().slice(0,10)+'" onchange="setValue(\'dates\',this.value);renderDateBox()">')+field("Return date *",'<input type="date" value="'+ans.datesEnd+'" min="'+new Date().toISOString().slice(0,10)+'" onchange="setValue(\'datesEnd\',this.value);renderDateBox()">')+'</div>'+
+ field("Number of nights *",'<select onchange="setValue(\'nights\',this.value)"><option value="">Select...</option>'+((core.nights||["5","7","10","11","14","21","Flexible","Other"]).map(v=>'<option '+(ans.nights===v?"selected":"")+'>'+v+'</option>').join(""))+'</select>')+
+ '<div class="sec-lbl">Date flexibility</div>'+choiceRow("flex",["Specific dates","Flexible"])}
+function s4(pc){const vals=core.holidayPreferences||[];pc.innerHTML='<div class="pg-title">What matters most?</div><div class="pg-sub">Select the things that matter most for your holiday.</div><div class="gold-bar"></div><div class="grid g4">'+vals.map(v=>card(v,v,"preferences","search")).join("")+'</div>'}
+function s5(pc){const vals=core.occasions||[];pc.innerHTML='<div class="pg-title">Any special occasion?</div><div class="pg-sub">Keep celebrations separate from your everyday holiday preferences.</div><div class="gold-bar"></div><div class="grid g3">'+vals.map(v=>card(v,v,"occasions",v==="Honeymoon"||v==="Wedding"?"heart":"search")).join("")+'</div>'+field("Must have",'<textarea placeholder="Tell us anything that is important for your holiday." oninput="setValue(\'mustHave\',this.value)">'+esc(ans.mustHave)+'</textarea>')+field("Things you\'d like to avoid",'<textarea placeholder="Anything you would prefer us to avoid..." oninput="setValue(\'avoid\',this.value)">'+esc(ans.avoid)+'</textarea>')+field("Anything else we should know",'<textarea placeholder="Anything else..." oninput="setValue(\'anythingElse\',this.value)">'+esc(ans.anythingElse)+'</textarea>')}
+function s6(pc){const basis=["Total Holiday","Per Person","Accommodation Only","Not Sure"],amounts=["£1000","£2000","£3000","£5000","£10000+"],flights=["Yes","No","Not Sure"];pc.innerHTML='<div class="pg-title">How would you like to give your budget?</div><div class="pg-sub">This helps your consultant match the right options.</div><div class="gold-bar"></div><div class="sec-lbl">Budget basis</div>'+choiceRow("budgetType",basis)+'<div class="sec-lbl">Approximate budget</div><div class="grid g3">'+amounts.map(v=>'<div class="card '+(ans.budget===v?"sel":"")+'" onclick="setSingle(\'budget\',\''+v+'\',this)">'+chk()+'<div class="c-lbl">'+v+'</div></div>').join("")+'</div><div class="sec-lbl">Include flights?</div>'+choiceRow("flights",flights)}
+function s7(pc){const options=["Manchester","London Heathrow","Edinburgh","London Gatwick","Birmingham","London Stansted","Belfast"];pc.innerHTML='<div class="pg-title">Where are you travelling from?</div><div class="pg-sub">Select your departure location, or enter another one.</div><div class="gold-bar"></div><div class="grid g3">'+options.map(v=>'<div class="card '+(ans.loc===v?"sel":"")+'" onclick="setSingle(\'loc\',\''+v+'\',this)">'+icon(icons.plane)+'<div class="c-lbl">'+v+'</div></div>').join("")+'</div>'+field("Or enter your departure location",'<input value="'+esc(options.includes(ans.loc)?"":ans.loc)+'" placeholder="Town, city or airport" oninput="setValue(\'loc\',this.value)">')}
+function customField(q){const v=ans.customAnswers[q.id];if(q.type==="textarea")return field(esc(q.label),'<textarea oninput="setCustom(\''+q.id+'\',this.value)">'+esc(v||"")+'</textarea>');if(q.type==="select")return field(esc(q.label),'<select onchange="setCustom(\''+q.id+'\',this.value)"><option value="">Select...</option>'+((q.options||[]).map(o=>'<option '+(v===o?"selected":"")+'>'+esc(o)+'</option>').join(""))+'</select>');if(q.type==="multiselect")return field(esc(q.label),'<div class="grid g3">'+(q.options||[]).map(o=>'<div class="card '+(Array.isArray(v)&&v.includes(o)?"sel":"")+'" onclick="toggleCustom(\''+q.id+'\',\''+esc(o).replace(/'/g,"\\'")+'\',this)">'+chk()+'<div class="c-lbl">'+esc(o)+'</div></div>').join("")+'</div>');if(q.type==="checkbox")return '<div class="card '+(v?"sel":"")+'" onclick="setCustom(\''+q.id+'\',!ans.customAnswers[\''+q.id+'\'],this)" style="flex-direction:row;min-height:55px;margin-bottom:16px">'+chk()+'<div class="c-lbl">'+esc(q.label)+'</div></div>';return field(esc(q.label),'<input type="'+(q.type==="date"?"date":q.type==="number"?"number":"text")+'" value="'+esc(v||"")+'" oninput="setCustom(\''+q.id+'\',this.value)">')}
+function setCustom(id,v){ans.customAnswers[id]=v;updateNext();clearError()}
+function toggleCustom(id,v,el){if(!Array.isArray(ans.customAnswers[id]))ans.customAnswers[id]=[];const i=ans.customAnswers[id].indexOf(v);if(i>=0)ans.customAnswers[id].splice(i,1);else ans.customAnswers[id].push(v);if(el)el.classList.toggle("sel",i<0);updateNext();clearError()}
+function s8(pc){
+ const review='<div class="conditional-panel"><div class="sec-lbl">Review</div><div class="pg-sub">Check the key details before submitting.</div><div style="font:14px/1.8 Jost;color:#4a4a5a;margin-top:12px"><strong>Holiday:</strong> '+esc(ans.holidayTypes.join(", "))+'<br><strong>Destination:</strong> '+esc(ans.destination||"Open to ideas")+'<br><strong>Travellers:</strong> '+ans.adults+' adults, '+ans.children+' children, '+ans.infants+' infants<br><strong>Dates:</strong> '+esc(ans.dates)+' — '+esc(ans.datesEnd)+' ('+esc(ans.nights)+' nights)<br><strong>Budget:</strong> '+esc(ans.budget)+' · '+esc(ans.budgetType)+' · Flights: '+esc(ans.flights)+'</div></div>';
+ pc.innerHTML='<div class="pg-title">A pleasure to meet you.</div><div class="pg-sub">Your travel consultant will review everything and usually contact you within one working day.</div><div class="gold-bar"></div>'+review+
+ '<div class="sec-lbl">Contact details</div><div class="grid g2">'+field("First name *",'<input value="'+esc(ans.firstName)+'" oninput="setValue(\'firstName\',this.value)">')+field("Last name *",'<input value="'+esc(ans.lastName)+'" oninput="setValue(\'lastName\',this.value)">')+field("Email *",'<input type="email" value="'+esc(ans.email)+'" oninput="setValue(\'email\',this.value)">')+field("Phone *",'<input value="'+esc(ans.phone)+'" oninput="setValue(\'phone\',this.value)">')+'</div>'+
+ '<div class="sec-lbl">Preferred contact</div>'+choiceRow("contactMethod",core.contactMethods||["Phone","WhatsApp","Email"])+
+ '<div class="sec-lbl">Best time</div>'+choiceRow("bestTime",core.bestTimes||["Morning","Afternoon","Evening","Anytime"])+
+ '<div class="sec-lbl">How did you find us?</div>'+choiceRow("referral",core.referralSources||["Google","Facebook","Referral","Repeat Customer","Website","Other"])+
+ (ans.referral==="Referral"?field("Referral name",'<input value="'+esc(ans.referralName)+'" oninput="setValue(\'referralName\',this.value)">'):"")+
+ '<div class="sec-lbl">Additional questions</div>'+customQuestions.map(customField).join("")}
+function renderDateBox(){}
+function requiredOk(v){return Array.isArray(v)?v.length>0:String(v??"").trim()!==""}
+function validate(){
+ if(cur===0)return ans.holidayTypes.length>0;
+ if(cur===1)return requiredOk(ans.destination)||ans.ideas==="Yes"||ans.ideas==="Maybe";
+ if(cur===2)return Number(ans.adults)>=1&&requiredOk(ans.rooms)&&requiredOk(ans.accessibility);
+ if(cur===3)return requiredOk(ans.dates)&&requiredOk(ans.datesEnd)&&requiredOk(ans.nights);
+ if(cur===4)return ans.preferences.length>0;
+ if(cur===5)return ans.occasions.length>0&&(requiredOk(ans.mustHave)||requiredOk(ans.avoid)||requiredOk(ans.anythingElse));
+ if(cur===6)return requiredOk(ans.budgetType)&&requiredOk(ans.budget)&&requiredOk(ans.flights);
+ if(cur===7)return requiredOk(ans.loc);
+ if(cur===8){if(!requiredOk(ans.firstName)||!requiredOk(ans.lastName)||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ans.email)||!requiredOk(ans.phone))return false;return customQuestions.every(q=>!q.required||requiredOk(ans.customAnswers[q.id]));}
+ return true
 }
-function renderReview(){if(state.step!==6)return;values();const v=state.values;$('review').textContent='Holiday: '+(v.holidayTypes||[]).join(', ')+'\nDestination: '+(v.destination||'Open to ideas')+'\nTravellers: '+v.adults+' adults, '+v.children+' children, '+v.infants+' infants · '+v.rooms+' room(s)'+'\nDates: '+(v.travelDateStart||'')+' → '+(v.travelDateEnd||'')+'\nBudget: '+(v.budgetType||'')+' £'+(v.budget||'Not specified')+' · Flights: '+(v.flights||'')+'\nPreferences: '+(v.preferences||[]).join(', ')+'\nOccasion: '+(v.occasions||[]).join(', ')+'\nMust have: '+(v.mustHave||'')+'\nAvoid: '+(v.avoid||'');}
-function renderProgress(){const labels=['About You','Your Trip','Travellers','Budget','Holiday Style','Preferences','Review','Submit'];$('progress').innerHTML=labels.map((x,i)=>'<div class="step" data-p="'+i+'">'+(i+1)+' '+x+'</div>').join('');}
-function showWelcome(){$('welcomeWrap').classList.remove('hidden');$('formWrap').classList.add('hidden');}
-function startPlan(){$('welcomeWrap').classList.add('hidden');$('formWrap').classList.remove('hidden');state.started=true;showStep(0);}
-function showStep(n){if(!state.started)return;state.step=n;document.querySelectorAll('.section').forEach(x=>x.classList.toggle('active',Number(x.dataset.section)===n));document.querySelectorAll('.step').forEach(x=>{const i=Number(x.dataset.p);x.classList.toggle('active',i===n);x.classList.toggle('done',i<n)});$('back').style.visibility=n?'visible':'hidden';$('next').textContent=n===7?'Submit':'Next';if(n===6)renderReview();window.scrollTo({top:0,behavior:'smooth'});}
-function validStep(){
-  const sec=document.querySelector('.section.active');if(!sec)return true;
-  for(const e of sec.querySelectorAll('[required]')){
-    const empty=e.type==='checkbox'?!e.checked:e.multiple?e.selectedOptions.length===0:!String(e.value||'').trim();
-    if(empty){e.focus();return false}
-  }
-  if(state.step===1&&!state.selected.holidayTypes.length){alert('Please select at least one holiday type.');return false}
-  if(state.step===5){
-    for(const q of (state.config?.questions||[]).filter(x=>x.required)){
-      const e=document.querySelector('[name="custom_'+CSS.escape(q.id)+'"]');
-      if(!e)continue;
-      const empty=e.type==='checkbox'?!e.checked:e.multiple?e.selectedOptions.length===0:!String(e.value||'').trim();
-      if(empty){e.focus();return false}
-    }
-  }
-  return true;
-}
-$('startPlan').onclick=startPlan;$('back').onclick=()=>{if(state.step>0)showStep(state.step-1)};$('next').onclick=async()=>{if(!validStep())return;if(state.step<7){showStep(state.step+1);return}await submit()};
-$('form').addEventListener('input',()=>{if(state.step===6)renderReview()});$('accessibility').addEventListener('change',e=>{if(e.target.checked)$('accessibilityDetailsWrap').style.display=e.target.value==='Yes'?'block':'none'});$('referrals').addEventListener('change',e=>{$('referralNameWrap').style.display=e.target.checked&&e.target.value==='Referral'?'block':'none'});
-async function submit(){values();const v=state.values;const payload={...v,questionnaireVersion:state.config.coreQuestionnaire?.version||2,agentId:state.agentId,assignedAgent:state.config.agent.name,tripDreams:v.holidayTypes,region:'',destination_specific:v.destination,destinationVibes:[],travelers:[v.adults+' adults',v.children+' children',v.infants+' infants',v.rooms+' rooms'],datesPreference:'Flexible / Customer supplied',stayDuration:v.nights||'',travelDateStart:v.travelDateStart||'',travelDateEnd:v.travelDateEnd||'',helpNeeded:[],specialDetails:[...(v.occasions||[]),v.mustHave?'Must have: '+v.mustHave:'',v.avoid?'Avoid: '+v.avoid:'',v.anythingElse||''].filter(Boolean),travelStyle:(v.preferences||[]).join(', '),nightlyBudget:v.budget||'',ukBaseLocation:'',contactMethod:v.contactMethod||'Email'};try{$('next').disabled=true;$('error').textContent='Submitting...';const r=await fetch('/api/new-lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const j=await r.json();if(!j.success)throw new Error(j.message||'Submission failed.');document.querySelectorAll('.section').forEach(x=>x.style.display='none');document.querySelector('.nav').style.display='none';$('success').style.display='block';$('progress').style.display='none';}catch(e){$('error').textContent=e.message;$('next').disabled=false}}
-function fail(m){document.querySelector('.main').innerHTML='<div class="card"><h2>Questionnaire unavailable</h2><p>'+esc(m)+'</p></div>'}
-init();
+function errMsg(){return ["Please select at least one holiday type.","Please choose a destination or tell us you are open to ideas.","Please complete the traveller details.","Please select departure, return and number of nights.","Please select at least one preference.","Please select an occasion and add at least one detail.","Please choose your budget basis, amount and flight preference.","Please select or enter your departure location.","Please complete your contact details and any required custom questions.",""][cur]||""}
+function clearError(){const e=document.getElementById("err");if(e)e.remove()}
+function showError(){clearError();const e=document.createElement("div");e.id="err";e.style.cssText="color:#a33b31;font:600 12px Jost;margin:12px 0";e.textContent=errMsg();document.getElementById("pageContent").appendChild(e)}
+function updateNext(){const b=document.getElementById("nextBtn");if(b)b.style.opacity=validate()?"1":".55"}
+function render(){renderSteps();setSide();const pc=document.getElementById("pageContent");[s0,s1,s2,s3,s4,s5,s6,s7,s8,s9][cur](pc);document.getElementById("backBtn").style.visibility=cur===0?"hidden":"visible";document.getElementById("nextBtn").style.display=cur===9?"none":"block";updateNext()}
+function next(){if(!validate()){showError();return}clearError();if(cur<9){cur++;render()}}
+function prev(){if(cur>0){cur--;render()}}
+async function submit(){
+ const payload={firstName:ans.firstName,lastName:ans.lastName,email:ans.email,phone:ans.phone,holidayTypes:ans.holidayTypes,tripDreams:ans.holidayTypes,destination:ans.destination,destinationVibes:ans.destination?[ans.destination]:[],ideas:ans.ideas,travelDateStart:ans.dates,travelDateEnd:ans.datesEnd,nights:ans.nights,adults:ans.adults,children:ans.children,infants:ans.infants,childrenAges:ans.childrenAges,rooms:ans.rooms,roomTypes:ans.roomType,accessibility:ans.accessibility,accessibilityDetails:ans.accessibilityDetails,budgetType:ans.budgetType,budget:ans.budget,nightlyBudget:ans.budget,flights:ans.flights,preferences:ans.preferences,occasions:ans.occasions,mustHave:ans.mustHave,avoid:ans.avoid,anythingElse:ans.anythingElse,specialDetails:ans.anythingElse,contactMethod:ans.contactMethod,bestTime:ans.bestTime,referral:ans.referral,referralName:ans.referralName,assignedAgent:agent?.name||"Direct Web Traffic",agentId,dynamic:ans.dynamic,customAnswers:ans.customAnswers,questionnaireVersion:Number(core.version||2)};
+ const r=await fetch("/api/new-lead",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});const p=await r.json();if(!r.ok||!p.success)throw new Error(p.message||"Unable to submit your enquiry");cur=9;render()}
+async function init(){try{const ok=await loadConfig();if(!ok)throw new Error("This questionnaire link is missing its agent reference.");render()}catch(e){const pc=document.getElementById("pageContent");pc.innerHTML='<div class="complete"><div class="done-title">Questionnaire unavailable</div><div class="gold-bar" style="margin:16px auto 20px"></div><div class="done-sub">'+esc(e.message)+'</div></div>';document.getElementById("footer").style.display="none"}}
+s9=async function(pc){pc.innerHTML='<div class="complete"><div class="done-icon">'+icon("M5 12l4 4L19 6")+'</div><div class="done-title">Thank You.</div><div class="gold-bar" style="margin:16px auto 20px"></div><div class="done-sub">Your enquiry has been submitted. Your travel consultant will review everything and usually contact you within one working day.</div></div>'}
+document.addEventListener("DOMContentLoaded",init);
 </script>
-</body></html>
+</body>
+</html>
