@@ -118,6 +118,49 @@ function buildMergedMainConfig(existingMainConfig, incomingMainConfig, deletedKe
     return merged;
 }
 
+const CUSTOM_QUESTION_TYPES = new Set(['text', 'textarea', 'number', 'date', 'select', 'multiselect', 'checkbox']);
+
+function normalizeCustomQuestion(question, index) {
+    if (!question || typeof question !== 'object' || Array.isArray(question)) return null;
+    const id = typeof question.id === 'string' ? question.id.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '-') : '';
+    const label = typeof question.label === 'string' ? question.label.trim() : '';
+    const type = typeof question.type === 'string' ? question.type.trim().toLowerCase() : 'text';
+    if (!id || !label || !CUSTOM_QUESTION_TYPES.has(type)) return null;
+
+    const options = Array.isArray(question.options)
+        ? question.options
+            .filter(option => typeof option === 'string' && option.trim())
+            .map(option => option.trim())
+            .slice(0, 50)
+        : [];
+
+    if (['select', 'multiselect'].includes(type) && options.length === 0) return null;
+
+    return {
+        id,
+        label: label.slice(0, 240),
+        type,
+        required: question.required === true,
+        options
+    };
+}
+
+function validateCustomQuestions(questions) {
+    if (!Array.isArray(questions) || questions.length > 100) return { valid: false, message: 'Maximum 100 custom questions allowed.' };
+    const seen = new Set();
+    const normalized = [];
+
+    for (let i = 0; i < questions.length; i++) {
+        const question = normalizeCustomQuestion(questions[i], i);
+        if (!question) return { valid: false, message: 'Each custom question must have a valid id, label, type, and options when required.' };
+        if (seen.has(question.id)) return { valid: false, message: 'Custom question IDs must be unique.' };
+        seen.add(question.id);
+        normalized.push(question);
+    }
+
+    return { valid: true, questions: normalized };
+}
+
 if (supabase) {
     console.log('🔌 Supabase client configured.');
 } else {
@@ -668,50 +711,47 @@ app.get('/api/agent/form-config', requireAuth('agent'), async (req, res) => {
 app.put('/api/agent/form-config', requireAuth('agent'), async (req, res) => {
     if (!supabase) return res.status(500).json({ success: false, message: "Database not configured." });
     try {
-        const email = req.agentEmail;
-        if (!email) return res.status(400).json({ success: false, message: "Agent email is required." });
+        const validation = validateCustomQuestions(req.body?.questions || []);
+        if (!validation.valid) return res.status(400).json({ success: false, message: validation.message });
 
-        const { data: agentRows, error: agentErr } = await supabase
-            .from('agents').select('id').eq('email', email.trim().toLowerCase()).limit(1);
-        if (agentErr) throw agentErr;
-        if (!agentRows || agentRows.length === 0) return res.status(404).json({ success: false, message: "Agent not found." });
-
-        const agentId = agentRows[0].id;
-        const incomingQuestions = Array.isArray(req.body?.questions) ? req.body.questions : [];
-        if (incomingQuestions.length > 100) return res.status(400).json({ success: false, message: 'Maximum 100 custom questions allowed.' });
-        for (const question of incomingQuestions) {
-            if (!question || typeof question !== 'object' || typeof question.id !== 'string' || typeof question.label !== 'string' || !question.label.trim()) {
-                return res.status(400).json({ success: false, message: 'Each custom question requires an id and label.' });
-            }
-        }
-        const incomingMainConfig = req.body?.mainConfig && typeof req.body.mainConfig === 'object' ? req.body.mainConfig : {};
-        const deletedKeys = Array.isArray(req.body?.deletedKeys) ? req.body.deletedKeys : [];
+        const incomingMainConfig = req.body?.mainConfig && typeof req.body.mainConfig === 'object' && !Array.isArray(req.body.mainConfig)
+            ? req.body.mainConfig : {};
+        const deletedKeys = Array.isArray(req.body?.deletedKeys)
+            ? req.body.deletedKeys.filter(key => typeof key === 'string').slice(0, 50)
+            : [];
 
         const { data: existingRows, error: existingErr } = await supabase
-            .from('agent_form_config').select('main_config, core_questions, version').eq('agent_id', agentId).limit(1);
+            .from('agent_form_config')
+            .select('main_config, core_questions, version')
+            .eq('agent_id', req.agentId).limit(1);
         if (existingErr) throw existingErr;
-        const existingMainConfig = (existingRows && existingRows[0] && existingRows[0].main_config) || {};
-        const existingCoreQuestions = (existingRows && existingRows[0] && existingRows[0].core_questions) || [];
-        const version = Number((existingRows && existingRows[0] && existingRows[0].version) || 1);
 
+        const row = existingRows?.[0];
+        const existingMainConfig = row?.main_config || {};
+        const existingCoreQuestions = Array.isArray(row?.core_questions) ? row.core_questions : [];
+        const version = Number(row?.version || 1);
         const mergedMainConfig = buildMergedMainConfig(existingMainConfig, incomingMainConfig, deletedKeys);
 
-        const { error } = await supabase
-            .from('agent_form_config')
-            .upsert({
-                agent_id: agentId,
-                custom_questions: incomingQuestions,
-                core_questions: existingCoreQuestions,
-                main_config: mergedMainConfig,
-                version: version + 1,
-                updated_at: new Date()
-            });
+        const { data, error } = await supabase.from('agent_form_config').upsert({
+            agent_id: req.agentId,
+            custom_questions: validation.questions,
+            core_questions: existingCoreQuestions,
+            main_config: mergedMainConfig,
+            version: version + 1,
+            updated_at: new Date().toISOString()
+        }).select('custom_questions, main_config, core_questions, version').single();
         if (error) throw error;
 
-        res.status(200).json({ success: true, mainConfig: mergedMainConfig, questions: incomingQuestions, coreQuestions: existingCoreQuestions, version: version + 1 });
+        res.status(200).json({
+            success: true,
+            questions: data.custom_questions || [],
+            coreQuestions: data.core_questions || [],
+            mainConfig: normalizeMainConfig(data.main_config || {}),
+            version: data.version
+        });
     } catch (err) {
         console.error("❌ Error saving form config:", err.message);
-        res.status(500).json({ success: false, message: "Failed to save form config.", error: err.message });
+        res.status(500).json({ success: false, message: "Failed to save form config." });
     }
 });
 
@@ -1191,13 +1231,15 @@ Keep the tone polished, exclusive, and tailored exactly to their profile. Do not
                 if (userData.agentId) {
                     const { data: agentRows, error: agentSelectErr } = await supabase
                         .from('agents')
-                        .select('id, email')
+                        .select('id, email, is_active')
                         .eq('id', userData.agentId)
                         .limit(1);
                     if (agentSelectErr) throw agentSelectErr;
-                    if (agentRows && agentRows.length > 0) {
+                    if (agentRows && agentRows.length > 0 && agentRows[0].is_active !== false) {
                         agentId = agentRows[0].id;
                         if (agentRows[0].email) targetAgentEmail = agentRows[0].email;
+                    } else if (agentRows && agentRows.length > 0) {
+                        return res.status(403).json({ success: false, message: 'This agent intake link is inactive.' });
                     }
                 }
 
