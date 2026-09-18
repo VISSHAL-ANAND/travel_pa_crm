@@ -882,7 +882,7 @@ app.post('/api/feedback', feedbackRateLimit, async (req, res) => {
         let clientId = null;
         const { data: existingClient, error: clientFindErr } = await supabase
             .from('clients')
-            .select('id')
+            .select('id, agent_id')
             .eq('email', client_email.trim().toLowerCase())
             .limit(1);
 
@@ -954,6 +954,11 @@ app.post('/api/feedback', feedbackRateLimit, async (req, res) => {
                     .from('clients')
                     .update({ agent_id: agentId })
                     .eq('id', clientId);
+            } else if (clientCheck && clientCheck.agent_id && clientCheck.agent_id !== agentId) {
+                return res.status(409).json({
+                    success: false,
+                    message: 'This customer is already associated with a different agent.'
+                });
             }
         }
 
