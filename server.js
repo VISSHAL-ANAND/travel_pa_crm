@@ -275,7 +275,7 @@ app.post('/api/auth/login', loginRateLimit, async (req, res) => {
 
         const agent = agentRows[0];
         if (agent.is_active === false) return res.status(403).json({ success: false, message: 'This agent account is inactive.' });
-        if (!agent.password || !/^\\$2[aby]\\$/.test(agent.password)) {
+        if (!agent.password || !/^\$2[aby]\$/.test(agent.password)) {
             return res.status(403).json({ success: false, message: 'Agent account requires a password reset before login.' });
         }
 
@@ -336,10 +336,14 @@ app.get('/api/admin/agents', requireAuth('admin'), async (req, res) => {
             id: a.id,
             name: a.name,
             email: a.email,
+            logo_url: a.logo_url,
+            profile_photo_url: a.profile_photo_url,
+            brand_name: a.brand_name,
+            brand_tagline: a.brand_tagline,
+            is_active: a.is_active,
             client_count: a.client_count,
             intakeLink: `${baseUrl}/client/client_UI.html?agent=${a.id}`
-        }));
-        
+        }));        
         res.status(200).json({ success: true, data: mapped });
     } catch (err) {
         console.error("❌ Error fetching agents:", err.message);
