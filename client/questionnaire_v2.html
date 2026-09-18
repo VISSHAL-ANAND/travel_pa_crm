@@ -5,86 +5,136 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Plan Your Holiday | Travel-PA</title>
 <style>
-:root{--primary:#1a365d;--secondary:#f59e0b;--bg:#f7f8fb;--card:#fff;--text:#172033;--muted:#667085;--border:#e4e7ec}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-.page{min-height:100vh}.top{background:var(--primary);color:#fff;padding:28px 22px 34px}.top-inner{max-width:900px;margin:auto}.brand{display:flex;align-items:center;gap:14px}.brand img{width:48px;height:48px;object-fit:contain;border-radius:10px;background:#fff;padding:5px;display:none}.brand-photo{width:48px;height:48px;border-radius:50%;object-fit:cover;display:none}.brand-name{font-size:18px;font-weight:800}.brand-tagline{font-size:13px;opacity:.82;margin-top:3px}.hero{max-width:900px;margin:28px auto 0}.hero h1{font-size:32px;margin:0 0 8px}.hero p{margin:0;max-width:700px;opacity:.9;line-height:1.55}
-.progress{background:#fff;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5}.progress-inner{max-width:900px;margin:auto;display:flex;gap:5px;padding:12px 18px;overflow:auto}.step{flex:1;min-width:80px;text-align:center;font-size:11px;color:var(--muted);padding:8px 5px;border-bottom:3px solid transparent;font-weight:700}.step.active{color:var(--primary);border-color:var(--secondary)}
-.main{max-width:900px;margin:26px auto;padding:0 18px 60px}.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:28px;box-shadow:0 8px 30px rgba(16,24,40,.05)}.section{display:none}.section.active{display:block}.section h2{margin:0 0 6px;font-size:24px}.hint{color:var(--muted);font-size:13px;margin:0 0 22px;line-height:1.5}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.field{margin-bottom:16px}.field.full{grid-column:1/-1}label{display:block;font-size:13px;font-weight:700;margin-bottom:7px}.required{color:#d92d20}input,select,textarea{width:100%;border:1px solid #d0d5dd;border-radius:10px;padding:12px 13px;font:inherit;background:#fff;color:var(--text);outline:none}input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(26,54,93,.1)}textarea{min-height:105px;resize:vertical}
-.options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.option{border:1px solid var(--border);border-radius:11px;padding:12px;cursor:pointer;display:flex;gap:10px;align-items:center;font-size:13px;background:#fff}.option:hover{border-color:#98a2b3}.option.selected{border-color:var(--primary);background:#f4f7fb}.option input{width:auto;margin:0}
-.dynamic{margin-top:18px;padding:18px;border-radius:14px;background:#f8fafc;border:1px dashed #cbd5e1}.dynamic h3{font-size:15px;margin:0 0 14px}.nav{display:flex;justify-content:space-between;margin-top:25px;gap:10px}.btn{border:0;border-radius:10px;padding:12px 20px;font-weight:800;cursor:pointer}.back{background:#eef2f6;color:#344054}.next,.submit{background:var(--primary);color:#fff}.submit{background:#087443}.review{background:#f8fafc;border-radius:12px;padding:16px;white-space:pre-wrap;font-size:13px;line-height:1.6}.success{text-align:center;padding:35px 10px}.success h2{font-size:28px}.error{color:#b42318;font-size:13px;margin-top:10px}
-.custom-block{margin-top:24px;border-top:1px solid var(--border);padding-top:20px}.custom-block h3{font-size:16px}
-@media(max-width:650px){.grid,.options{grid-template-columns:1fr}.card{padding:20px}.hero h1{font-size:27px}.step{min-width:68px}.top{padding-left:16px;padding-right:16px}}
+:root{
+ --primary:#173f5f;--secondary:#2f80ed;--accent:#f2c94c;--bg:#f4f7fb;--card:#fff;
+ --text:#152238;--muted:#667085;--border:#e3e8ef;--success:#15966b;
+ --radius:20px;--shadow:0 18px 55px rgba(19,42,70,.09)
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:linear-gradient(180deg,#eef5fb 0,#f7f9fc 45%,#f4f6fa 100%);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input,select,textarea{font:inherit}
+.page{min-height:100vh}
+.top{background:linear-gradient(135deg,var(--primary),#215d83);color:#fff;padding:20px 22px 54px;position:relative;overflow:hidden}
+.top:after{content:"";position:absolute;right:-120px;top:-180px;width:480px;height:480px;border-radius:50%;background:rgba(255,255,255,.08)}
+.top-inner{max-width:1080px;margin:auto;position:relative;z-index:1}
+.brand{display:flex;align-items:center;gap:12px}
+.brand img{width:44px;height:44px;object-fit:contain;border-radius:12px;background:#fff;padding:5px;display:none}
+.brand-photo{width:44px;height:44px;border-radius:50%;object-fit:cover;display:none;border:2px solid rgba(255,255,255,.75)}
+.brand-name{font-size:18px;font-weight:850;letter-spacing:-.2px}
+.brand-tagline{font-size:12px;opacity:.78;margin-top:2px}
+.hero{max-width:760px;margin:54px 0 0}
+.hero h1{font-size:clamp(34px,5vw,54px);line-height:1.05;letter-spacing:-1.8px;margin:0 0 15px}
+.hero p{margin:0;max-width:650px;opacity:.88;line-height:1.7;font-size:15px}
+.hero .hero-note{display:inline-flex;align-items:center;gap:8px;margin-top:20px;font-size:12px;opacity:.9}
+.progress{background:rgba(255,255,255,.96);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:20;backdrop-filter:blur(12px)}
+.progress-inner{max-width:1080px;margin:auto;display:flex;gap:4px;padding:13px 18px;overflow:auto}
+.step{flex:1;min-width:78px;text-align:center;font-size:10px;color:#98a2b3;padding:8px 5px 7px;border-bottom:3px solid transparent;font-weight:800;white-space:nowrap}
+.step.active{color:var(--primary);border-color:var(--secondary)}
+.step.done{color:var(--success)}
+.main{max-width:1080px;margin:28px auto;padding:0 18px 80px}
+.card{background:var(--card);border:1px solid rgba(227,232,239,.9);border-radius:var(--radius);padding:clamp(22px,4vw,38px);box-shadow:var(--shadow)}
+.section{display:none;animation:fadeUp .25s ease}
+.section.active{display:block}
+@keyframes fadeUp{from{opacity:.3;transform:translateY(5px)}to{opacity:1;transform:none}}
+.section h2{margin:0 0 7px;font-size:clamp(24px,3vw,30px);letter-spacing:-.7px}
+.hint{color:var(--muted);font-size:13px;margin:0 0 28px;line-height:1.65}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.field{margin-bottom:19px}.field.full{grid-column:1/-1}
+label{display:block;font-size:12px;font-weight:800;margin-bottom:8px;color:#344054}
+.required{color:#d92d20}
+input,select,textarea{width:100%;border:1px solid #d6dde7;border-radius:12px;padding:13px 14px;background:#fff;color:var(--text);outline:none;transition:.18s}
+input::placeholder,textarea::placeholder{color:#a0a9b6}
+input:focus,select:focus,textarea:focus{border-color:var(--secondary);box-shadow:0 0 0 4px rgba(47,128,237,.11)}
+textarea{min-height:112px;resize:vertical}
+.options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
+.option{border:1px solid var(--border);border-radius:13px;padding:13px 12px;cursor:pointer;display:flex;gap:10px;align-items:center;font-size:12px;background:#fff;min-height:48px;transition:.18s}
+.option:hover{border-color:#b8c5d5;transform:translateY(-1px)}
+.option:has(input:checked){border-color:var(--secondary);background:#f1f7ff;box-shadow:0 5px 15px rgba(47,128,237,.08)}
+.option input{width:auto;margin:0;accent-color:var(--secondary)}
+.dynamic{margin:20px 0;padding:22px;border-radius:16px;background:#f7fbff;border:1px solid #dceafb}
+.dynamic h3{font-size:16px;margin:0 0 17px;color:var(--primary)}
+.dynamic-branch+.dynamic-branch{border-top:1px solid #dceafb;margin-top:22px;padding-top:22px}
+.custom-block{margin-top:28px;border-top:1px solid var(--border);padding-top:24px}
+.custom-block h3{font-size:16px;margin:0 0 17px}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:28px;gap:12px}
+.btn{border:0;border-radius:12px;padding:13px 22px;font-weight:850;cursor:pointer;transition:.18s}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.back{background:#eef2f6;color:#344054}.back:hover{background:#e5eaf0}
+.next,.submit{background:var(--secondary);color:#fff;box-shadow:0 7px 18px rgba(47,128,237,.22)}
+.next:hover{transform:translateY(-1px);filter:brightness(.97)}
+.review{background:#f8fafc;border:1px solid var(--border);border-radius:14px;padding:18px;white-space:pre-wrap;font-size:13px;line-height:1.7}
+.success{text-align:center;padding:55px 18px}.success h2{font-size:32px;letter-spacing:-1px}
+.success-icon{width:62px;height:62px;border-radius:50%;margin:0 auto 18px;background:#e8f8f2;color:var(--success);display:grid;place-items:center;font-size:28px;font-weight:900}
+.error{color:#b42318;font-size:13px;margin-top:12px}
+.welcome{display:grid;grid-template-columns:1.05fr .95fr;min-height:560px;border-radius:24px;overflow:hidden;background:#fff;box-shadow:var(--shadow);border:1px solid var(--border)}
+.welcome-copy{padding:clamp(30px,5vw,62px);display:flex;flex-direction:column;justify-content:center}
+.welcome-kicker{font-size:11px;font-weight:900;letter-spacing:1.3px;text-transform:uppercase;color:var(--secondary);margin-bottom:15px}
+.welcome h2{font-size:clamp(36px,5vw,58px);line-height:1.02;letter-spacing:-2px;margin:0 0 18px}
+.welcome p{font-size:15px;color:var(--muted);line-height:1.75;max-width:530px;margin:0}
+.start-btn{margin-top:28px;width:max-content;border:0;border-radius:13px;background:var(--secondary);color:#fff;padding:14px 22px;font-weight:850;cursor:pointer;box-shadow:0 9px 22px rgba(47,128,237,.23)}
+.welcome-points{display:flex;gap:18px;flex-wrap:wrap;margin-top:28px;color:#475467;font-size:11px;font-weight:750}
+.welcome-points span{display:flex;align-items:center;gap:6px}
+.welcome-art{position:relative;min-height:560px;background:
+ radial-gradient(circle at 74% 25%,rgba(255,255,255,.75) 0 4%,transparent 4.5%),
+ linear-gradient(155deg,rgba(21,76,112,.05),rgba(21,76,112,.45)),
+ linear-gradient(180deg,#b9e6f4 0 44%,#58b5d1 44% 55%,#247a9d 55% 100%);
+overflow:hidden}
+.welcome-art:before{content:"";position:absolute;width:150%;height:55%;left:-20%;bottom:-10%;background:rgba(255,255,255,.18);border-radius:50% 50% 0 0/25% 25% 0 0;transform:rotate(-5deg)}
+.art-card{position:absolute;right:12%;bottom:12%;width:210px;background:rgba(255,255,255,.94);border-radius:18px;padding:18px;box-shadow:0 18px 45px rgba(20,55,80,.22)}
+.art-card strong{display:block;font-size:13px;margin-bottom:6px}.art-card small{color:var(--muted);line-height:1.5}
+.hidden{display:none!important}
+@media(max-width:800px){.welcome{grid-template-columns:1fr}.welcome-art{min-height:300px;order:-1}.options{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.grid,.options{grid-template-columns:1fr}.main{padding:0 12px 50px}.top{padding:17px 16px 38px}.hero{margin-top:40px}.hero h1{letter-spacing:-1.2px}.card{padding:20px}.welcome-copy{padding:30px 24px}.welcome h2{font-size:38px}.welcome-art{min-height:230px}.art-card{right:8%;bottom:8%;width:190px}.step{min-width:68px}}
 </style>
 </head>
 <body>
 <div class="page">
 <header class="top"><div class="top-inner">
 <div class="brand"><img id="logo" alt=""><img id="photo" class="brand-photo" alt=""><div><div id="brandName" class="brand-name">Travel-PA</div><div id="brandTagline" class="brand-tagline">Travel planning made personal</div></div></div>
-<div class="hero"><h1 id="heroTitle">Let's start planning your holiday</h1><p id="heroSubtitle">This quick form takes around 3 minutes to complete. The more you tell us, the better we can tailor your holiday.</p></div>
+<div class="hero"><div class="hero-kicker">Your dream holiday, our priority</div><h1 id="heroTitle">Let's start planning your holiday</h1><p id="heroSubtitle">This quick form takes around 3 minutes to complete. The more you tell us, the better we can tailor your holiday.</p><div class="hero-note">✦ Personalised planning &nbsp; • &nbsp; Expert support</div></div>
 </div></header>
+<div id="welcomeWrap" class="main"><div class="welcome">
+<div class="welcome-copy"><div class="welcome-kicker">A better way to plan</div><h2>Let's make your next holiday one to remember.</h2><p>Tell us a little about what you're looking for. Your travel consultant will use your answers to create a holiday that fits you, your travel style and your budget.</p><button id="startPlan" class="start-btn" type="button">Start your holiday plan&nbsp; →</button><div class="welcome-points"><span>✓ Personalised recommendations</span><span>✓ Expert support</span><span>✓ Best-fit options</span></div></div>
+<div class="welcome-art"><div class="art-card"><strong>Made around you</strong><small>Your answers help your consultant understand what matters before they get in touch.</small></div></div>
+</div></div>
+<div id="formWrap" class="hidden">
 <div class="progress"><div class="progress-inner" id="progress"></div></div>
 <main class="main"><div class="card">
 <form id="form">
-<section class="section active" data-section="0"><h2>About You</h2><p class="hint">Tell us who we'll be planning for.</p><div class="grid">
-<div class="field"><label>First name <span class="required">*</span></label><input name="firstName" required></div>
-<div class="field"><label>Last name <span class="required">*</span></label><input name="lastName" required></div>
+<section class="section active" data-section="0"><h2>Tell us a bit about you</h2><p class="hint">This helps us understand who we'll be planning for.</p><div class="grid">
+<div class="field"><label>First name <span class="required">*</span></label><input name="firstName" required placeholder="Your first name"></div>
+<div class="field"><label>Last name <span class="required">*</span></label><input name="lastName" required placeholder="Your last name"></div>
 </div></section>
 
-<section class="section" data-section="1"><h2>Your Trip</h2><p class="hint">What kind of holiday are you looking for? You can select more than one.</p>
+<section class="section" data-section="1"><h2>What are you dreaming of?</h2><p class="hint">Choose one or more holiday types. We'll ask a few extra questions when a specific type needs more detail.</p>
 <div class="field"><label>Holiday type <span class="required">*</span></label><div id="holidayTypes" class="options"></div></div>
 <div id="dynamicHoliday" class="dynamic" style="display:none"></div>
-<div class="field"><label>Where would you like to go?</label><input id="destination" name="destination" list="destinations" placeholder="Search destination..." autocomplete="off"><datalist id="destinations">
-<option>London</option><option>Paris</option><option>Rome</option><option>Barcelona</option><option>Greek Islands</option><option>Canary Islands</option><option>Dubai</option><option>Abu Dhabi</option><option>Maldives</option><option>Thailand</option><option>Japan</option><option>New York</option><option>Orlando</option><option>Caribbean</option><option>South Africa</option><option>Australia</option><option>New Zealand</option>
-</datalist></div>
+<div class="field"><label>Where would you like to go?</label><input id="destination" name="destination" list="destinations" placeholder="Search destination..." autocomplete="off"><datalist id="destinations"><option>London</option><option>Paris</option><option>Rome</option><option>Barcelona</option><option>Greek Islands</option><option>Canary Islands</option><option>Dubai</option><option>Abu Dhabi</option><option>Maldives</option><option>Thailand</option><option>Japan</option><option>New York</option><option>Orlando</option><option>Caribbean</option><option>South Africa</option><option>Australia</option><option>New Zealand</option></datalist></div>
 <div class="field"><label>Open to ideas?</label><div id="ideas" class="options"></div></div>
-<div class="grid">
-<div class="field"><label>Departure date</label><input type="date" name="travelDateStart"></div>
-<div class="field"><label>Return date</label><input type="date" name="travelDateEnd"></div>
-<div class="field"><label>Number of nights</label><select name="nights"><option value="">Select...</option><option>5</option><option>7</option><option>10</option><option>11</option><option>14</option><option>21</option><option>Flexible</option><option>Other</option></select></div>
-</div>
+<div class="grid"><div class="field"><label>Departure date</label><input type="date" name="travelDateStart"></div><div class="field"><label>Return date</label><input type="date" name="travelDateEnd"></div><div class="field"><label>Number of nights</label><select name="nights"><option value="">Select...</option><option>5</option><option>7</option><option>10</option><option>11</option><option>14</option><option>21</option><option>Flexible</option><option>Other</option></select></div></div>
 </section>
 
-<section class="section" data-section="2"><h2>Travellers</h2><p class="hint">Help us understand your group and room requirements.</p><div class="grid">
-<div class="field"><label>Adults</label><input type="number" name="adults" min="1" value="2"></div>
-<div class="field"><label>Children</label><input type="number" name="children" min="0" value="0"></div>
-<div class="field"><label>Infants</label><input type="number" name="infants" min="0" value="0"></div>
-<div class="field"><label>Number of rooms</label><input type="number" name="rooms" min="1" value="1"></div>
-<div class="field full"><label>Children ages</label><input name="childrenAges" placeholder="e.g. 4, 8, 12"></div>
-<div class="field full"><label>Room type</label><div id="roomTypes" class="options"></div></div>
-<div class="field full"><label>Accessibility required?</label><div id="accessibility" class="options"></div></div>
-<div class="field full" id="accessibilityDetailsWrap" style="display:none"><label>Accessibility details</label><textarea name="accessibilityDetails" placeholder="Please tell us what you need"></textarea></div>
+<section class="section" data-section="2"><h2>Who are you travelling with?</h2><p class="hint">Tell us about your group so we can match accommodation and travel arrangements.</p><div class="grid">
+<div class="field"><label>Adults</label><input type="number" name="adults" min="1" value="2"></div><div class="field"><label>Children</label><input type="number" name="children" min="0" value="0"></div><div class="field"><label>Infants</label><input type="number" name="infants" min="0" value="0"></div><div class="field"><label>Number of rooms</label><input type="number" name="rooms" min="1" value="1"></div>
+<div class="field full"><label>Children ages</label><input name="childrenAges" placeholder="e.g. 4, 8, 12"></div><div class="field full"><label>Room type</label><div id="roomTypes" class="options"></div></div><div class="field full"><label>Accessibility required?</label><div id="accessibility" class="options"></div></div><div class="field full" id="accessibilityDetailsWrap" style="display:none"><label>Accessibility details</label><textarea name="accessibilityDetails" placeholder="Please tell us what you need"></textarea></div>
 </div></section>
 
-<section class="section" data-section="3"><h2>Budget</h2><p class="hint">An approximate budget helps your consultant match the right options.</p>
-<div class="field"><label>How would you like to give your budget?</label><div id="budgetType" class="options"></div></div>
-<div class="grid"><div class="field"><label>Approximate budget (£)</label><input type="number" name="budget" min="0" step="50" placeholder="e.g. 5000"></div>
-<div class="field"><label>Include flights?</label><div id="flights" class="options"></div></div></div></section>
+<section class="section" data-section="3"><h2>Let's talk budget</h2><p class="hint">An approximate figure helps your consultant focus on realistic options. It doesn't need to be exact.</p>
+<div class="field"><label>How would you like to give your budget?</label><div id="budgetType" class="options"></div></div><div class="grid"><div class="field"><label>Approximate budget (£)</label><input type="number" name="budget" min="0" step="50" placeholder="e.g. 5000"></div><div class="field"><label>Include flights?</label><div id="flights" class="options"></div></div></div></section>
 
-<section class="section" data-section="4"><h2>Holiday Style</h2><p class="hint">What matters most for your holiday?</p><div id="preferences" class="options"></div></section>
+<section class="section" data-section="4"><h2>What matters most to you?</h2><p class="hint">Select everything that would make your holiday feel right.</p><div id="preferences" class="options"></div></section>
 
-<section class="section" data-section="5"><h2>Preferences</h2><p class="hint">A few final details help us make the enquiry genuinely useful to your consultant.</p>
-<div class="field"><label>Special occasion</label><div id="occasions" class="options"></div></div>
-<div class="field"><label>Must have</label><textarea name="mustHave" placeholder="What must your holiday include?"></textarea></div>
-<div class="field"><label>Things you'd like to avoid</label><textarea name="avoid" placeholder="Anything you definitely don't want?"></textarea></div>
-<div class="field"><label>Anything else we should know</label><textarea name="anythingElse"></textarea></div>
-<div id="customQuestions" class="custom-block" style="display:none"><h3>Additional questions</h3><div id="customFields"></div></div>
-</section>
+<section class="section" data-section="5"><h2>The little details</h2><p class="hint">These details help your consultant personalise the enquiry.</p><div class="field"><label>Special occasion</label><div id="occasions" class="options"></div></div><div class="field"><label>Must have</label><textarea name="mustHave" placeholder="What must your holiday include?"></textarea></div><div class="field"><label>Things you'd like to avoid</label><textarea name="avoid" placeholder="Anything you definitely don't want?"></textarea></div><div class="field"><label>Anything else we should know</label><textarea name="anythingElse" placeholder="Anything that would help us understand your trip?"></textarea></div><div id="customQuestions" class="custom-block" style="display:none"><h3>One more thing</h3><div id="customFields"></div></div></section>
 
-<section class="section" data-section="6"><h2>Review</h2><p class="hint">Check your enquiry before submitting.</p><div id="review" class="review"></div></section>
+<section class="section" data-section="6"><h2>Review your holiday plan</h2><p class="hint">Almost there. Check the details below before we ask how you'd like us to contact you.</p><div id="review" class="review"></div></section>
 
-<section class="section" data-section="7"><h2>Contact</h2><p class="hint">Your travel consultant will review your enquiry and contact you personally.</p>
-<div class="grid"><div class="field"><label>Phone <span class="required">*</span></label><input name="phone" required></div><div class="field"><label>Email <span class="required">*</span></label><input name="email" type="email" required></div>
-<div class="field"><label>Preferred contact</label><div id="contactMethods" class="options"></div></div><div class="field"><label>Best time</label><div id="bestTimes" class="options"></div></div>
-<div class="field full"><label>How did you find us?</label><div id="referrals" class="options"></div></div><div class="field full" id="referralNameWrap" style="display:none"><label>Referral name</label><input name="referralName"></div></div>
-<div id="error" class="error"></div></section>
+<section class="section" data-section="7"><h2>How should we contact you?</h2><p class="hint">Your travel consultant will review your enquiry and contact you personally.</p><div class="grid"><div class="field"><label>Phone <span class="required">*</span></label><input name="phone" required placeholder="+44 ..."></div><div class="field"><label>Email <span class="required">*</span></label><input name="email" type="email" required placeholder="you@example.com"></div><div class="field"><label>Preferred contact</label><div id="contactMethods" class="options"></div></div><div class="field"><label>Best time</label><div id="bestTimes" class="options"></div></div><div class="field full"><label>How did you find us?</label><div id="referrals" class="options"></div></div><div class="field full" id="referralNameWrap" style="display:none"><label>Referral name</label><input name="referralName" placeholder="Who referred you?"></div></div><div id="error" class="error"></div></section>
 </form>
-<div class="nav"><button id="back" class="btn back" type="button">Back</button><button id="next" class="btn next" type="button">Next</button></div>
-<div id="success" class="success" style="display:none"><h2>Thank you</h2><p>Your enquiry has been submitted. Your travel consultant will review everything and usually contact you within one working day.</p></div>
-</div></main>
-</div>
-<script>
-const state={step:0,total:8,agentId:null,slug:null,config:null,values:{},selected:{holidayTypes:[],ideas:'',roomTypes:[],accessibility:'',budgetType:'',flights:'',preferences:[],occasions:[],contactMethod:'',bestTime:'',referral:''},dynamic:{}};
+<div class="nav"><button id="back" class="btn back" type="button">Back</button><button id="next" class="btn next" type="button">Next&nbsp; →</button></div>
+<div id="success" class="success" style="display:none"><div class="success-icon">✓</div><h2>Thank you</h2><p>Your holiday enquiry has been submitted. Your travel consultant will review everything and usually contact you within one working day.</p></div>
+</div></main></div></div><script>
+const state={started:false,step:0,total:8,agentId:null,slug:null,config:null,values:{},selected:{holidayTypes:[],ideas:'',roomTypes:[],accessibility:'',budgetType:'',flights:'',preferences:[],occasions:[],contactMethod:'',bestTime:'',referral:''},dynamic:{}};
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 function query(){const p=new URLSearchParams(location.search);state.agentId=p.get('agent')||p.get('agentId');state.slug=p.get('slug');}
@@ -92,7 +142,7 @@ function cfgUrl(){return state.slug?'/api/public/form-config/slug/'+encodeURICom
 async function init(){
  query();
  if(!state.agentId&&!state.slug){return fail('This questionnaire link is missing its agent reference.');}
- try{const r=await fetch(cfgUrl());const j=await r.json();if(!j.success)throw new Error(j.message||'Unable to load questionnaire.');state.config=j;state.agentId=j.agent.id;applyBrand(j.agent);renderCore(j.coreQuestionnaire);renderCustom(j.questions||[]);renderProgress();showStep(0);}catch(e){fail(e.message);}
+ try{const r=await fetch(cfgUrl());const j=await r.json();if(!j.success)throw new Error(j.message||'Unable to load questionnaire.');state.config=j;state.agentId=j.agent.id;applyBrand(j.agent);renderCore(j.coreQuestionnaire);renderCustom(j.questions||[]);renderProgress();showWelcome();}catch(e){fail(e.message);}
 }
 function applyBrand(a){$('brandName').textContent=a.brandName||a.name||'Travel-PA';$('brandTagline').textContent=a.brandTagline||'Travel planning made personal';$('heroTitle').textContent=a.coreQuestionnaire?.title||'Let\'s start planning your holiday';$('heroSubtitle').textContent=a.coreQuestionnaire?.subtitle||$('heroSubtitle').textContent; if(a.primaryColor)document.documentElement.style.setProperty('--primary',a.primaryColor);if(a.secondaryColor)document.documentElement.style.setProperty('--secondary',a.secondaryColor);if(a.logoUrl){$('logo').src=a.logoUrl;$('logo').style.display='block'}if(a.profilePhotoUrl){$('photo').src=a.profilePhotoUrl;$('photo').style.display='block'}}
 function options(id,items,multi=false,selected=[]){$(id).innerHTML=items.map((x,i)=>'<label class="option"><input type="'+(multi?'checkbox':'radio')+'" name="'+id+'" value="'+esc(x)+'" '+((multi?selected.includes(x):selected===x)?'checked':'')+'><span>'+esc(x)+'</span></label>').join('');$(id).querySelectorAll('input').forEach(el=>el.addEventListener('change',()=>{if(multi)state.selected[id]=[...$(id).querySelectorAll('input:checked')].map(x=>x.value);else state.selected[id]=el.value;renderDynamic();renderReview();}));}
@@ -140,9 +190,11 @@ function collectDynamic(){
 }
 function renderReview(){if(state.step!==6)return;values();const v=state.values;$('review').textContent='Holiday: '+(v.holidayTypes||[]).join(', ')+'\nDestination: '+(v.destination||'Open to ideas')+'\nTravellers: '+v.adults+' adults, '+v.children+' children, '+v.infants+' infants · '+v.rooms+' room(s)'+'\nDates: '+(v.travelDateStart||'')+' → '+(v.travelDateEnd||'')+'\nBudget: '+(v.budgetType||'')+' £'+(v.budget||'Not specified')+' · Flights: '+(v.flights||'')+'\nPreferences: '+(v.preferences||[]).join(', ')+'\nOccasion: '+(v.occasions||[]).join(', ')+'\nMust have: '+(v.mustHave||'')+'\nAvoid: '+(v.avoid||'');}
 function renderProgress(){const labels=['About You','Your Trip','Travellers','Budget','Holiday Style','Preferences','Review','Submit'];$('progress').innerHTML=labels.map((x,i)=>'<div class="step" data-p="'+i+'">'+(i+1)+' '+x+'</div>').join('');}
-function showStep(n){state.step=n;document.querySelectorAll('.section').forEach(x=>x.classList.toggle('active',Number(x.dataset.section)===n));document.querySelectorAll('.step').forEach(x=>x.classList.toggle('active',Number(x.dataset.p)===n));$('back').style.visibility=n?'visible':'hidden';$('next').textContent=n===7?'Submit':'Next';if(n===6)renderReview();window.scrollTo({top:0,behavior:'smooth'});}
+function showWelcome(){$('welcomeWrap').classList.remove('hidden');$('formWrap').classList.add('hidden');}
+function startPlan(){$('welcomeWrap').classList.add('hidden');$('formWrap').classList.remove('hidden');state.started=true;showStep(0);}
+function showStep(n){if(!state.started)return;state.step=n;document.querySelectorAll('.section').forEach(x=>x.classList.toggle('active',Number(x.dataset.section)===n));document.querySelectorAll('.step').forEach(x=>x.classList.toggle('active',Number(x.dataset.p)===n));$('back').style.visibility=n?'visible':'hidden';$('next').textContent=n===7?'Submit':'Next';if(n===6)renderReview();window.scrollTo({top:0,behavior:'smooth'});}
 function validStep(){const sec=document.querySelector('.section.active');if(!sec)return true;for(const e of sec.querySelectorAll('[required]'))if(!e.value.trim()){e.focus();return false}if(state.step===1&&!state.selected.holidayTypes.length){alert('Please select at least one holiday type.');return false}return true;}
-$('back').onclick=()=>{if(state.step>0)showStep(state.step-1)};$('next').onclick=async()=>{if(!validStep())return;if(state.step<7){showStep(state.step+1);return}await submit()};
+$('startPlan').onclick=startPlan;$('back').onclick=()=>{if(state.step>0)showStep(state.step-1)};$('next').onclick=async()=>{if(!validStep())return;if(state.step<7){showStep(state.step+1);return}await submit()};
 $('form').addEventListener('input',()=>{if(state.step===6)renderReview()});$('accessibility').addEventListener('change',e=>{if(e.target.checked)$('accessibilityDetailsWrap').style.display=e.target.value==='Yes'?'block':'none'});$('referrals').addEventListener('change',e=>{$('referralNameWrap').style.display=e.target.checked&&e.target.value==='Referral'?'block':'none'});
 async function submit(){values();const v=state.values;const payload={...v,agentId:state.agentId,assignedAgent:state.config.agent.name,tripDreams:v.holidayTypes,region:'',destination_specific:v.destination,destinationVibes:[],travelers:[v.adults+' adults',v.children+' children',v.infants+' infants',v.rooms+' rooms'],datesPreference:'Flexible / Customer supplied',stayDuration:v.nights||'',travelDateStart:v.travelDateStart||'',travelDateEnd:v.travelDateEnd||'',helpNeeded:[],specialDetails:[...(v.occasions||[]),v.mustHave?'Must have: '+v.mustHave:'',v.avoid?'Avoid: '+v.avoid:'',v.anythingElse||''].filter(Boolean),travelStyle:(v.preferences||[]).join(', '),nightlyBudget:v.budget||'',ukBaseLocation:'',contactMethod:v.contactMethod||'Email'};try{$('next').disabled=true;$('error').textContent='Submitting...';const r=await fetch('/api/new-lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const j=await r.json();if(!j.success)throw new Error(j.message||'Submission failed.');document.querySelectorAll('.section').forEach(x=>x.style.display='none');document.querySelector('.nav').style.display='none';$('success').style.display='block';$('progress').style.display='none';}catch(e){$('error').textContent=e.message;$('next').disabled=false}}
 function fail(m){document.querySelector('.main').innerHTML='<div class="card"><h2>Questionnaire unavailable</h2><p>'+esc(m)+'</p></div>'}
