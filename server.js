@@ -416,6 +416,66 @@ app.post('/api/admin/agents', requireAuth('admin'), async (req, res) => {
     }
 });
 
+// GET /api/admin/customers/:id — canonical customer detail
+app.get('/api/admin/customers/:id', requireAuth('admin'), async (req, res) => {
+    if (!supabase) return res.status(500).json({ success: false, message: 'Database not configured.' });
+    try {
+        const { data: client, error: clientError } = await supabase
+            .from('clients')
+            .select('*')
+            .eq('id', req.params.id)
+            .single();
+        if (clientError) throw clientError;
+
+        const [{ data: feedback, error: feedbackError }, { data: agent, error: agentError }] = await Promise.all([
+            supabase.from('feedback').select('*').eq('client_id', client.id).order('created_at', { ascending: false }),
+            client.agent_id
+                ? supabase.from('agents').select('id, agent_name, email, logo_url, profile_photo_url, brand_name, brand_tagline').eq('id', client.agent_id).single()
+                : Promise.resolve({ data: null, error: null })
+        ]);
+        if (feedbackError) throw feedbackError;
+        if (agentError) throw agentError;
+
+        res.json({
+            success: true,
+            data: {
+                customer: buildLeadObject(client),
+                agent,
+                feedback: feedback || []
+            }
+        });
+    } catch (err) {
+        console.error('❌ Error fetching customer detail:', err.message);
+        res.status(500).json({ success: false, message: 'Failed to fetch customer detail.' });
+    }
+});
+
+// GET /api/agent/leads/:id — customer detail restricted to authenticated agent
+app.get('/api/agent/leads/:id', requireAuth('agent'), async (req, res) => {
+    if (!supabase) return res.status(500).json({ success: false, message: 'Database not configured.' });
+    try {
+        const { data: client, error } = await supabase
+            .from('clients')
+            .select('*')
+            .eq('id', req.params.id)
+            .eq('agent_id', req.agentId)
+            .single();
+        if (error) throw error;
+
+        const { data: feedback, error: feedbackError } = await supabase
+            .from('feedback')
+            .select('*')
+            .eq('client_id', client.id)
+            .order('created_at', { ascending: false });
+        if (feedbackError) throw feedbackError;
+
+        res.json({ success: true, data: { customer: buildLeadObject(client), feedback: feedback || [] } });
+    } catch (err) {
+        console.error('❌ Error fetching agent customer detail:', err.message);
+        res.status(404).json({ success: false, message: 'Customer not found.' });
+    }
+});
+
 // GET /api/admin/agents/:id — agent profile plus customers and feedback summary
 app.get('/api/admin/agents/:id', requireAuth('admin'), async (req, res) => {
     if (!supabase) return res.status(500).json({ success: false, message: 'Database not configured.' });
