@@ -22,95 +22,11 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#faf7f2}
   var frame=document.getElementById("legacyFrame");
   frame.src=src;
 
-  var code = String.raw`
-(function(){
-  var PDF_STEPS=["About You","Your Trip","Travellers","Budget","Holiday Style","Preferences","Review","Submit"];
-  var V2={agent:{},custom:[],core:{version:2,conditionalBranches:{}},version:2,state:{
-    firstName:"",lastName:"",email:"",phone:"",holidayTypes:[],destination:"",ideas:"",
-    travelDateStart:"",travelDateEnd:"",nights:"",adults:"2",children:"0",infants:"0",
-    childrenAges:"",rooms:"1",roomTypes:[],accessibility:"",accessibilityDetails:"",
-    budgetType:"",budget:"",flights:"",preferences:[],occasions:[],mustHave:"",avoid:"",
-    anythingElse:"",contactMethod:"Email",bestTime:"",referral:"",referralName:"",
-    dynamic:{},customAnswers:{}
-  }};
-  function esc(v){return String(v==null?"":v).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
-  function icon(k){return typeof ico==="function"?ico(k):"";}
-  function check(){return typeof chk==="function"?chk():"";}
-  function multi(l,k,v,key){var s=Array.isArray(V2.state[key])&&V2.state[key].indexOf(v)>=0?" sel":"";return '<div class="card'+s+'" data-m="'+esc(key)+'" data-v="'+esc(v)+'">'+check()+icon(k)+'<div class="c-lbl">'+esc(l)+'</div></div>';}
-  function single(l,k,v,key){var s=V2.state[key]===v?" sel":"";return '<div class="card'+s+'" data-s="'+esc(key)+'" data-v="'+esc(v)+'">'+icon(k)+'<div class="c-lbl">'+esc(l)+'</div></div>';}
-  function field(l,id,v,p,t,a){return '<div class="fg"><label>'+esc(l)+'</label><input id="'+id+'" type="'+(t||"text")+'" value="'+esc(v||"")+'" placeholder="'+esc(p||"")+'" '+(a||"")+'></div>';}
-  function area(l,id,v,p){return '<div class="fg"><label>'+esc(l)+'</label><textarea id="'+id+'" placeholder="'+esc(p||"")+'">'+esc(v||"")+'</textarea></div>';}
-  function bind(ids){ids.forEach(function(id){var e=document.getElementById(id);if(e)e.oninput=function(){V2.state[id]=e.value;};});}
-  function cards(root){
-    root.querySelectorAll("[data-m]").forEach(function(e){e.onclick=function(){var k=e.dataset.m,v=e.dataset.v,a=V2.state[k]||[];var i=a.indexOf(v);if(i>=0){a.splice(i,1);e.classList.remove("sel");}else{a.push(v);e.classList.add("sel");}if(k==="holidayTypes")branches();};});
-    root.querySelectorAll("[data-s]").forEach(function(e){e.onclick=function(){var k=e.dataset.s;V2.state[k]=e.dataset.v;e.parentElement.querySelectorAll("[data-s]").forEach(function(x){x.classList.remove("sel");});e.classList.add("sel");};});
-  }
-  function qs(){
-    var b=V2.core.conditionalBranches||{},out=[],seen={};
-    (V2.state.holidayTypes||[]).forEach(function(t){var x=b[t];if(Array.isArray(x))x.forEach(function(q){if(q&&q.id&&!seen[q.id]){seen[q.id]=1;out.push(q);}});else if(x&&Array.isArray(x.questions))x.questions.forEach(function(q){if(q&&q.id&&!seen[q.id]){seen[q.id]=1;out.push(q);}});});
-    return out;
-  }
-  function dyn(q){
-    var v=V2.state.dynamic[q.id],lab=esc(q.label)+(q.required?" *":"");
-    if(q.type==="select")return '<div class="fg"><label>'+lab+'</label><select data-d="'+esc(q.id)+'"><option value="">Select...</option>'+(q.options||[]).map(function(o){return '<option '+(v===o?"selected":"")+' value="'+esc(o)+'">'+esc(o)+'</option>';}).join("")+'</select></div>';
-    if(q.type==="multiselect")return '<div class="sec-lbl">'+lab+'</div><div class="grid g3">'+(q.options||[]).map(function(o){var s=Array.isArray(v)&&v.indexOf(o)>=0?" sel":"";return '<div class="card'+s+'" data-dm="'+esc(q.id)+'" data-dv="'+esc(o)+'">'+check()+icon("notsure")+'<div class="c-lbl">'+esc(o)+'</div></div>';}).join("")+'</div>';
-    if(q.type==="checkbox")return '<div class="fg"><label><input type="checkbox" data-d="'+esc(q.id)+'" '+(v?"checked":"")+'> '+lab+'</label></div>';
-    return field(q.label,q.id,v||"","Your answer",q.type==="date"?"date":q.type==="number"?"number":"text",'data-d="'+esc(q.id)+'"');
-  }
-  function branches(){
-    var w=document.getElementById("dynamicBranches");if(!w)return;
-    var a=qs();
-    w.innerHTML=a.length?'<div class="branch-box"><div class="sec-lbl">Holiday-specific questions</div><div class="pg-sub" style="margin-bottom:18px">A few extra details help your consultant tailor this part of the trip.</div>'+a.map(dyn).join("")+'</div>':"";
-    w.querySelectorAll("[data-d]").forEach(function(e){var save=function(){V2.state.dynamic[e.dataset.d]=e.type==="checkbox"?e.checked:e.value;};e.oninput=save;e.onchange=save;});
-    w.querySelectorAll("[data-dm]").forEach(function(e){e.onclick=function(){var id=e.dataset.dm,v=e.dataset.dv,a=V2.state.dynamic[id]||[],i=a.indexOf(v);if(i>=0){a.splice(i,1);e.classList.remove("sel");}else{a.push(v);e.classList.add("sel");}};});
-  }
-  function renderSteps(){document.getElementById("stepsEl").innerHTML=PDF_STEPS.map(function(s,i){return '<div class="step-it '+(i===V2.cur?"active ":"")+(i<V2.cur?"done":"")+'"><div class="step-dot">'+(i<V2.cur?"✓":i+1)+'</div><div class="step-lbl">'+esc(s)+'</div></div>';}).join("");}
-  function render(){
-    renderSteps();
-    var pc=document.getElementById("pageContent"),footer=document.getElementById("footer"),back=document.querySelector(".btn-back");
-    back.style.visibility=V2.cur===0?"hidden":"visible";footer.style.display="flex";
-    if(V2.cur===0)pc.innerHTML='<div class="pg-title">About You</div><div class="pg-sub">Tell us a little about yourself so we can start planning your holiday.</div><div class="gold-bar"></div><div class="grid g2">'+field("First Name","firstName",V2.state.firstName,"First name")+field("Last Name","lastName",V2.state.lastName,"Last name")+field("Email Address","email",V2.state.email,"your@email.com","email")+field("Phone Number","phone",V2.state.phone,"+44 7000 000000","tel")+'</div>',bind(["firstName","lastName","email","phone"]);
-    else if(V2.cur===1){var t=[["Package Holiday","hotel"],["Tailor Made Holiday","itinerary"],["Cruise","cruise"],["Villa","hotel"],["Tour","itinerary"],["City Break","urban"],["Family Holiday","family"],["Honeymoon","honey"],["Group Travel","group"],["Business Travel","business"],["Sports/Event Travel","sport"],["Ski Holiday","outdoors"],["Safari","safari"],["Luxury Holiday","luxe"],["Beach Holiday","beach"],["Not Sure Yet","notsure"]];pc.innerHTML='<div class="pg-title">Your Trip</div><div class="pg-sub">Select every holiday type that applies. Holiday-specific questions will appear below when provided by the client form.</div><div class="gold-bar"></div><div class="grid g4">'+t.map(function(x){return multi(x[0],x[1],x[0],"holidayTypes");}).join("")+'</div><div id="dynamicBranches" style="margin-top:26px"></div><div style="margin-top:28px">'+field("Destination","destination",V2.state.destination,"Start typing a destination...")+area("Open to ideas?","ideas",V2.state.ideas,"Tell us where you are open to considering...")+'</div>';bind(["destination","ideas"]);cards(pc);branches();}
-    else if(V2.cur===2){pc.innerHTML='<div class="pg-title">Travellers</div><div class="pg-sub">Tell us who is travelling and any room or accessibility requirements.</div><div class="gold-bar"></div><div class="grid g4">'+field("Adults","adults",V2.state.adults,"2","number",'min="1"')+field("Children","children",V2.state.children,"0","number",'min="0"')+field("Infants","infants",V2.state.infants,"0","number",'min="0"')+field("Rooms","rooms",V2.state.rooms,"1","number",'min="1"')+'</div><div class="grid g2" style="margin-top:22px">'+field("Children's Ages","childrenAges",V2.state.childrenAges,"e.g. 6, 10")+field("Room Type","roomTypesText",(V2.state.roomTypes||[]).join(", "),"Double, Twin, Suite...")+'</div><div style="margin-top:28px"><div class="sec-lbl">Accessibility</div><div class="grid g3">'+["No specific requirements","Wheelchair access","Mobility assistance","Dietary requirements","Other"].map(function(x){return single(x,"access",x,"accessibility");}).join("")+'</div></div>'+area("Accessibility details","accessibilityDetails",V2.state.accessibilityDetails,"Anything your consultant should know...");bind(["adults","children","infants","rooms","childrenAges","roomTypesText","accessibilityDetails"]);cards(pc);}
-    else if(V2.cur===3){pc.innerHTML='<div class="pg-title">Budget</div><div class="pg-sub">Tell us the budget you would like us to work within.</div><div class="gold-bar"></div><div class="sec-lbl">Budget basis</div><div class="grid g3">'+["Per Person","Total Trip"].map(function(x){return single(x,"money",x,"budgetType");}).join("")+'</div><div class="grid g2" style="margin-top:26px">'+field("Budget Amount","budget",V2.state.budget,"e.g. £5,000","number")+field("Include Flights?","flights",V2.state.flights,"Yes / No / Unsure")+'</div>';bind(["budget","flights"]);cards(pc);}
-    else if(V2.cur===4){var p=["Relaxing","Adventure","Culture & History","Food & Wine","Nature & Wildlife","Wellness & Spa","Family Friendly","Romantic","Luxury","Active / Sport","Nightlife","Shopping"];pc.innerHTML='<div class="pg-title">Holiday Style</div><div class="pg-sub">Choose the experiences and style that best describe your ideal holiday.</div><div class="gold-bar"></div><div class="grid g4">'+p.map(function(x){return multi(x,"notsure",x,"preferences");}).join("")+'</div>';cards(pc);}
-    else if(V2.cur===5){var o=["Birthday","Anniversary","Honeymoon","Wedding","Celebration","Family Milestone","Business Event","None"];pc.innerHTML='<div class="pg-title">Preferences</div><div class="pg-sub">Tell us about special occasions, must-haves and anything you would prefer to avoid.</div><div class="gold-bar"></div><div class="sec-lbl">Special occasion</div><div class="grid g4">'+o.map(function(x){return multi(x,"celebrate",x,"occasions");}).join("")+'</div><div class="grid g2" style="margin-top:26px">'+area("Must-haves","mustHave",V2.state.mustHave,"What must your holiday include?")+area("Things to avoid","avoid",V2.state.avoid,"Anything you would prefer not to have?")+'</div>'+area("Anything else?","anythingElse",V2.state.anythingElse,"Anything else you would like your consultant to know?");bind(["mustHave","avoid","anythingElse"]);cards(pc);}
-    else if(V2.cur===6){pc.innerHTML='<div class="pg-title">Review</div><div class="pg-sub">Check your details and answer any questions from your travel consultant.</div><div class="gold-bar"></div><div class="grid g2">'+field("Preferred contact time","bestTime",V2.state.bestTime,"e.g. Weekdays after 5pm")+field("Referral source","referral",V2.state.referral,"How did you hear about us?")+'</div>'+field("Referral name","referralName",V2.state.referralName,"If someone referred you, tell us who...")+'<div class="sec-lbl" style="margin-top:24px">Preferred contact method</div><div class="grid g3">'+["Email","Phone","WhatsApp"].map(function(x){return single(x,"phone",x,"contactMethod");}).join("")+'</div>'+(V2.custom.length?'<div class="branch-box" style="margin-top:28px"><div class="sec-lbl">Questions from your travel consultant</div>'+V2.custom.map(function(q){var v=V2.state.customAnswers[q.id]||"";return field(q.label,q.id,v,"Your answer",q.type==="number"?"number":q.type==="date"?"date":"text",'data-custom="'+esc(q.id)+'"');}).join("")+'</div>':"");bind(["bestTime","referral","referralName"]);cards(pc);pc.querySelectorAll("[data-custom]").forEach(function(e){e.oninput=function(){V2.state.customAnswers[e.dataset.custom]=e.value;};});}
-    else {var b=qs();pc.innerHTML='<div class="pg-title">Review</div><div class="pg-sub">Please review your holiday enquiry before submitting it.</div><div class="gold-bar"></div><div class="review-grid"><div class="review-block"><div class="sec-lbl">About You</div><p><b>'+esc(V2.state.firstName+" "+V2.state.lastName)+'</b><br>'+esc(V2.state.email)+'<br>'+esc(V2.state.phone)+'</p></div><div class="review-block"><div class="sec-lbl">Your Trip</div><p>'+esc((V2.state.holidayTypes||[]).join(", "))+'<br>Destination: '+esc(V2.state.destination||"Open to ideas")+'</p></div><div class="review-block"><div class="sec-lbl">Travellers</div><p>Adults: '+esc(V2.state.adults)+' · Children: '+esc(V2.state.children)+' · Infants: '+esc(V2.state.infants)+' · Rooms: '+esc(V2.state.rooms)+'</p></div><div class="review-block"><div class="sec-lbl">Budget</div><p>'+esc(V2.state.budgetType||"Not specified")+' · '+esc(V2.state.budget||"Not specified")+' · Flights: '+esc(V2.state.flights||"Not specified")+'</p></div><div class="review-block"><div class="sec-lbl">Holiday Style</div><p>'+esc((V2.state.preferences||[]).join(", ")||"—")+'</p></div><div class="review-block"><div class="sec-lbl">Preferences</div><p>'+esc(V2.state.mustHave||"None specified")+'<br>Avoid: '+esc(V2.state.avoid||"None specified")+'</p></div>'+(b.length?'<div class="review-block"><div class="sec-lbl">Holiday-specific details</div><p>'+b.map(function(q){return "<b>"+esc(q.label)+":</b> "+esc(V2.state.dynamic[q.id]||"—");}).join("<br>")+'</p></div>':"")+'</div>';}
-    document.title=(V2.agent.brandName||V2.agent.name||"Travel-PA")+" — Holiday Planning";
-    if(V2.agent.profilePhotoUrl){var im=document.getElementById("sbImg");if(im)im.src=V2.agent.profilePhotoUrl;}
-    if(V2.agent.primaryColor)document.documentElement.style.setProperty("--gold",V2.agent.primaryColor);
-  }
-  function valid(){
-    if(V2.cur===0)return V2.state.firstName.trim()&&V2.state.lastName.trim()&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(V2.state.email)&&V2.state.phone.trim().length>=6;
-    if(V2.cur===1)return V2.state.holidayTypes.length>0&&qs().every(function(q){if(!q.required)return true;var v=V2.state.dynamic[q.id];return Array.isArray(v)?v.length>0:String(v||"").trim()!=="";});
-    if(V2.cur===2)return Number(V2.state.adults)>=1;
-    return true;
-  }
-  window.prev=function(){if(V2.cur>0){V2.cur--;render();}};
-  window.next=async function(){
-    if(!valid()){alert(V2.cur===0?"Please complete your name, email and phone.":V2.cur===1?"Please select a holiday type and complete required holiday-specific questions.":"Please complete the required fields.");return;}
-    if(V2.cur<7){V2.cur++;render();return;}
-    V2.cur=8;render();
-    var s=V2.state;
-    var payload={firstName:s.firstName,lastName:s.lastName,email:s.email,phone:s.phone,holidayTypes:s.holidayTypes,destination:s.destination,ideas:s.ideas,travelDateStart:s.travelDateStart||null,travelDateEnd:s.travelDateEnd||null,nights:s.nights,adults:s.adults,children:s.children,infants:s.infants,childrenAges:s.childrenAges,rooms:s.rooms,roomTypes:s.roomTypes,accessibility:s.accessibility,accessibilityDetails:s.accessibilityDetails,budgetType:s.budgetType,budget:s.budget,flights:s.flights,preferences:s.preferences,occasions:s.occasions,mustHave:s.mustHave,avoid:s.avoid,anythingElse:s.anythingElse,contactMethod:s.contactMethod,bestTime:s.bestTime,referral:s.referral,referralName:s.referralName,agentId:V2.agent.id||agent||null,assignedAgent:V2.agent.name||"Direct Web Traffic",questionnaireVersion:V2.version,dynamic:s.dynamic,customAnswers:s.customAnswers,specialDetails:s.anythingElse?[s.anythingElse]:[]};
-    try{var r=await fetch("/api/new-lead",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});var d=await r.json();if(!r.ok||!d.success)throw new Error(d.message||"Unable to submit your request.");document.getElementById("pageContent").innerHTML='<div class="done-card"><div class="done-icon">✓</div><div class="done-title">Thank you, '+esc(s.firstName)+'.</div><div class="done-sub">Your holiday enquiry has been received. '+esc(V2.agent.brandName||V2.agent.name||"Travel-PA")+' will review your request and be in touch.</div></div>';document.getElementById("footer").style.display="none";}catch(e){V2.cur=7;render();alert(e.message);}}
-  async function start(){
-    var url=slug?"/api/public/form-config/slug/"+encodeURIComponent(slug):agent?"/api/public/form-config/"+encodeURIComponent(agent):null;
-    if(url){try{var r=await fetch(url),p=await r.json();if(p.success){V2.agent=p.agent||{};V2.custom=Array.isArray(p.questions)?p.questions:[];V2.core=p.coreQuestionnaire||V2.core;V2.version=Number(p.version)||2;}}catch(e){}}
-    render();
-  }
-  start();
-})();
-`;
   frame.addEventListener("load",function(){
-    try{
-      var doc=frame.contentDocument, s=doc.createElement("script");
-      s.text=code;doc.body.appendChild(s);
-      setTimeout(function(){frame.style.opacity="1";document.getElementById("loading").style.display="none";},80);
-    }catch(e){document.getElementById("loading").textContent="Unable to load questionnaire.";}
+    frame.style.opacity="1";
+    document.getElementById("loading").style.display="none";
   });
-})();
+
 </script>
 </body>
 </html>
