@@ -20,10 +20,17 @@
   --radius:14px;
 }
 body{font-family:'Cormorant Garamond',serif;background:var(--cream);color:var(--txt);height:100vh;overflow:hidden}
-.app{display:grid;grid-template-columns:340px 1fr;height:100vh;overflow:hidden}
+.app{display:grid;grid-template-columns:480px 1fr;height:100vh;overflow:hidden}
 
 /* SIDEBAR */
 .sidebar{position:relative;overflow:hidden;background:var(--navy);height:100vh}
+.sidebar::after{content:'';position:absolute;z-index:3;top:-3%;right:-48px;width:112px;height:106%;background:var(--white);border-left:3px solid var(--gold);border-radius:55% 0 0 55% / 50% 0 0 50%;pointer-events:none}
+.sb-brand{position:absolute;z-index:4;top:52px;left:52px;right:90px}
+.sb-brand img{width:265px;max-width:100%;height:auto;display:block;background:rgba(255,255,255,.94);border:3px solid var(--navy);border-radius:22px;padding:10px 16px;box-sizing:border-box}
+.sb-brand .sb-kicker{margin-top:18px;color:var(--gold);font-family:'Jost',sans-serif;font-size:18px;letter-spacing:.2px}
+.sb-brand .sb-title{margin-top:6px;color:var(--navy);font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:500}
+.sb-quote{position:absolute;z-index:4;left:0;bottom:48px;width:330px;padding:20px 28px;background:rgba(14,28,46,.84);color:white;font-family:'Cormorant Garamond',serif;font-size:22px;line-height:1.35;border-radius:0 18px 18px 0;box-sizing:border-box}
+.sb-quote span{color:var(--gold);font-size:42px;line-height:0;vertical-align:-12px;margin-right:6px}
 .sb-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top center;display:block;transition:opacity 0.7s ease}
 .sb-img.fade{opacity:0}
 
@@ -357,8 +364,14 @@ select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,0.12)
 <body>
 <div class="app">
 <aside class="sidebar">
-  <div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,rgba(14,28,46,0.25) 100%);z-index:1;pointer-events:none"></div>
+  <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.72) 0%,transparent 32%,rgba(14,28,46,.18) 100%);z-index:1;pointer-events:none"></div>
   <img class="sb-img" id="sbImg" src="" alt="travel destination"/>
+  <div class="sb-brand">
+    <img src="/assets/logo.png" alt="travel-pa.com"/>
+    <div class="sb-kicker">Luxury Travel Planning Consultation</div>
+    <div class="sb-title">Let's create your perfect journey</div>
+  </div>
+  <div class="sb-quote"><span>“</span>The world is waiting,<br/>let's create your story.<span>”</span></div>
 </aside>
 <div class="main">
   <div class="mob-banner" id="mobBanner">
@@ -374,7 +387,7 @@ select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,0.12)
       <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
       Private &amp; Secure
     </div>
-    <button class="btn-next" id="nextBtn" onclick="next()">Next
+    <button class="btn-next" id="nextBtn" onclick="next()">Continue
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
     </button>
   </div>
@@ -1357,7 +1370,7 @@ function render() {
 
   const nb = document.getElementById('nextBtn');
   if (nb) {
-    let label = 'Next';
+    let label = 'Continue';
     if (cur === 8) label = 'Submit';
     else if (cur === 1 && dest1Step === 'regions') label = 'Choose Destinations';
     nb.innerHTML = label + ' ' + IC.fwd;
